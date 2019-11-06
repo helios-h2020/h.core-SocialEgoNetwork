@@ -1,8 +1,10 @@
-package contextualegonetwork;
+package contextualegonetwork.nodes;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-class Person extends Node {
+import contextualegonetwork.Node;
+
+public class Person extends Node {
 
     /**
      * First name of the user
@@ -30,7 +32,7 @@ class Person extends Node {
     /**
      * Constructor method
      * @param username Username of the node
-     * @param identifier Numeric identifier of the node
+     * @param identifier Unique identifier of the node
      * @param firstName First name of the person
      * @param secondName Second name of the person
      * @param surname Surname of the person
@@ -38,7 +40,7 @@ class Person extends Node {
      * @throws NullPointerException if username, firstName, secondName or surName are null
      * @throws IllegalArgumentException if userName, firstName or surname are empty strings
      */
-    public Person(String username, int identifier, String firstName, String secondName, String surname, long birthDate) {
+    public Person(String username, String identifier, String firstName, String secondName, String surname, long birthDate) {
         super(username, identifier);
         if(firstName == null || secondName == null || surname == null) throw new NullPointerException();
         if(firstName.equals("") || surname.equals("") || username.equals("")) throw new IllegalArgumentException("First name, surname or username cannot be empty strings");

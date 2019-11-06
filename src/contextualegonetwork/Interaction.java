@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  * This class is thought to be extended in order to model more specific events occurring between two entities,
  * e.g. messages, video-calls, commands (sent by a human entity to a smart object),...
  */
-class Interaction {
+public class Interaction {
     /**
      * The UNIX timestamp corresponding to the start of the interaction
      */
@@ -37,7 +37,7 @@ class Interaction {
      * @throws IllegalArgumentException if timestamp or duration are less or equal than 0
      * @throws NullPointerException if type is null
      */
-    public Interaction(long timestamp, int duration, String type) {
+    Interaction(long timestamp, int duration, String type) {
         if(timestamp <= 0 || duration <= 0) throw new IllegalArgumentException();
         if(type == null) throw new NullPointerException();
         this.startTimestamp = timestamp;
@@ -65,5 +65,4 @@ class Interaction {
     public String getType() {
         return this.type;
     }
-
 }

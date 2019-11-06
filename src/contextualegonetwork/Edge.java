@@ -1,11 +1,13 @@
 package contextualegonetwork;
 
-import java.awt.*;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.voodoodyne.jackson.jsog.JSOGGenerator;
+
+import contextualegonetwork.Node;
 
 /**
  * This class implements an edge of the Social Graph. An edge, in a context, can link the ego of the Contextual Ego Network to one of the alters or two of the alters.
@@ -14,16 +16,11 @@ import com.voodoodyne.jackson.jsog.JSOGGenerator;
  * Moreover, the edge has a weight, which is its tie strenght, i.e. the number of interactions on the edge divided by the number of seconds passed since the creation date.
  */
 @JsonIdentityInfo(generator=JSOGGenerator.class)
-class Edge {
-
-    /**
-     * Numerical identifier of the edge
-     */
-    private int id;
+public class Edge {
     /**
      * UNIX timestamp of the creation time of the edge
      */
-    private long timeCreated;
+    private Timestamp timeCreated;
     /**
      * Source node
      */
@@ -32,6 +29,14 @@ class Edge {
      * Destination node
      */
     private Node dst;
+    /**
+     * The context of the edge
+     */
+    private Context context;
+    /**
+     * The list of interactions
+     */
+    private ArrayList<Interaction> interactions;
 
     /**
      * Constructor method
@@ -40,14 +45,14 @@ class Edge {
      * @param identifier Id of the edge
      * @throws NullPointerException if src or dst are null
      */
-    public Edge(Node src, Node dst, int identifier)
+    Edge(Node src, Node dst, Context context)
     {
-        if(src == null || dst == null) throw new NullPointerException();
-        Timestamp timeStamp = new Timestamp(System.currentTimeMillis());
-        this.timeCreated = timeStamp.getTime();
-        this.id = identifier;
+        if(src == null || dst == null) Utils.error(new NullPointerException());
+        this.timeCreated = new Timestamp(System.currentTimeMillis());
         this.src = src;
         this.dst = dst;
+        this.context = context;
+        interactions = new ArrayList<Interaction>();
     }
 
     /**
@@ -74,16 +79,16 @@ class Edge {
     }
 
     /**
-     * @return The identifier of the node
+     * @return The context
      */
-    public Integer getId() {
-        return this.id;
+    public Context getContext() {
+        return this.context;
     }
 
     /**
      * @return The timestamp of the edge
      */
-    public long getCreationTime()
+    public Timestamp getCreationTime()
     {
         return this.timeCreated;
     }
@@ -95,11 +100,10 @@ class Edge {
      * @param type The type of the interaction
      */
     public void addInteraction(long timestamp, int duration, String type) {
-        if(type == null) throw new NullPointerException();
-        if(timestamp < 0 || duration < 0) throw new IllegalArgumentException("Timestamp and duration cannot be negative");
-        if(type.equals("")) throw new IllegalArgumentException("Type cannot be empty");
-        src.addEdgeInteraction(id, timestamp, duration, type);
-        dst.addEdgeInteraction(id, timestamp, duration, type);
+        if(type == null) Utils.error(new NullPointerException());
+        if(timestamp < 0 || duration < 0) Utils.error(new IllegalArgumentException("Timestamp and duration cannot be negative"));
+        if(type.equals("")) Utils.error(new IllegalArgumentException("Type cannot be empty"));
+        interactions.add(new Interaction(timestamp, duration, type));
     }
 
     /**
@@ -107,22 +111,11 @@ class Edge {
      *          (the number of interactions that have taken place on this edge divided by the life span of the edge)
      */
     public double getTieStrength() {
-        Timestamp t = new Timestamp(System.currentTimeMillis());
-        long now = t.getTime();
-        boolean divZ = false;
-        double tieStrength = 0;
-        //To prevent the application from computing the timestamp right after the edge has been created (denominator would be 0)
-        while (!divZ) {
-            try{
-                tieStrength = (double) (src.getInteractions(id).size()) / (double) (now - this.timeCreated);
-                //System.out.println(tieStrength);
-            }
-            catch(ArithmeticException e) {
-
-            }
-            divZ = true;
-        }
-        return tieStrength;
+        long now = (new Timestamp(System.currentTimeMillis())).getTime();
+        double elapsed = (double) (now - this.timeCreated.getTime());
+        if(elapsed==0)
+        	return 0;
+        return (double) (this.interactions.size()) / (double) (now - this.timeCreated.getTime());
     }
     
 }

@@ -1,8 +1,11 @@
-package contextualegonetwork;
+package contextualegonetwork.nodes;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-class SmartObject extends Node {
+import contextualegonetwork.Node;
+import contextualegonetwork.Utils;
+
+public class SmartObject extends Node {
 
     /**
      * The MAC address of the device
@@ -27,21 +30,21 @@ class SmartObject extends Node {
     /**
      * Constructor method
      * @param username Username of the node
-     * @param id Numeric identifier of the node
+     * @param id Unique identifier of the node
      * @param macAddr MAC Address of the devide
      * @param man Manufacturer of the device
      * @param own Name of the owner of the device
      * @throws NullPointerException if username, macAddr, man or own are null
      * @throws IllegalArgumentException if the length of macAddr is different than 12, or if man or own are empty strings
      */
-    public SmartObject(String username, long id, String macAddr, String man, String own) {
+    public SmartObject(String username, String id, String MACAddress, String manufacturer, String owner) {
         super(username, id);
-        if(username == null || macAddr == null || man == null || own == null) throw new NullPointerException();
-        if(macAddr.length() != 12) throw new IllegalArgumentException("The MAC Address must be made of 12 digits");
-        if(man.equals("") || own.equals("")) throw new IllegalArgumentException("Owner and manufacturer cannot be empty strings");
-        this.MACAddress = macAddr;
-        this.manufacturer = man;
-        this.owner = own;
+        if(username == null || MACAddress == null || manufacturer == null || owner == null) throw new NullPointerException();
+        if(MACAddress.length() != 12) Utils.error(new IllegalArgumentException("The MAC Address must be made of 12 digits"));
+        if(manufacturer.equals("") || owner.equals("")) Utils.error(new IllegalArgumentException("Owner and manufacturer cannot be empty strings"));
+        this.MACAddress = MACAddress;
+        this.manufacturer = manufacturer;
+        this.owner = owner;
     }
 
     /**
@@ -82,12 +85,13 @@ class SmartObject extends Node {
     /**
      * Sets the MAC address of the smart object
      * @param macAddress The MAC address to be set
+     * @throws Exception 
      * @throws NullPointerException if macAddress is null
      * @throws IllegalArgumentException if the length of macAddress is different than 12
      */
-    public void setMACAddress(String macAddress) {
-        if(macAddress == null) throw new NullPointerException();
-        if(macAddress.length() != 12) throw new IllegalArgumentException("The MAC Address must be made of 12 digits");
+    public void setMACAddress(String macAddress) throws Exception {
+        if(macAddress == null) Utils.error(new NullPointerException());
+        if(macAddress.length() != 12) Utils.error(new IllegalArgumentException("The MAC Address must be made of 12 digits"));
         this.MACAddress = macAddress;
     }
 }

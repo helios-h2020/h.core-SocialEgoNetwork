@@ -11,7 +11,7 @@ package contextualegonetwork;
  */
 public class NodeException extends RuntimeException {
 
-    /**
+	/**
      * Creates a new instance of <code>NodeException</code> without detail
      * message.
      */
