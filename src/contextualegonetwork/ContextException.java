@@ -14,6 +14,11 @@ import java.util.NoSuchElementException;
 public class ContextException extends NoSuchElementException {
 
     /**
+	 * Automatically generated id for serialization
+	 */
+	private static final long serialVersionUID = 7727355205674669018L;
+
+	/**
      * Creates a new instance of <code>ContextException</code> without detail
      * message.
      */

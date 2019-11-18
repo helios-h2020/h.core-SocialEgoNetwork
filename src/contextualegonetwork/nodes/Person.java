@@ -1,5 +1,7 @@
 package contextualegonetwork.nodes;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import contextualegonetwork.Node;
@@ -19,7 +21,7 @@ public class Person extends Node {
      */
     private String surname;
     /**
-     * Birth date of the person (expressed as a timestamp)
+     * Birth date of the person expressed as a Unix timestamp, in milliseconds
      */
     private long birthDate;
 
@@ -72,5 +74,12 @@ public class Person extends Node {
      */
     public String getSurname() {
         return this.surname;
+    }
+    
+    /**
+     * @return The birthdate of the user
+     */
+    public Date getBirthday() {
+    	return new Date(birthDate);
     }
 }

@@ -23,7 +23,7 @@ import contextualegonetwork.contextData.Location;
  * characteristics. The context can be in three possible states: it can be the current online context, it can be one
  * of the active contexts (saved in local memory), or it can be non-active (and thus serialized and stored on disk).
  */
-class Context
+public class Context
 {
     /**
      * The contextual ego network the context is part of
@@ -276,7 +276,7 @@ class Context
     {
         if(src == null || dst == null) return Utils.error(new NullPointerException(), null);
         if(src==dst) return Utils.error(new IllegalArgumentException("Src and dest cannot be the same node"), null);
-        if(!nodes.contains(src) && !nodes.contains(dst)) return Utils.error(new IllegalArgumentException("Edfe node not in context"), null);
+        if(!nodes.contains(src) && !nodes.contains(dst)) return Utils.error(new IllegalArgumentException("Either source or destination nodes are not in context"), null);
         for(Edge edge : edges)
         	if(edge.getSrc()==src && edge.getDst()==dst)
         		return Utils.error(new IllegalArgumentException("Edge already exists in context"), edge);

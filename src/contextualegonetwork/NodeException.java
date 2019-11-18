@@ -12,6 +12,11 @@ package contextualegonetwork;
 public class NodeException extends RuntimeException {
 
 	/**
+	 * Automatically generated id for serialization
+	 */
+	private static final long serialVersionUID = 705369681869606285L;
+
+	/**
      * Creates a new instance of <code>NodeException</code> without detail
      * message.
      */
