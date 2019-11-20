@@ -5,17 +5,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.voodoodyne.jackson.jsog.JSOGGenerator;
-
 import contextualegonetwork.Edge;
 import contextualegonetwork.Node;
 import contextualegonetwork.contextData.ContextData;
-import contextualegonetwork.contextData.Location;
-
-@JsonIdentityInfo(generator=JSOGGenerator.class)
 
 /**
  * This class implements a context of the Contextual Ego Network. The context stores all the information related
@@ -23,16 +15,12 @@ import contextualegonetwork.contextData.Location;
  * characteristics. The context can be in three possible states: it can be the current online context, it can be one
  * of the active contexts (saved in local memory), or it can be non-active (and thus serialized and stored on disk).
  */
-public class Context
+public final class Context
 {
     /**
      * The contextual ego network the context is part of
      */
     private ContextualEgoNetwork contextualEgoNetwork;
-    /**
-     * Location
-     */
-    private Location location;
     /**
      * Total number of hours the context has been active
      */
@@ -48,12 +36,10 @@ public class Context
     /**
      * Day of the week the context has been loaded
      */
-    @JsonIgnore
     private int tempDayOfWeek;
     /**
      * Hour of the day the context has been loaded
      */
-    @JsonIgnore
     private int tempHour;
     /**
      * Object data carried by the context
@@ -70,12 +56,12 @@ public class Context
      * Constructor method
      * @param name the name of the context
      * @param contextualEgoNetwork the ContextualEgoNetwork within which the context resides
-     * @throws NullPointerException if name or contextualEgoNetwork are null
+     * @throws NullPointerException if name, contextualEgoNetwork or data are null
      * @throws IllegalArgumentException if name is an empty string
      */
     Context(ContextualEgoNetwork contextualEgoNetwork, ContextData data)
     {
-        if(data == null || contextualEgoNetwork == null) Utils.error(new NullPointerException());
+        if(data == null || contextualEgoNetwork == null || data==null) Utils.error(new NullPointerException());
         this.contextualEgoNetwork = contextualEgoNetwork;
         this.data = data;
         nodes = new ArrayList<Node>();
@@ -83,37 +69,89 @@ public class Context
         phantomEdges = new ArrayList<Edge>();
         nodes.add(contextualEgoNetwork.getEgo());
         timeCounter = new long[7][24];
+        registerTimeOfLoad();
+        contextualEgoNetwork.getSerializer().registerId(this);
     }
-
+    
     /**
-     *
-     * @return The object data attached to the context
+     * If the context is loaded, it is serialized to a file
+     * @return Whether the context was saved.
      */
-    @JsonIgnore
-    public ContextData getDataObject()
-    {
-        return data;
+    public boolean save() {
+    	if(nodes==null) 
+    		return false;
+    	for(Node node : nodes) 
+        	contextualEgoNetwork.getSerializer().save(node);
+    	return contextualEgoNetwork.getSerializer().save(this);
+    }
+    
+    /**
+     * Removes any local files used to store the context (but retains the context in memory)
+     * These files will be re-created once the context is saved again.
+     */
+    public void removeFromStorage() {
+    	contextualEgoNetwork.getSerializer().removeFromStorage(this);
+    }
+    
+    /**
+     * Saves the context to a fileRemoves stored context and removes it from memory 
+     * @see #save()
+     */
+    public void cleanup() {
+    	save();
+    	contextualEgoNetwork.getSerializer().unregister(this);
+    	registerTimeOfUnload();
+    	nodes = null;
+    	edges = null;
+    	phantomEdges = null;
+    	timeCounter = null;
+    }
+    
+    /**
+     * Loads the context from its default given file
+     */
+    public void load() {
+    	contextualEgoNetwork.getSerializer().reload(this, 1);
+    	registerTimeOfLoad();
+    }
+    
+    /**
+     * Is used to assert that the context is loaded, producing an error if it's not
+     * @return Whether the context is loaded
+     * @see #isLoaded()
+     */
+    protected boolean assertLoaded() {
+    	if(!isLoaded())
+    		load();//Utils.error("Context needs be loaded before use", false);
+    	return true;
+    }
+    
+    /**
+     * @return Whether the context has been loaded in memory
+     */
+    public boolean isLoaded() { 
+    	return nodes!=null;
     }
 
     /**
      * Used in deserialization
      */
-    @JsonCreator
-    public Context()
+    protected Context()
     {}
 
     /**
-     * @return The string data attached to the context
+     * @return The data attached to the context
      */
     public ContextData getData()
     {
+    	assertLoaded();
         return data;
     }
 
     /**
      * Saves the activation hour of the context
      */
-    public void saveTimeOfLoad()
+    protected void registerTimeOfLoad()
     {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
@@ -124,7 +162,7 @@ public class Context
     /**
      * Updates the recurrencies array with the days of the week and hours of the days the context has been active.
      */
-    public void saveTimeOfUnload()
+    protected void registerTimeOfUnload()
     {
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
@@ -178,7 +216,6 @@ public class Context
      * Extracts the percentage of days of the week and hours of the day in which the context has been active
      * @return An array containing the weekly recurrencies rates
      */
-    @JsonIgnore
     public float[][] getRecurrencyArray()
     {
         if(totalHourActive==0)
@@ -249,15 +286,7 @@ public class Context
     	else
     		return new ArrayList<Edge>(phantomEdges);
     }
-
-    /**
-     * @return The Location of the context
-     */
-    public Location getLocation() {
-        return this.location;
-    }
     
-    @JsonIgnore
     public Edge addEdge(Node src, Node dst)
     {
        return addEdge(src, dst, true);
@@ -271,12 +300,11 @@ public class Context
      * @throws NullPointerException If src or dst are null
      * @throws IllegalArgumentException If src and dst are the same node or if they don't belong to the context
      */
-    @JsonIgnore
     public Edge addEdge(Node src, Node dst, boolean isReal)
     {
         if(src == null || dst == null) return Utils.error(new NullPointerException(), null);
         if(src==dst) return Utils.error(new IllegalArgumentException("Src and dest cannot be the same node"), null);
-        if(!nodes.contains(src) && !nodes.contains(dst)) return Utils.error(new IllegalArgumentException("Either source or destination nodes are not in context"), null);
+        if(!nodes.contains(src) || !nodes.contains(dst)) return Utils.error(new IllegalArgumentException("Either source or destination nodes are not in context"), null);
         for(Edge edge : edges)
         	if(edge.getSrc()==src && edge.getDst()==dst)
         		return Utils.error(new IllegalArgumentException("Edge already exists in context"), edge);
@@ -297,7 +325,6 @@ public class Context
      * @throws NullPointerException If src and dest are null
      * @throws IllegalArgumentException If src and dest are the same node
      */
-    @JsonIgnore
     public Edge getEdge(Node src, Node dst) {
         if(src == null || dst == null) return Utils.error(new NullPointerException(), null);
         if(src==dst) return Utils.error(new IllegalArgumentException("Src and dest cannot be the same node"), null);
@@ -317,7 +344,6 @@ public class Context
      * @throws NullPointerException If src and dst are null
      * @throws IllegalArgumentException If src and dst are the same node
      */
-    @JsonIgnore
     public Edge removeEdge(Node src, Node dst)
     {
     	Edge edge = getEdge(src, dst);
@@ -337,6 +363,7 @@ public class Context
         if(node == null) Utils.error(new NullPointerException());
         if(nodes.contains(node)) Utils.error("Node already in context");
         nodes.add(node);
+        contextualEgoNetwork.getSerializer().registerId(node);
     }
 
     /**

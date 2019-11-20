@@ -1,11 +1,11 @@
-package contextualegonetwork.nodes;
+package contextualegonetwork.nodeData;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import contextualegonetwork.Node;
 import contextualegonetwork.Utils;
 
-public class SmartObject extends Node {
+public class SmartObject extends NodeData {
 
     /**
      * The MAC address of the device
@@ -20,10 +20,6 @@ public class SmartObject extends Node {
      */
     private String owner;
 
-    /**
-     * Used in deserialization
-     */
-    @JsonCreator
     public SmartObject()
     {}
 
@@ -38,7 +34,7 @@ public class SmartObject extends Node {
      * @throws IllegalArgumentException if the length of macAddr is different than 12, or if man or own are empty strings
      */
     public SmartObject(String username, String id, String MACAddress, String manufacturer, String owner) {
-        super(username, id);
+    	super("Smart Object");
         if(username == null || MACAddress == null || manufacturer == null || owner == null) throw new NullPointerException();
         if(MACAddress.length() != 12) Utils.error(new IllegalArgumentException("The MAC Address must be made of 12 digits"));
         if(manufacturer.equals("") || owner.equals("")) Utils.error(new IllegalArgumentException("Owner and manufacturer cannot be empty strings"));
@@ -46,7 +42,7 @@ public class SmartObject extends Node {
         this.manufacturer = manufacturer;
         this.owner = owner;
     }
-
+    
     /**
      *
      * @return The MAC address of the smart object

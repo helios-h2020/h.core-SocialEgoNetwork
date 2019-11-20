@@ -8,7 +8,10 @@ public class DefaultContextData extends ContextData {
 	public DefaultContextData(String name, Location location) {
 		this.name = name;
 		this.location = location;
-		this.status=ContextStates.NOTACTIVE;
+		this.status = ContextStates.NOTACTIVE;
+	}
+	
+	public DefaultContextData() {
 	}
 	
 	public String getName() {

@@ -11,7 +11,7 @@ public class Utils {
 	 * @param exception the given Throwable
 	 * @throws ExceptionType
 	 */
-	public static <ExceptionType extends Throwable> void error(ExceptionType exception) throws ExceptionType {
+	public synchronized static <ExceptionType extends Throwable> void error(ExceptionType exception) throws ExceptionType {
 		if(development)
 			throw exception;
 		logger.warning(exception.getLocalizedMessage());
@@ -23,7 +23,7 @@ public class Utils {
 	 * @param message the message of the raised Exception
 	 * @throws RuntimeException
 	 */
-	public static void error(String message) throws RuntimeException {
+	public synchronized static void error(String message) throws RuntimeException {
 		error(new RuntimeException(message));
 	}
 	
@@ -35,7 +35,7 @@ public class Utils {
 	 * @return the given defaultValue
 	 * @throws ExceptionType
 	 */
-	public static <ExceptionType extends Throwable, ValueType> ValueType error(ExceptionType exception, ValueType defaultValue) throws ExceptionType {
+	public synchronized static <ExceptionType extends Throwable, ValueType> ValueType error(ExceptionType exception, ValueType defaultValue) throws ExceptionType {
 		error(exception);
 		return defaultValue;
 	}
@@ -48,7 +48,7 @@ public class Utils {
 	 * @return the given defaultValue
 	 * @throws RuntimeException
 	 */
-	public static <ValueType> ValueType error(String message, ValueType defaultValue) throws RuntimeException {
+	public synchronized static <ValueType> ValueType error(String message, ValueType defaultValue) throws RuntimeException {
 		error(message);
 		return defaultValue;
 	}

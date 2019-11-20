@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  * This class is thought to be extended in order to model more specific events occurring between two entities,
  * e.g. messages, video-calls, commands (sent by a human entity to a smart object),...
  */
-public class Interaction {
+public final class Interaction {
     /**
      * The UNIX timestamp corresponding to the start of the interaction
      */

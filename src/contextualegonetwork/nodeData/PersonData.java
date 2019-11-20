@@ -1,12 +1,8 @@
-package contextualegonetwork.nodes;
+package contextualegonetwork.nodeData;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
-import contextualegonetwork.Node;
-
-public class Person extends Node {
+public class PersonData extends NodeData {
 
     /**
      * First name of the user
@@ -21,20 +17,14 @@ public class Person extends Node {
      */
     private String surname;
     /**
-     * Birth date of the person expressed as a Unix timestamp, in milliseconds
+     * Birth date of the person
      */
-    private long birthDate;
+    private String birthDate;
 
     /**
-     * Used in deserialization
-     */
-    @JsonCreator
-    public Person()
-    {}
-    /**
      * Constructor method
-     * @param username Username of the node
      * @param identifier Unique identifier of the node
+     * @param username Username of the node
      * @param firstName First name of the person
      * @param secondName Second name of the person
      * @param surname Surname of the person
@@ -42,16 +32,19 @@ public class Person extends Node {
      * @throws NullPointerException if username, firstName, secondName or surName are null
      * @throws IllegalArgumentException if userName, firstName or surname are empty strings
      */
-    public Person(String username, String identifier, String firstName, String secondName, String surname, long birthDate) {
-        super(username, identifier);
+    public PersonData(String firstName, String secondName, String surname, String birthDate) {
+    	super("Person");
         if(firstName == null || secondName == null || surname == null) throw new NullPointerException();
-        if(firstName.equals("") || surname.equals("") || username.equals("")) throw new IllegalArgumentException("First name, surname or username cannot be empty strings");
+        if(firstName.equals("") || surname.equals("")) throw new IllegalArgumentException("First name, surname or username cannot be empty strings");
         this.firstName = firstName;
         this.secondName = secondName;
         this.surname = surname;
         this.birthDate = birthDate;
     }
-
+    
+    public PersonData() {
+    }
+    
     /**
      *
      * @return The first name of the user

@@ -16,7 +16,7 @@ import contextualegonetwork.Node;
  * Moreover, the edge has a weight, which is its tie strenght, i.e. the number of interactions on the edge divided by the number of seconds passed since the creation date.
  */
 @JsonIdentityInfo(generator=JSOGGenerator.class)
-public class Edge {
+public final class Edge {
     /**
      * UNIX timestamp of the creation time of the edge
      */

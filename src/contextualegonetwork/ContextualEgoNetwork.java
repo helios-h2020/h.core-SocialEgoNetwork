@@ -1,10 +1,9 @@
 package contextualegonetwork;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import contextualegonetwork.contextData.ContextData;
-import contextualegonetwork.contextData.ContextStates;
-import contextualegonetwork.contextData.DefaultContextData;
 
 /**
  * This class implements a Contextual Ego Network, that is the conceptual model of our Heterogeneous Social Graph.
@@ -13,15 +12,61 @@ import contextualegonetwork.contextData.DefaultContextData;
  * in memory) and some inactive ones (that are serialized in dedicated files).
  */
 public class ContextualEgoNetwork {
-    private final Node ego;
+    private Node ego;
     private ArrayList<Context> contexts;
     private Context currentContext;
+    public String testattr = "testattr";
     
     public ContextualEgoNetwork(Node ego) {
         if(ego == null) Utils.error(new NullPointerException());
         this.ego = ego;
         contexts = new ArrayList<Context>();
+        getSerializer().registerSpecialId(this, "CEN");
+        getSerializer().registerId(ego);
     }
+    
+    private ContextualEgoNetwork(String savePath) {
+    }
+    
+    public static ContextualEgoNetwork create(String savePath) {
+    	ContextualEgoNetwork contextualEgoNetwork = new ContextualEgoNetwork("");
+    	Serializer serializer = Serializer.getSerializer(savePath);
+    	serializer.registerSpecialId(contextualEgoNetwork, "CEN");
+    	serializer.reload(contextualEgoNetwork, 1);
+    	return contextualEgoNetwork;
+    }
+    
+    /**
+     * @return The path folder in which the ego network is saved
+     */
+    public String getPath() {
+    	return ego.getId()+File.separator;
+    }
+    
+    /**
+     * @return The {@link Serializer} object used to save and load data in the
+     * folder determined by {@link #getPath()}
+     */
+    Serializer getSerializer() {
+    	return Serializer.getSerializer(getPath());
+    }
+    
+    /**
+     * Makes the {@link #getSerializer()} save the contextual ego network. This
+     * includes all explicitly serializeable objects, namely the contexts and nodes.
+     */
+	public void save() {
+		Serializer serializer = getSerializer();
+		serializer.saveAllRegistered();
+	}
+	
+	/**
+	 * Applies {@link Context#cleanup()} on all contexts
+	 */
+	public void cleanup() {
+		for(Context context : contexts)
+			context.cleanup();
+	}
     
     /**
      * The default method to create a new context in this ContextualEgoNetwork.
@@ -35,12 +80,24 @@ public class ContextualEgoNetwork {
     }
     
     /**
+     * Removes a given context from the ContextualEgoNetwork's contexts.
+     * @param context
+     */
+    public void removeContext(Context context) {
+    	if(context==null) Utils.error(new NullPointerException());
+    	if(!contexts.contains(context)) Utils.error("Context not found");
+    	contexts.remove(context);
+    	context.removeFromStorage();
+    }
+    
+    /**
      * Method to set the (current) contexts
      * @param contexts an ArrayList<Context> containing the (current) contexts
      */
     public void setContexts(ArrayList<Context> contexts){
     	if(contexts==null) Utils.error(new NullPointerException("Cannot pass null as the set of (active) contexts"));
-    	this.contexts=contexts;
+    	Utils.error("Avoid explicit context array allocation");
+    	this.contexts = contexts;
     }
     
     /**
@@ -55,8 +112,9 @@ public class ContextualEgoNetwork {
      * Method to set a context in state Current.
      * @param context the context to be set as active, or null if no context should be active at the present time.
      */
-    public void setContextCurrent(Context context) {
-    	this.currentContext=context;
+    public void setCurrent(Context context) {
+        if(context==null) Utils.error(new NullPointerException());
+    	this.currentContext = context;
     }
     
     /**
@@ -65,15 +123,6 @@ public class ContextualEgoNetwork {
      */
     public Context getCurrentContext() {
     	return this.currentContext;
-    }
-    
-    /**
-     * Method to change the state of a context. For setting a context to the state current see {@link ContextualEgoNetwork#setContextCurrent(Context)}
-     * @param context the context whose state is changed and the new state of the context.
-     * @param state the new state of the context.
-     */
-    public void setContextState(Context context, ContextStates state) {
-    	((DefaultContextData)context.getDataObject()).status=state;
     }
     
     /**
