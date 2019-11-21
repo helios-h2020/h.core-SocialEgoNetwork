@@ -20,7 +20,7 @@ public final class Context
     /**
      * The contextual ego network the context is part of
      */
-    private ContextualEgoNetwork contextualEgoNetwork;
+    ContextualEgoNetwork contextualEgoNetwork;
     /**
      * Total number of hours the context has been active
      */
@@ -55,7 +55,7 @@ public final class Context
     /**
      * Constructor method
      * @param name the name of the context
-     * @param contextualEgoNetwork the ContextualEgoNetwork within which the context resides
+     * @param contextualEgoNetwork the ContextualEgoNetwork in which the context resides
      * @throws NullPointerException if name, contextualEgoNetwork or data are null
      * @throws IllegalArgumentException if name is an empty string
      */
@@ -71,6 +71,13 @@ public final class Context
         timeCounter = new long[7][24];
         registerTimeOfLoad();
         contextualEgoNetwork.getSerializer().registerId(this);
+    }
+    
+    /**
+     * @return The ContextualEgoNetwork in which the context resides
+     */
+    public ContextualEgoNetwork getContextualEgoNetwork() {
+    	return contextualEgoNetwork;
     }
     
     /**
@@ -94,7 +101,8 @@ public final class Context
     }
     
     /**
-     * Saves the context to a fileRemoves stored context and removes it from memory 
+     * Saves the context to a file and removes it from memory and the dynamic serializer
+     * (so that universal save does not save it anymore)
      * @see #save()
      */
     public void cleanup() {
@@ -111,7 +119,7 @@ public final class Context
      * Loads the context from its default given file
      */
     public void load() {
-    	contextualEgoNetwork.getSerializer().reload(this, 1);
+    	contextualEgoNetwork.getSerializer().reload(this, 1);//loads all of its nodes
     	registerTimeOfLoad();
     }
     
@@ -233,11 +241,12 @@ public final class Context
     }
 
     /**
-     * @return A shallow copy of the recurrencies array
+     * @return A mutable copy of the recurrencies array
      */
     public long[][] getTimeCounter()
     {
-        return timeCounter.clone();
+    	assertLoaded();
+        return timeCounter;
     }
 
     /**
@@ -259,6 +268,7 @@ public final class Context
      */
     public long getTotalHourActive()
     {
+    	assertLoaded();
         return totalHourActive;
     }
 
@@ -266,6 +276,7 @@ public final class Context
      * @return A shallow copy of the context's node list
      */
     public ArrayList<Node> getNodes() {
+    	assertLoaded();
     	return new ArrayList<Node>(nodes);
     }
     
@@ -281,15 +292,15 @@ public final class Context
      * @return A shallow copy of the context's edge list
      */
     public ArrayList<Edge> getEdges(boolean real) {
+    	assertLoaded();
     	if(real)
     		return new ArrayList<Edge>(edges);
     	else
     		return new ArrayList<Edge>(phantomEdges);
     }
     
-    public Edge addEdge(Node src, Node dst)
-    {
-       return addEdge(src, dst, true);
+    public Edge addEdge(Node src, Node dst) {
+    	return addEdge(src, dst, true);
     }
 
     /**
@@ -300,8 +311,8 @@ public final class Context
      * @throws NullPointerException If src or dst are null
      * @throws IllegalArgumentException If src and dst are the same node or if they don't belong to the context
      */
-    public Edge addEdge(Node src, Node dst, boolean isReal)
-    {
+    public Edge addEdge(Node src, Node dst, boolean isReal)  {
+    	assertLoaded();
         if(src == null || dst == null) return Utils.error(new NullPointerException(), null);
         if(src==dst) return Utils.error(new IllegalArgumentException("Src and dest cannot be the same node"), null);
         if(!nodes.contains(src) || !nodes.contains(dst)) return Utils.error(new IllegalArgumentException("Either source or destination nodes are not in context"), null);
@@ -326,6 +337,7 @@ public final class Context
      * @throws IllegalArgumentException If src and dest are the same node
      */
     public Edge getEdge(Node src, Node dst) {
+    	assertLoaded();
         if(src == null || dst == null) return Utils.error(new NullPointerException(), null);
         if(src==dst) return Utils.error(new IllegalArgumentException("Src and dest cannot be the same node"), null);
     	for(Edge edge : edges)
@@ -344,8 +356,8 @@ public final class Context
      * @throws NullPointerException If src and dst are null
      * @throws IllegalArgumentException If src and dst are the same node
      */
-    public Edge removeEdge(Node src, Node dst)
-    {
+    public Edge removeEdge(Node src, Node dst) {
+    	assertLoaded();
     	Edge edge = getEdge(src, dst);
     	edges.remove(edge);
     	return edge;
@@ -358,8 +370,8 @@ public final class Context
      * @param newNode The new node to be added
      * @throws NullPointerException if newNode is null
      */
-    public void addNode(Node node)
-    {
+    public void addNode(Node node) {
+    	assertLoaded();
         if(node == null) Utils.error(new NullPointerException());
         if(nodes.contains(node)) Utils.error("Node already in context");
         nodes.add(node);
@@ -373,6 +385,7 @@ public final class Context
      * @throws IllegalArgumentException If the node is the ego of not part of the context
      */
     public void removeNode(Node node) {
+    	assertLoaded();
         if(node == null) Utils.error(new NullPointerException());
         if(node == contextualEgoNetwork.getEgo()) Utils.error(new IllegalArgumentException());
         if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
@@ -388,8 +401,8 @@ public final class Context
      * @throws NullPointerException If the node is null
      * @throws IllegalArgumentException If the node is not in the context
      */
-    public Stream<Edge> getInEdges(Node node)
-    {
+    public Stream<Edge> getInEdges(Node node) {
+    	assertLoaded();
         if(node == null) throw new NullPointerException();
         if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
         return edges.stream().filter(edge -> edge.getDst()==node);
@@ -402,8 +415,8 @@ public final class Context
      * @throws NullPointerException If the node is null
      * @throws IllegalArgumentException If the node is not in the context
      */
-    public Stream<Edge> getOutEdges(Node node)
-    {
+    public Stream<Edge> getOutEdges(Node node) {
+    	assertLoaded();
         if(node == null) throw new NullPointerException();
         if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
         return edges.stream().filter(edge -> edge.getSrc()==node);
@@ -414,6 +427,7 @@ public final class Context
      * @param threshold The value that is compared to the tie strength
      */
     public void removeWeakEdges(double threshold) {
+    	assertLoaded();
     	edges.removeIf(edge -> edge.getTieStrength()<threshold);
     }
 }

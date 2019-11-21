@@ -1,7 +1,5 @@
 package contextualegonetwork;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 /**
  * This class implements a generic interaction between two entities in a context. We assume that interactions
  * are not atomic, but rather events with a start time (modelled with a UNIX timestamp) and a duration, expressed in seconds.
@@ -10,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
  */
 public final class Interaction {
     /**
-     * The UNIX timestamp corresponding to the start of the interaction
+     * When the interaction started
      */
     private long startTimestamp;
     /**
@@ -20,13 +18,12 @@ public final class Interaction {
     /**
      * The interaction type
      */
-    private String type; //TO DO: trasformare in enum
+    private String type;
 
     /**
      * Used in deserialization
      */
-    @JsonCreator
-    public Interaction()
+    protected Interaction()
     {}
 
     /**
@@ -37,7 +34,7 @@ public final class Interaction {
      * @throws IllegalArgumentException if timestamp or duration are less or equal than 0
      * @throws NullPointerException if type is null
      */
-    Interaction(long timestamp, int duration, String type) {
+    protected Interaction(long timestamp, int duration, String type) {
         if(timestamp <= 0 || duration <= 0) throw new IllegalArgumentException();
         if(type == null) throw new NullPointerException();
         this.startTimestamp = timestamp;
@@ -48,8 +45,15 @@ public final class Interaction {
     /**
      * @return The timestamp that corresponds to the start of the interaction
      */
-    public long getTimestamp() {
+    public long getStartTime() {
         return this.startTimestamp;
+    }
+    
+    /**
+     * @return The timestamp that corresponds to the start of the interaction
+     */
+    public long getEndTime() {
+        return this.startTimestamp + this.duration;
     }
 
     /**

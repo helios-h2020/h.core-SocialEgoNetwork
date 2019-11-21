@@ -17,6 +17,11 @@ public class Utils {
 		logger.warning(exception.getLocalizedMessage());
 	}
 
+	public static void log(String message) {
+		if(development)
+			logger.info(message);
+	}
+
 	/**
 	 * If development is enabled, throws an Exception with the given
 	 * message, otherwise logs that message.
@@ -53,4 +58,7 @@ public class Utils {
 		return defaultValue;
 	}
 	
+	public static long getCurrentTimestamp() {
+		return System.currentTimeMillis();
+	}
 }

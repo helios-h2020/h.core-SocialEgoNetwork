@@ -21,18 +21,31 @@ public class ContextualEgoNetwork {
         if(ego == null) Utils.error(new NullPointerException());
         this.ego = ego;
         contexts = new ArrayList<Context>();
+        getSerializer().removePreviousSaved();
         getSerializer().registerSpecialId(this, "CEN");
         getSerializer().registerId(ego);
     }
     
-    private ContextualEgoNetwork(String savePath) {
+    private ContextualEgoNetwork() {
     }
     
-    public static ContextualEgoNetwork create(String savePath) {
-    	ContextualEgoNetwork contextualEgoNetwork = new ContextualEgoNetwork("");
-    	Serializer serializer = Serializer.getSerializer(savePath);
+    /**
+     * Creates an empty contextual ego network that corresponds to the ego with the given name (effectively determines
+     * the stored path) and uses a deserializer to parse it and its ego into memory.
+     * This requires that a ContextualEgoNetwork had been created through its constructor and saved in the past.
+     * @param egoName
+     * @return the created ego network
+     */
+    public static ContextualEgoNetwork load(String egoName) {
+    	String path = egoName + File.separator;
+    	ContextualEgoNetwork contextualEgoNetwork = new ContextualEgoNetwork();
+    	Serializer serializer = Serializer.getSerializer(path);
     	serializer.registerSpecialId(contextualEgoNetwork, "CEN");
-    	serializer.reload(contextualEgoNetwork, 1);
+    	serializer.reload(contextualEgoNetwork);
+    	serializer.reload(contextualEgoNetwork.ego);
+    	// make contexts know where to look for the serializer
+    	for(Context context : contextualEgoNetwork.contexts)
+    		context.contextualEgoNetwork = contextualEgoNetwork;
     	return contextualEgoNetwork;
     }
     

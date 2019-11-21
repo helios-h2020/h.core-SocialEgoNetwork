@@ -1,11 +1,6 @@
 package contextualegonetwork;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.voodoodyne.jackson.jsog.JSOGGenerator;
 
 import contextualegonetwork.Node;
 
@@ -15,12 +10,11 @@ import contextualegonetwork.Node;
  * interactions that take place between the source and the destination nodes in the life span of the edge (this information is stored on the source and destination nodes).
  * Moreover, the edge has a weight, which is its tie strenght, i.e. the number of interactions on the edge divided by the number of seconds passed since the creation date.
  */
-@JsonIdentityInfo(generator=JSOGGenerator.class)
 public final class Edge {
     /**
      * UNIX timestamp of the creation time of the edge
      */
-    private Timestamp timeCreated;
+    private long timeCreated;
     /**
      * Source node
      */
@@ -48,7 +42,7 @@ public final class Edge {
     Edge(Node src, Node dst, Context context)
     {
         if(src == null || dst == null) Utils.error(new NullPointerException());
-        this.timeCreated = new Timestamp(System.currentTimeMillis());
+        this.timeCreated = Utils.getCurrentTimestamp();
         this.src = src;
         this.dst = dst;
         this.context = context;
@@ -58,7 +52,6 @@ public final class Edge {
     /**
      * Used in deserialization
      */
-    @JsonCreator
     public Edge()
     {}
 
@@ -88,7 +81,7 @@ public final class Edge {
     /**
      * @return The timestamp of the edge
      */
-    public Timestamp getCreationTime()
+    public long getCreationTime()
     {
         return this.timeCreated;
     }
@@ -111,11 +104,11 @@ public final class Edge {
      *          (the number of interactions that have taken place on this edge divided by the life span of the edge)
      */
     public double getTieStrength() {
-        long now = (new Timestamp(System.currentTimeMillis())).getTime();
-        double elapsed = (double) (now - this.timeCreated.getTime());
+        long now = Utils.getCurrentTimestamp();
+        double elapsed = (double) (now - this.timeCreated);
         if(elapsed==0)
         	return 0;
-        return (double) (this.interactions.size()) / (double) (now - this.timeCreated.getTime());
+        return (double) (this.interactions.size()) / (double) (now - this.timeCreated);
     }
     
 }

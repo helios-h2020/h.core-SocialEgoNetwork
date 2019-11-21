@@ -28,11 +28,11 @@ public final class Node {
     /**
      * Timestamp of creation of the node
      */
-    private long creation_date;
+    private long creationTime;
     /**
      * Number of times the node's status is set to online
      */
-    private long online_counter;
+    private long onlineCounter;
 
     /**
      * Constructor method
@@ -46,7 +46,7 @@ public final class Node {
         if(alias ==null || id == null || data==null) Utils.error(new NullPointerException());
         if(alias.equals("") || id.equals("")) Utils.error(new IllegalArgumentException("The node id cannot be an empty string"));
         this.alias = alias;
-        this.creation_date= System.currentTimeMillis();
+        this.creationTime = Utils.getCurrentTimestamp();
         this.id = id;
         this.data = data;
     }
@@ -54,29 +54,21 @@ public final class Node {
     /**
      * Used in deserialization
      */
-    public Node()
+    protected Node()
     {}
 
     /**
      * @return The number of times the node's state has been online
      */
-    public long getOnline_counter() {
-        return this.online_counter;
-    }
-
-    /**
-     * Sets the creation date of the node to a specific timestamp passed as argument
-     * @param date The timestamp to be set to the creation date
-     */
-    public void setCreation_date(long date) {
-        this.creation_date=date;  
+    public long getOnlineCounter() {
+        return this.onlineCounter;
     }
 
     /**
      * @return The timestamp of when the node was created
      */
-    public long getCreation_date() {
-        return this.creation_date;
+    public long getCreationTime() {
+        return this.creationTime;
     }
 
     /**
@@ -114,7 +106,7 @@ public final class Node {
      * @return A double, which is the score of the node (number of times online divided life span of the node)
      */
     public double getScore() {
-        return ((double)online_counter)/((double)(System.currentTimeMillis()-creation_date));
+        return ((double)onlineCounter)/((double)(Utils.getCurrentTimestamp()-creationTime));
     }
 
     /**

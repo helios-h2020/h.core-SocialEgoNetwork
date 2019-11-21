@@ -1,7 +1,5 @@
 package contextualegonetwork.nodeData;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 import contextualegonetwork.Node;
 import contextualegonetwork.Utils;
 
