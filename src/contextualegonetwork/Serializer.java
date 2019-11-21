@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -34,6 +35,7 @@ import org.json.simple.JSONValue;
  * @author Emmanouil Krasanakis (maniospas@hotmail.com)
  */
 class Serializer {
+	private HashMap<Object, Boolean> enableSaving;
 	private HashMap<Object, String> objectIds;
 	private HashMap<String, Object> idObjects;
 	private String path;
@@ -47,6 +49,7 @@ class Serializer {
 	}
 	
 	protected Serializer(String path) {
+		enableSaving = new HashMap<Object, Boolean>();
 		objectIds = new HashMap<Object, String>();
 		idObjects = new HashMap<String, Object>();
 		this.path = path;
@@ -57,20 +60,21 @@ class Serializer {
 		if(id!=null)
 			return id;
 		id = UUID.randomUUID().toString();
-		while(idObjects.containsKey(id))
+		while(objectIds.containsKey(id))
 			id = UUID.randomUUID().toString();
 		idObjects.put(id, object);
 		objectIds.put(object, id);
+		Utils.log("Registered for monitoring "+id+" "+object.getClass().getName());
 		return id;
 	}
 
 	synchronized String registerSpecialId(Object object, String specialId) {
-		String id = objectIds.get(object);
-		if(id!=null)
-			Utils.error("Explicitly defined ID already in use");
+		if(objectIds.get(object)!=null)
+			Utils.error("Explicitly defined ID already in use ");
 		idObjects.put(specialId, object);
 		objectIds.put(object, specialId);
-		return id;
+		Utils.log("Registered for monitoring "+specialId+" "+object.getClass().getName());
+		return specialId;
 	}
 	
 	public synchronized void removeFromStorage(Object object) {
@@ -169,7 +173,7 @@ class Serializer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected Object serialize(Object object, boolean convertToIdIfPossible) throws Exception {
+	protected Object serialize(Object object, boolean convertToIdIfPossible, HashSet<Object> objectsWithKnownClasses) throws Exception {
 		if(object==null)
 			return null;
 		if(object.getClass().isPrimitive()
@@ -183,19 +187,19 @@ class Serializer {
 		if(object instanceof List) {
 			JSONArray list = new JSONArray();
 			for(Object element : ((List<?>)object))
-				list.add(serialize(element, true));
+				list.add(serialize(element, true, objectsWithKnownClasses));
 			return list;
 		}
 		if(object.getClass().isArray()) {
 			JSONArray list = new JSONArray();
 			for(int i=0;i<Array.getLength(object);i++)
-				list.add(serialize(Array.get(object, i), true));
+				list.add(serialize(Array.get(object, i), true, objectsWithKnownClasses));
 			return list;
 		}
 		else if(object instanceof Map) {
 			JSONObject map = new JSONObject();
 			for(String key : ((Map<String,?>)object).keySet()) 
-				map.put(key.toString(), serialize(((Map<String,?>)object).get(key), true));
+				map.put(key.toString(), serialize(((Map<String,?>)object).get(key), true, objectsWithKnownClasses));
 			return map;
 		}
 		
@@ -203,16 +207,18 @@ class Serializer {
         String id = objectIds.get(object);
         if(id!=null) {
         	classObject.put("@id", id);
-        	classObject.put("@class", object.getClass().getTypeName().toString());
+        	if(!objectsWithKnownClasses.contains(id)) {
+        		classObject.put("@class", object.getClass().getTypeName().toString());
+        		objectsWithKnownClasses.add(id);
+        	}
         }
         if(id==null || !convertToIdIfPossible){
-        	if(id==null)
+        	if(id==null && !objectsWithKnownClasses.contains(object))
         		classObject.put("@class", object.getClass().getTypeName().toString());
     		for(Field field : object.getClass().getDeclaredFields()) {
     			boolean prevAccessible = field.isAccessible();
     			field.setAccessible(true);
-    			//System.out.println(field.getName());
-				classObject.put(field.getName(), serialize(field.get(object), true));
+				classObject.put(field.getName(), serialize(field.get(object), true, objectsWithKnownClasses));
     			field.setAccessible(prevAccessible);
     		}
         }
@@ -221,11 +227,15 @@ class Serializer {
 	
 	public synchronized void saveAllRegistered() {
 		for(Object object : objectIds.keySet())
-			save(object);
+			if(enableSaving.getOrDefault(object,true))
+				save(object);
 	}
 	
 	public synchronized boolean save(Object object) {
+		if(!enableSaving.getOrDefault(object,true))
+			return Utils.error("Not allowed to save: "+objectIds.get(object)+" "+object.getClass().getName(), false);
 		try {
+			long tic = System.nanoTime();
 	        registerId(object);
 	    	String path = this.path+objectIds.get(object);
 	        Path dirPath = Paths.get(path);
@@ -235,8 +245,9 @@ class Serializer {
             Files.createFile(dirPath);
 			FileOutputStream outputStream = new FileOutputStream(path);
 	        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-	        outputStreamWriter.write(serialize(object, false).toString());
+	        outputStreamWriter.write(serialize(object, false, new HashSet<Object>()).toString());
 	        outputStreamWriter.close();
+	        Utils.log("Saved "+objectIds.get(object)+" "+object.getClass().getName()+" ("+(System.nanoTime()-tic)/1000.0/1000.0+" ms)");
 	        return true;
 		}
 		catch(Exception e) {
@@ -250,8 +261,8 @@ class Serializer {
 	
 	public synchronized boolean reload(Object object, int levelsOfLoadingDemand) {
 		try {
+			long tic = System.nanoTime();
 			BufferedReader br = new BufferedReader(new FileReader(path+objectIds.get(object)));
-			Utils.log("Loaded "+objectIds.get(object)+" "+object.getClass().getName());
 		    StringBuilder builder = new StringBuilder();
 		    String line = br.readLine();
 		    while (line != null) {
@@ -263,6 +274,7 @@ class Serializer {
 		    JSONObject jsonObject = (JSONObject) JSONValue.parse(read);
 		    deserializeInstantiatedObject(jsonObject, object, levelsOfLoadingDemand);
 		    br.close();
+			Utils.log("Loaded "+objectIds.get(object)+" "+object.getClass().getName()+" ("+(System.nanoTime()-tic)/1000.0/1000.0+" ms)");
 		    return true;
 		}
 		catch(Exception e) {
@@ -270,14 +282,28 @@ class Serializer {
 			return Utils.error("Failed to load: "+e.toString(), false);
 		}
 	}
-	
 
+	public synchronized void setSavePermission(Object object, boolean allowSave) {
+		if(!objectIds.containsKey(object))
+			Utils.error(new IllegalArgumentException());
+		else
+			enableSaving.put(object, allowSave);
+	}
+	
+	/**
+	 * Removes an object from the manager.
+	 * @param object
+	 */
 	public synchronized void unregister(Object object) {
 		String id = objectIds.get(object);
 		objectIds.remove(object);
 		idObjects.remove(id);
+		Utils.log("Unregistered "+id+" "+object.getClass().getName());
 	}
-
+	
+	/**
+	 * Used to empty the folder the serializer is initialized in from any previously saved data.
+	 */
 	public void removePreviousSaved() {
 		File path = new File(this.path);
 		for(File file : path.listFiles()) 

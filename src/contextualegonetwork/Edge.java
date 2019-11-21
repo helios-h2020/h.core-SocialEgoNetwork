@@ -52,7 +52,7 @@ public final class Edge {
     /**
      * Used in deserialization
      */
-    public Edge()
+    protected Edge()
     {}
 
     /**

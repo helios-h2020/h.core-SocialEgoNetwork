@@ -3,7 +3,7 @@ package contextualegonetwork;
 import java.util.logging.Logger;
 
 public class Utils {
-	public static final boolean development = true;
+	public static boolean development = true;
 	private static Logger logger = Logger.getGlobal();
 	
 	/**

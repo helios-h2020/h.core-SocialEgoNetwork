@@ -50,7 +50,6 @@ public final class Context
      */
     private ArrayList<Node> nodes;
     private ArrayList<Edge> edges;
-    private ArrayList<Edge> phantomEdges;
 
     /**
      * Constructor method
@@ -66,7 +65,6 @@ public final class Context
         this.data = data;
         nodes = new ArrayList<Node>();
         edges = new ArrayList<Edge>();
-        phantomEdges = new ArrayList<Edge>();
         nodes.add(contextualEgoNetwork.getEgo());
         timeCounter = new long[7][24];
         registerTimeOfLoad();
@@ -81,14 +79,15 @@ public final class Context
     }
     
     /**
-     * If the context is loaded, it is serialized to a file
+     * If the context is loaded, it is serialized to a file. The context's nodes
+     * are not serialized though
      * @return Whether the context was saved.
      */
     public boolean save() {
     	if(nodes==null) 
     		return false;
-    	for(Node node : nodes) 
-        	contextualEgoNetwork.getSerializer().save(node);
+    	//for(Node node : nodes) 
+        	//contextualEgoNetwork.getSerializer().save(node);
     	return contextualEgoNetwork.getSerializer().save(this);
     }
     
@@ -106,20 +105,21 @@ public final class Context
      * @see #save()
      */
     public void cleanup() {
-    	save();
-    	contextualEgoNetwork.getSerializer().unregister(this);
     	registerTimeOfUnload();
+    	save();
+    	contextualEgoNetwork.getSerializer().setSavePermission(this, false);
     	nodes = null;
     	edges = null;
-    	phantomEdges = null;
     	timeCounter = null;
     }
     
     /**
-     * Loads the context from its default given file
+     * Loads the context from the given serializer in memory.
+     * This operation is automatically performed on-demand by other context access operations.
      */
     public void load() {
     	contextualEgoNetwork.getSerializer().reload(this, 1);//loads all of its nodes
+    	contextualEgoNetwork.getSerializer().setSavePermission(this, true);
     	registerTimeOfLoad();
     }
     
@@ -256,6 +256,7 @@ public final class Context
      */
     public void setTimeCounter(long[][] temp)
     {
+    	assertLoaded();
         if(temp.length != 7) throw new IllegalArgumentException();
         for(int i = 0; i < temp.length; i++) {
             if(temp[i].length != 24) throw new IllegalArgumentException();
@@ -281,37 +282,23 @@ public final class Context
     }
     
     /**
-     * @return A shallow copy of the context's non-phantom edge list
-     */
-    public ArrayList<Edge> getEdges() {
-    	return getEdges(true);
-    }
-    
-    /**
-     * @param real Whether the edges is real or a phantom one.
      * @return A shallow copy of the context's edge list
      */
-    public ArrayList<Edge> getEdges(boolean real) {
+    public ArrayList<Edge> getEdges() {
     	assertLoaded();
-    	if(real)
-    		return new ArrayList<Edge>(edges);
-    	else
-    		return new ArrayList<Edge>(phantomEdges);
-    }
-    
-    public Edge addEdge(Node src, Node dst) {
-    	return addEdge(src, dst, true);
+    	return new ArrayList<Edge>(edges);
     }
 
     /**
-     * Adds an edge between two nodes of the social graph
+     * Creates an edge between two nodes of the social graph
      * @param src The source node
      * @param dst The destination node
-     * @return The generated edge
+     * @return The created {@link Edge}
      * @throws NullPointerException If src or dst are null
      * @throws IllegalArgumentException If src and dst are the same node or if they don't belong to the context
+     * @throws IllegalArgumentException If the edge already exists in the context
      */
-    public Edge addEdge(Node src, Node dst, boolean isReal)  {
+    public Edge addEdge(Node src, Node dst)  {
     	assertLoaded();
         if(src == null || dst == null) return Utils.error(new NullPointerException(), null);
         if(src==dst) return Utils.error(new IllegalArgumentException("Src and dest cannot be the same node"), null);
@@ -320,10 +307,7 @@ public final class Context
         	if(edge.getSrc()==src && edge.getDst()==dst)
         		return Utils.error(new IllegalArgumentException("Edge already exists in context"), edge);
         Edge edge = new Edge(src, dst, this);
-        if(isReal)
-        	edges.add(edge);
-        else
-        	phantomEdges.add(edge);
+        edges.add(edge);
         return edge;
     }
     
@@ -343,7 +327,7 @@ public final class Context
     	for(Edge edge : edges)
         	if(edge.getSrc()==src && edge.getDst()==dst)
         		return edge;
-    	return Utils.error("Edge does not exist", null);
+    	return Utils.error("Edge does not exist among real ones", null);
     }
 
     /**
