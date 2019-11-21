@@ -27,12 +27,6 @@ public class ExampleSave {
 		egoNetwork.getContexts().get(1).cleanup();//remove context from memory
 		egoNetwork.getContexts().get(1).addNode(user2);//this will reload the context
 		egoNetwork.getContexts().get(1).addEdge(user1, user2);
-		// Some larger-scale testing
-		/*for(int i=5;i<1000;i++) {
-			Node user = new Node("user-"+i, "user"+i, new PersonData("RandomName", "", "RandomSurname", "1/1/11"));
-			egoNetwork.getContexts().get(1).addNode(user);
-			egoNetwork.getContexts().get(1).addEdge(user1, user);
-		}*/
 		egoNetwork.save();
 	}
 }

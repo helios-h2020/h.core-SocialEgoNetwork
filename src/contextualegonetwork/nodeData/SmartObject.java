@@ -1,6 +1,5 @@
 package contextualegonetwork.nodeData;
 
-import contextualegonetwork.Node;
 import contextualegonetwork.Utils;
 
 public class SmartObject extends NodeData {
@@ -18,7 +17,10 @@ public class SmartObject extends NodeData {
      */
     private String owner;
 
-    public SmartObject()
+    /**
+     * Needed for deserialization.
+     */
+    protected SmartObject()
     {}
 
     /**

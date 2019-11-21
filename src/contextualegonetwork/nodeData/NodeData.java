@@ -5,6 +5,7 @@ public class NodeData {
 	public NodeData(String type) {
 		this.type = type;
 	}
-	public NodeData() {
+	
+	protected NodeData() {
 	}
 }

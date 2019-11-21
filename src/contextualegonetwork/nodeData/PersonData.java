@@ -42,7 +42,10 @@ public class PersonData extends NodeData {
         this.birthDate = birthDate;
     }
     
-    public PersonData() {
+    /**
+     * Needed for deserialization.
+     */
+    protected PersonData() {
     }
     
     /**

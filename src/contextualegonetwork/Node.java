@@ -4,11 +4,10 @@ import contextualegonetwork.Node;
 import contextualegonetwork.nodeData.NodeData;
 
 /**
- * This class implements a node in the Social Graph, which is representative of a node in a particular
- * layer of the HSG. Nodes are mapped in-between layers through a mapping function, for which two nodes
- * in different layers correspond to each other if they have the identifier
- */
-public final class Node {
+ * This class implements a node in the social graph. Multiple instances of the same nodes can be found in
+ * different Contexts.
+ *  */
+public class Node {
     /**
      * Global identifier of the node
      */
@@ -30,7 +29,7 @@ public final class Node {
      */
     private long creationTime;
     /**
-     * Number of times the node's status is set to online
+     * Number of times the node's status has been set to online
      */
     private long onlineCounter;
 
@@ -41,10 +40,9 @@ public final class Node {
      * @throws NullPointerException if the alias, id or data parameters are null
      * @throws IllegalArgumentException if the alias or id parameters are empty
      */
-    public Node(String id, String alias, NodeData data)
-    {
-        if(alias ==null || id == null || data==null) Utils.error(new NullPointerException());
-        if(alias.equals("") || id.equals("")) Utils.error(new IllegalArgumentException("The node id cannot be an empty string"));
+    public Node(String id, String alias, NodeData data) {
+        if(alias==null || id == null || data==null) Utils.error(new NullPointerException());
+        if(alias.equals("") || id.equals("")) Utils.error(new IllegalArgumentException("The node id or alias cannot be an empty string"));
         this.alias = alias;
         this.creationTime = Utils.getCurrentTimestamp();
         this.id = id;
