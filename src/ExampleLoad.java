@@ -2,16 +2,20 @@ import contextualegonetwork.Context;
 import contextualegonetwork.ContextualEgoNetwork;
 import contextualegonetwork.Edge;
 import contextualegonetwork.Utils;
-import contextualegonetwork.contextData.DefaultContextData;
+import contextualegonetwork.dataExamples.DefaultContextData;
 
 public class ExampleLoad {
 
 	public static void main(String[] args) {
-		Utils.development = true;//enable logging and make exceptions critically stop execution flow
+		Utils.development = false;//disable logging and make exceptions try to forcefully continue execution
 		
 		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.load("user-00001");
+		
+		//assert that deserialization loads the ego correctly
 		System.out.println(egoNetwork.testattr);
-		System.out.println(egoNetwork.getEgo().getAlias());
+		System.out.println(egoNetwork.getEgo().getId());
+		System.out.println(egoNetwork.getEgo().getData());
+		
 		//assert that deserialization finds contexts (these aren't loaded yet)
 		System.out.println(egoNetwork.getContexts());
 		//assert that deserialization identifies the same data objects
@@ -24,9 +28,9 @@ public class ExampleLoad {
 		//print the edges of all contexts
 		for(Context context : egoNetwork.getContexts()) {
 			context.cleanup();
-			System.out.println("Context: "+((DefaultContextData)context.getData()).getName());
+			System.out.println("Context: "+context.getData().toString());
 			for(Edge edge : context.getEdges()) {
-				System.out.println(edge.getSrc().getAlias()+" -> "+edge.getDst().getAlias());
+				System.out.println(edge.getSrc().getData()+" -> "+edge.getDst().getData());
 			}
 			System.out.println();
 		}

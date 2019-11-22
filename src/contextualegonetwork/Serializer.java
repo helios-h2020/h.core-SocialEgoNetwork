@@ -102,6 +102,8 @@ class Serializer {
 				return (int)Integer.parseInt((String)jsonValue);
 			if(defaultClass==Double.class || defaultClass==double.class)
 				return (double)Double.parseDouble((String)jsonValue);
+			if(defaultClass==Object.class)
+				return (String)jsonValue;//strings are parsed as generic objects
 			return Utils.error("Unknown primitive datatype: "+defaultClass.toString(), null);
 		}
 		if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@id")
@@ -306,7 +308,8 @@ class Serializer {
 	 */
 	public void removePreviousSaved() {
 		File path = new File(this.path);
-		for(File file : path.listFiles()) 
-			file.delete();
-	}
+		if(path.exists())
+			for(File file : path.listFiles()) 
+				file.delete();
+		}
 }

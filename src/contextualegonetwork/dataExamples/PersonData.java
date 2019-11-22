@@ -1,8 +1,6 @@
-package contextualegonetwork.nodeData;
+package contextualegonetwork.dataExamples;
 
-import java.util.Date;
-
-public class PersonData extends NodeData {
+public class PersonData {
 
     /**
      * First name of the user
@@ -33,7 +31,6 @@ public class PersonData extends NodeData {
      * @throws IllegalArgumentException if userName, firstName or surname are empty strings
      */
     public PersonData(String firstName, String secondName, String surname, String birthDate) {
-    	super("Person");
         if(firstName == null || secondName == null || surname == null) throw new NullPointerException();
         if(firstName.equals("") || surname.equals("")) throw new IllegalArgumentException("First name, surname or username cannot be empty strings");
         this.firstName = firstName;
@@ -53,7 +50,7 @@ public class PersonData extends NodeData {
      * @return The first name of the user
      */
     public String getFirstName() {
-        return this.firstName;
+        return firstName;
     }
 
     /**
@@ -61,7 +58,7 @@ public class PersonData extends NodeData {
      * @return The second name of the user
      */
     public String getSecondName() {
-        return this.secondName;
+        return secondName;
     }
 
     /**
@@ -69,13 +66,18 @@ public class PersonData extends NodeData {
      * @return The surname of the user
      */
     public String getSurname() {
-        return this.surname;
+        return surname;
     }
     
     /**
      * @return The birthdate of the user
      */
-    public Date getBirthday() {
-    	return new Date(birthDate);
+    public String getBirthday() {
+    	return birthDate;
+    }
+    
+    @Override
+    public String toString() {
+    	return firstName+" "+secondName+" "+surname+", born "+birthDate;
     }
 }

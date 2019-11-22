@@ -85,6 +85,15 @@ public final class Edge {
     {
         return this.timeCreated;
     }
+    
+
+    /**
+     * Adds a new interaction with no duration on this edge
+     * @param type The type of the interaction
+     */
+    public void addDetectedInteraction(String type) {
+    	addInteraction(Utils.getCurrentTimestamp(), 0, type);
+    }
 
     /**
      * Adds a new interaction on this edge

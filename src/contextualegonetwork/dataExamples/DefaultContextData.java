@@ -1,6 +1,6 @@
-package contextualegonetwork.contextData;
+package contextualegonetwork.dataExamples;
 
-public class DefaultContextData extends ContextData {
+public class DefaultContextData {
 	private String name;
 	private Location location;
 	
@@ -20,4 +20,8 @@ public class DefaultContextData extends ContextData {
 		return location;
 	}
 	
+	@Override
+	public String toString() {
+		return name+" "+location.toString();
+	}
 }

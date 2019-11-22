@@ -1,4 +1,4 @@
-package contextualegonetwork.contextData;
+package contextualegonetwork.dataExamples;
 
 public class Location {
     private double latitude, longitude;
@@ -17,5 +17,10 @@ public class Location {
     
     public double getLongitude() {
     	return longitude;
+    }
+    
+    @Override
+    public String toString() {
+    	return "@("+latitude+","+longitude+")";
     }
 }

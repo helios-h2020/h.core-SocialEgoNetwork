@@ -1,7 +1,6 @@
 package contextualegonetwork;
 
 import contextualegonetwork.Node;
-import contextualegonetwork.nodeData.NodeData;
 
 /**
  * This class implements a node in the social graph. Multiple instances of the same nodes can be found in
@@ -15,11 +14,7 @@ public class Node {
     /**
      * Data carried by the node
      */
-    private NodeData data;
-    /**
-     * Alias of the person/smart object
-     */
-    private String alias;
+    private Object data;
     /**
      * Status of the node (if false offline, if true online)
      */
@@ -37,13 +32,12 @@ public class Node {
      * Constructor method
      * @param id identifier of the node
      * @param alias name of the node that appears on screen
-     * @throws NullPointerException if the alias, id or data parameters are null
-     * @throws IllegalArgumentException if the alias or id parameters are empty
+     * @throws NullPointerException if id is null
+     * @throws IllegalArgumentException if the id parameters is empty
      */
-    public Node(String id, String alias, NodeData data) {
-        if(alias==null || id == null || data==null) Utils.error(new NullPointerException());
-        if(alias.equals("") || id.equals("")) Utils.error(new IllegalArgumentException("The node id or alias cannot be an empty string"));
-        this.alias = alias;
+    public Node(String id, Object data) {
+        if(id == null) Utils.error(new NullPointerException());
+        if(id.equals("")) Utils.error(new IllegalArgumentException("The node id or alias cannot be an empty string"));
         this.creationTime = Utils.getCurrentTimestamp();
         this.id = id;
         this.data = data;
@@ -72,19 +66,11 @@ public class Node {
     /**
      * @return The data attached to the node
      */
-    public NodeData getData()
+    public Object getData()
     {
         return data;
     }
     
-    /**
-     * @return The alias of the node
-     */
-    public String getAlias()
-    {
-        return this.alias;
-    }
-
     /**
      * Sets the status to online or offline
      */
@@ -109,7 +95,7 @@ public class Node {
 
     /**
      *
-     * @return The identifier of the node
+     * @return The identifier of the node declared in its constructor
      */
     public String getId() {
         return this.id;

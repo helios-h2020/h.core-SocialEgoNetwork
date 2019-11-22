@@ -3,8 +3,6 @@ package contextualegonetwork;
 import java.io.File;
 import java.util.ArrayList;
 
-import contextualegonetwork.contextData.ContextData;
-
 /**
  * This class implements a Contextual Ego Network, that is the conceptual model of our Heterogeneous Social Graph.
  * It contains information about the various contexts, i.e. the different layers of the multi-layer network, and about the
@@ -83,34 +81,39 @@ public class ContextualEgoNetwork {
     
     /**
      * The default method to create a new context in this ContextualEgoNetwork.
-     * @param data the data that the context should hold.
-     * @return the newly created context
+     * @param Data the data that the context should hold.
+     * @return The newly created context
      */
-    public Context createContext(ContextData data) {
+    public Context createContext(Object data) {
     	Context context = new Context(this, data);
     	contexts.add(context);
     	return context;
     }
     
     /**
+     * Returns a context based that satisfies data.equals(context.getData()) .
+     * Overriding the {@link Object#equals(Object)} function of the query data
+     * can be used to affect the outcome of the obtained context.
+     * If no such context exists, a new one is created.
+     * @param data The query data that the context should hold.
+     * @return The newly created context
+     */
+    public Context getOrCreateContext(Object data) {
+    	for(Context context : contexts)
+    		if(data.equals(context.getData()))
+    			return context;
+    	return createContext(data);
+    }
+    
+    /**
      * Removes a given context from the ContextualEgoNetwork's contexts.
-     * @param context
+     * @param context The given context
      */
     public void removeContext(Context context) {
     	if(context==null) Utils.error(new NullPointerException());
     	if(!contexts.contains(context)) Utils.error("Context not found");
     	contexts.remove(context);
     	context.removeFromStorage();
-    }
-    
-    /**
-     * Method to set the (current) contexts
-     * @param contexts an ArrayList<Context> containing the (current) contexts
-     */
-    public void setContexts(ArrayList<Context> contexts){
-    	if(contexts==null) Utils.error(new NullPointerException("Cannot pass null as the set of (active) contexts"));
-    	Utils.error("Avoid explicit context array allocation");
-    	this.contexts = contexts;
     }
     
     /**

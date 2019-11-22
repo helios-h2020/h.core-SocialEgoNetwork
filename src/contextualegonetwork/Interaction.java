@@ -31,11 +31,11 @@ public final class Interaction {
      * @param timestamp The start timestamp
      * @param duration The duration of the interaction
      * @param type The type of the interaction
-     * @throws IllegalArgumentException if timestamp or duration are less or equal than 0
+     * @throws IllegalArgumentException if timestamp or duration are less than 0
      * @throws NullPointerException if type is null
      */
     protected Interaction(long timestamp, int duration, String type) {
-        if(timestamp <= 0 || duration <= 0) throw new IllegalArgumentException();
+        if(timestamp < 0 || duration < 0) throw new IllegalArgumentException();
         if(type == null) throw new NullPointerException();
         this.startTimestamp = timestamp;
         this.duration = duration;

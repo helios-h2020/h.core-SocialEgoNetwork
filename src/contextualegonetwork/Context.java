@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 
 import contextualegonetwork.Edge;
 import contextualegonetwork.Node;
-import contextualegonetwork.contextData.ContextData;
 
 /**
  * This class implements a context of the Contextual Ego Network. The context stores all the information related
@@ -44,7 +43,7 @@ public final class Context
     /**
      * Object data carried by the context
      */
-    private ContextData data;
+    private Object data;
     /**
      * Graph nodes (i.e. alters) and edges
      */
@@ -55,10 +54,10 @@ public final class Context
      * Constructor method
      * @param name the name of the context
      * @param contextualEgoNetwork the ContextualEgoNetwork in which the context resides
-     * @throws NullPointerException if name, contextualEgoNetwork or data are null
+     * @throws NullPointerException if name or contextualEgoNetwork are null
      * @throws IllegalArgumentException if name is an empty string
      */
-    Context(ContextualEgoNetwork contextualEgoNetwork, ContextData data)
+    Context(ContextualEgoNetwork contextualEgoNetwork, Object data)
     {
         if(data == null || contextualEgoNetwork == null || data==null) Utils.error(new NullPointerException());
         this.contextualEgoNetwork = contextualEgoNetwork;
@@ -150,7 +149,7 @@ public final class Context
     /**
      * @return The data attached to the context
      */
-    public ContextData getData()
+    public Object getData()
     {
     	assertLoaded();
         return data;
@@ -312,10 +311,10 @@ public final class Context
     }
     
     /**
-     * Gets the weight of the edge (if it exists)  between two nodes of the social graph
-     * @param src The source node's username
-     * @param dst The destination node's username
-     * @return The weight of the edge if the source and the destination nodes are in the social graph and are
+     * Gets the edge (if it exists) between two nodes of the social graph
+     * @param src The source node
+     * @param dst The destination node
+     * @return The edge if the source and the destination nodes are in the social graph and are
      *         connected by an edge, null otherwise
      * @throws NullPointerException If src and dest are null
      * @throws IllegalArgumentException If src and dest are the same node
@@ -327,7 +326,22 @@ public final class Context
     	for(Edge edge : edges)
         	if(edge.getSrc()==src && edge.getDst()==dst)
         		return edge;
-    	return Utils.error("Edge does not exist among real ones", null);
+    	return null;
+    }
+    
+    /**
+     * Gets the edge (if it exists) between two nodes of the social graph or creates it if it doesn't exist
+     * @param src The source node
+     * @param dst The destination node
+     * @return The found or created {@link Edge}
+     * @see {@link #getEdge(Node, Node)}
+     * @see {@link #addEdge(Node, Node)}
+     */
+    public Edge getOrAddEdge(Node src, Node dst) {
+    	Edge edge = getEdge(src, dst);
+    	if(edge==null)
+    		edge = addEdge(src, dst);
+    	return edge;
     }
 
     /**

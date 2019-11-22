@@ -1,8 +1,8 @@
-package contextualegonetwork.nodeData;
+package contextualegonetwork.dataExamples;
 
 import contextualegonetwork.Utils;
 
-public class SmartObject extends NodeData {
+public class SmartObject {
 
     /**
      * The MAC address of the device
@@ -34,7 +34,6 @@ public class SmartObject extends NodeData {
      * @throws IllegalArgumentException if the length of macAddr is different than 12, or if man or own are empty strings
      */
     public SmartObject(String username, String id, String MACAddress, String manufacturer, String owner) {
-    	super("Smart Object");
         if(username == null || MACAddress == null || manufacturer == null || owner == null) throw new NullPointerException();
         if(MACAddress.length() != 12) Utils.error(new IllegalArgumentException("The MAC Address must be made of 12 digits"));
         if(manufacturer.equals("") || owner.equals("")) Utils.error(new IllegalArgumentException("Owner and manufacturer cannot be empty strings"));
