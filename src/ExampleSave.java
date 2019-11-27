@@ -9,13 +9,15 @@ public class ExampleSave {
 
 	public static void main(String[] args) {
 		//Use this example to demonstrate a simple management use case.
-		Node user1 = new Node("user-00001", new PersonData("RandomName1", "", "RandomSurname1", "1/1/00"));
-		Node user2 = new Node("user-00002", null);//can set any object as node data 
-		Node user3 = new Node("user-00003", new PersonData("RandomName3", "", "RandomSurname3", "3/3/00"));
-		//all object data are recursively serialized, so pass an id if you don't want to serialize them
-		Node user4 = new Node("user-00004", "RandomName4");
 		
-		ContextualEgoNetwork egoNetwork = new ContextualEgoNetwork(user1);
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("user-00001", new PersonData("RandomName1", "", "RandomSurname1", "1/1/00"));
+		Node user1 = egoNetwork.getEgo();
+		Node user2 = egoNetwork.getOrCreateNode("user-00002", null);//can set any object as node data 
+		Node user3 = egoNetwork.getOrCreateNode("user-00003", new PersonData("RandomName3", "", "RandomSurname3", "3/3/00"));
+		//all object data are recursively serialized, so pass an id if you don't want to serialize them
+		Node user4 = egoNetwork.getOrCreateNode("user-00004", "RandomName4");
+		
+		
 		//example context management
 		Context context1 = egoNetwork.createContext(new DefaultContextData("ContextName1", new Location(1,1)));
 		context1.addNode(user2);

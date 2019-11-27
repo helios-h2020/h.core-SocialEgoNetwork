@@ -55,6 +55,10 @@ class Serializer {
 		this.path = path;
 	}
 	
+	public String getPath() {
+		return path;
+	}
+	
 	synchronized String registerId(Object object) {
 		String id = objectIds.get(object);
 		if(id!=null)
@@ -146,8 +150,15 @@ class Serializer {
 				deserializeInstantiatedObject(jsonValue, value, levelsOfLoadingDemand);
 			return value;
 		}
-		
-		throw new RuntimeException("Unclear deserialization ");
+		if(!(defaultClass instanceof Class) && ((java.lang.reflect.ParameterizedType) defaultClass).getRawType()==HashMap.class) {
+			HashMap<?,?> map = (HashMap<?,?>) ((Class<?>)((java.lang.reflect.ParameterizedType) defaultClass).getRawType()).newInstance();
+			Class<?> defaultMapType = (Class<?>)((java.lang.reflect.ParameterizedType) defaultClass).getActualTypeArguments()[1];
+			for(Object entry : ((JSONObject)jsonValue).keySet()) 
+				((HashMap<String, Object>)map).put((String)entry, deserializeToNewObject(((JSONObject)jsonValue).get(entry), defaultMapType, levelsOfLoadingDemand));
+			return map;
+		}
+		System.out.println(defaultClass.toString());
+		throw new RuntimeException("Unclear deserialization "+jsonValue);
 	}
 	
 	protected void deserializeInstantiatedObject(Object json, Object object, int levelsOfLoadingDemand) {

@@ -6,7 +6,7 @@ import contextualegonetwork.Node;
  * This class implements a node in the social graph. Multiple instances of the same nodes can be found in
  * different Contexts.
  *  */
-public class Node {
+public final class Node {
     /**
      * Global identifier of the node
      */
@@ -34,6 +34,8 @@ public class Node {
      * @param alias name of the node that appears on screen
      * @throws NullPointerException if id is null
      * @throws IllegalArgumentException if the id parameters is empty
+     * @deprecated This constructor will be protected in future versions.
+     * 	Call getOrCreateNode(id, data) of a ContextualEgoNetwork insteance instead.
      */
     public Node(String id, Object data) {
         if(id == null) Utils.error(new NullPointerException());

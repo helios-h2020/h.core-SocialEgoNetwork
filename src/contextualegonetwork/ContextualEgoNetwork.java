@@ -1,7 +1,10 @@
 package contextualegonetwork;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * This class implements a Contextual Ego Network, that is the conceptual model of our Heterogeneous Social Graph.
@@ -14,7 +17,15 @@ public class ContextualEgoNetwork {
     private ArrayList<Context> contexts;
     private Context currentContext;
     public String testattr = "testattr";
+    private HashMap<String, Node> nodes;
     
+    /**
+     * Creates a ContextualEgoNetwork.
+     * @param ego The ego Node
+     * @deprecated This constructor will be made protected in future versions.
+     * 	Call ContextualEgoNetwork.createOrLoad(egoName, egoData)
+     * 	and NOT ContextualEgoNetwork(new Node(egoName, egoData)).
+     */
     public ContextualEgoNetwork(Node ego) {
         if(ego == null) Utils.error(new NullPointerException());
         this.ego = ego;
@@ -22,9 +33,36 @@ public class ContextualEgoNetwork {
         getSerializer().removePreviousSaved();
         getSerializer().registerSpecialId(this, "CEN");
         getSerializer().registerId(ego);
+        nodes = new HashMap<String, Node>();
+        nodes.put(ego.getId(), ego);
     }
     
     private ContextualEgoNetwork() {
+    }
+    
+    /**
+     * Creates a ContextualEgoNetwork or loads a previous one.
+     * @param egoName
+     * @param egoData
+     * @return
+     */
+    public static ContextualEgoNetwork createOrLoad(String egoName, Object egoData) {
+    	String path = egoName + File.separator;
+    	ContextualEgoNetwork contextualEgoNetwork;
+    	Serializer serializer = Serializer.getSerializer(path);
+    	if(Files.exists(Paths.get(path + "CEN"))) {
+    		contextualEgoNetwork = new ContextualEgoNetwork();
+	    	serializer.registerSpecialId(contextualEgoNetwork, "CEN");
+	    	serializer.reload(contextualEgoNetwork);
+	    	for(Node node : contextualEgoNetwork.nodes.values())
+	    		serializer.reload(node);
+	    	// make contexts know where to look for the serializer
+	    	for(Context context : contextualEgoNetwork.contexts)
+	    		context.contextualEgoNetwork = contextualEgoNetwork;
+    	}
+    	else
+    		contextualEgoNetwork = new ContextualEgoNetwork(new Node(egoName, egoData));
+    	return contextualEgoNetwork;
     }
     
     /**
@@ -33,6 +71,8 @@ public class ContextualEgoNetwork {
      * This requires that a ContextualEgoNetwork had been created through its constructor and saved in the past.
      * @param egoName
      * @return the created ego network
+     * @deprecated This function will be removed in future versions.
+     * 	Call ContextualEgoNetwork.createOrLoad(egoName, null) instead.
      */
     public static ContextualEgoNetwork load(String egoName) {
     	String path = egoName + File.separator;
@@ -40,7 +80,9 @@ public class ContextualEgoNetwork {
     	Serializer serializer = Serializer.getSerializer(path);
     	serializer.registerSpecialId(contextualEgoNetwork, "CEN");
     	serializer.reload(contextualEgoNetwork);
-    	serializer.reload(contextualEgoNetwork.ego);
+    	// serializer.reload(contextualEgoNetwork.ego);
+    	for(Node node : contextualEgoNetwork.nodes.values())
+    		serializer.reload(node);
     	// make contexts know where to look for the serializer
     	for(Context context : contextualEgoNetwork.contexts)
     		context.contextualEgoNetwork = contextualEgoNetwork;
@@ -148,6 +190,22 @@ public class ContextualEgoNetwork {
     public Node getEgo() {
     	return ego;
     }
-
+    
+    /**
+     * Creates a node for which all contexts are accessible.
+     * @param nodeId
+     * @param data
+     * @return
+     */
+    public Node getOrCreateNode(String nodeId, Object data) {
+    	if(nodeId==null) Utils.error(new NullPointerException());
+    	if(nodeId.isEmpty()) Utils.error(new IllegalArgumentException());
+    	Node node = nodes.get(nodeId);
+    	if(node==null) {
+    		node = new Node(nodeId, data);
+    		nodes.put(nodeId, node);
+    	}
+    	return node;
+    }
 }
 
