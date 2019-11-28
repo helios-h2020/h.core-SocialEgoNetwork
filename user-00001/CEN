@@ -1,0 +1,1 @@
+{"@class":"contextualegonetwork.ContextualEgoNetwork","currentContext":null,"testattr":"testattr","@id":"CEN","contexts":[{"@class":"contextualegonetwork.Context","@id":"fb77efed-eccd-4cf5-a8d4-740cf77bfff8"},{"@class":"contextualegonetwork.Context","@id":"ff5d33aa-f8b9-4bea-9c7f-eb440ba356b8"}],"ego":{"@class":"contextualegonetwork.Node","@id":"user-00001"}}

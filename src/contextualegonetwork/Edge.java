@@ -90,9 +90,10 @@ public final class Edge {
     /**
      * Adds a new interaction with no duration on this edge
      * @param type The type of the interaction
+     * @return the created interaction
      */
-    public void addDetectedInteraction(String type) {
-    	addInteraction(Utils.getCurrentTimestamp(), 0, type);
+    public Interaction addDetectedInteraction(String type) {
+    	return addInteraction(Utils.getCurrentTimestamp(), 0, type);
     }
 
     /**
@@ -100,12 +101,15 @@ public final class Edge {
      * @param timestamp The start timestamp of the interaction
      * @param duration The duration of the interaction
      * @param type The type of the interaction
+     * @return 
      */
-    public void addInteraction(long timestamp, int duration, String type) {
+    public Interaction addInteraction(long timestamp, int duration, String type) {
         if(type == null) Utils.error(new NullPointerException());
         if(timestamp < 0 || duration < 0) Utils.error(new IllegalArgumentException("Timestamp and duration cannot be negative"));
         if(type.equals("")) Utils.error(new IllegalArgumentException("Type cannot be empty"));
-        interactions.add(new Interaction(timestamp, duration, type));
+        Interaction interaction = new Interaction(timestamp, duration, type);
+        interactions.add(interaction);
+        return interaction;
     }
 
     /**

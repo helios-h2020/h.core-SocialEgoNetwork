@@ -15,7 +15,7 @@ public class ExampleSave {
 		Node user2 = egoNetwork.getOrCreateNode("user-00002", null);//can set any object as node data 
 		Node user3 = egoNetwork.getOrCreateNode("user-00003", new PersonData("RandomName3", "", "RandomSurname3", "3/3/00"));
 		//all object data are recursively serialized, so pass an id if you don't want to serialize them
-		Node user4 = egoNetwork.getOrCreateNode("user-00004", "RandomName4");
+		Node user4 = egoNetwork.getOrCreateNode("user-00004", "RandomName4 (just a string)");
 		
 		
 		//example context management

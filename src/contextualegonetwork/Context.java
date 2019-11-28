@@ -373,7 +373,7 @@ public final class Context
         if(node == null) Utils.error(new NullPointerException());
         if(nodes.contains(node)) Utils.error("Node already in context");
         nodes.add(node);
-        contextualEgoNetwork.getSerializer().registerId(node);
+        contextualEgoNetwork.getSerializer().registerId(node, node.getId());
     }
 
     /**

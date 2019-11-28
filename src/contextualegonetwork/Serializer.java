@@ -28,7 +28,7 @@ import org.json.simple.JSONValue;
  * 
  * To declare an object as a dynamic object that is referenced in other serializations using only its id
  * use the function {@link #registerId(Object)} to automatically create a UUId or a 
- * {@link #registerSpecialId(Object, String)} to specify a given id.
+ * {@link #registerId(Object, String)} to specify a given id.
  * 
  * Serialization supports non-enum primitive datatypes, lists, arrays and maps with String keys.
  * 
@@ -60,6 +60,7 @@ class Serializer {
 	}
 	
 	synchronized String registerId(Object object) {
+		if(object==null) Utils.error(new NullPointerException());
 		String id = objectIds.get(object);
 		if(id!=null)
 			return id;
@@ -72,13 +73,14 @@ class Serializer {
 		return id;
 	}
 
-	synchronized String registerSpecialId(Object object, String specialId) {
-		if(objectIds.get(object)!=null)
-			Utils.error("Explicitly defined ID already in use ");
-		idObjects.put(specialId, object);
-		objectIds.put(object, specialId);
-		Utils.log("Registered for monitoring "+specialId+" "+object.getClass().getName());
-		return specialId;
+	synchronized String registerId(Object object, String specificId) {
+		if(object==null) Utils.error(new NullPointerException());
+		if(objectIds.get(object)!=null && idObjects.get(specificId)!=object)
+			Utils.error("Explicitly defined ID already in use by a differet object ("+specificId+")");
+		idObjects.put(specificId, object);
+		objectIds.put(object, specificId);
+		Utils.log("Registered for monitoring "+specificId+" "+object.getClass().getName());
+		return specificId;
 	}
 	
 	public synchronized void removeFromStorage(Object object) {
@@ -141,7 +143,7 @@ class Serializer {
 			constructor.setAccessible(prevConstructorAccessible);
 			if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@id")) {
 				if(!idObjects.containsKey(value)) {
-					registerSpecialId(value, (String)((JSONObject)jsonValue).get("@id"));
+					registerId(value, (String)((JSONObject)jsonValue).get("@id"));
 					if(levelsOfLoadingDemand>0)
 						reload(value, levelsOfLoadingDemand-1);
 				}
@@ -323,4 +325,8 @@ class Serializer {
 			for(File file : path.listFiles()) 
 				file.delete();
 		}
+
+	public Object getObject(String specificId) {
+		return idObjects.get(specificId);
+	}
 }

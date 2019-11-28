@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * This class implements a Contextual Ego Network, that is the conceptual model of our Heterogeneous Social Graph.
@@ -17,7 +16,6 @@ public class ContextualEgoNetwork {
     private ArrayList<Context> contexts;
     private Context currentContext;
     public String testattr = "testattr";
-    private HashMap<String, Node> nodes;
     
     /**
      * Creates a ContextualEgoNetwork.
@@ -31,10 +29,8 @@ public class ContextualEgoNetwork {
         this.ego = ego;
         contexts = new ArrayList<Context>();
         getSerializer().removePreviousSaved();
-        getSerializer().registerSpecialId(this, "CEN");
-        getSerializer().registerId(ego);
-        nodes = new HashMap<String, Node>();
-        nodes.put(ego.getId(), ego);
+        getSerializer().registerId(this, "CEN");
+        getSerializer().registerId(ego, ego.getId());
     }
     
     private ContextualEgoNetwork() {
@@ -52,10 +48,9 @@ public class ContextualEgoNetwork {
     	Serializer serializer = Serializer.getSerializer(path);
     	if(Files.exists(Paths.get(path + "CEN"))) {
     		contextualEgoNetwork = new ContextualEgoNetwork();
-	    	serializer.registerSpecialId(contextualEgoNetwork, "CEN");
+	    	serializer.registerId(contextualEgoNetwork, "CEN");
 	    	serializer.reload(contextualEgoNetwork);
-	    	for(Node node : contextualEgoNetwork.nodes.values())
-	    		serializer.reload(node);
+	    	serializer.reload(contextualEgoNetwork.ego);
 	    	// make contexts know where to look for the serializer
 	    	for(Context context : contextualEgoNetwork.contexts)
 	    		context.contextualEgoNetwork = contextualEgoNetwork;
@@ -78,11 +73,9 @@ public class ContextualEgoNetwork {
     	String path = egoName + File.separator;
     	ContextualEgoNetwork contextualEgoNetwork = new ContextualEgoNetwork();
     	Serializer serializer = Serializer.getSerializer(path);
-    	serializer.registerSpecialId(contextualEgoNetwork, "CEN");
+    	serializer.registerId(contextualEgoNetwork, "CEN");
     	serializer.reload(contextualEgoNetwork);
-    	// serializer.reload(contextualEgoNetwork.ego);
-    	for(Node node : contextualEgoNetwork.nodes.values())
-    		serializer.reload(node);
+    	serializer.reload(contextualEgoNetwork.ego);
     	// make contexts know where to look for the serializer
     	for(Context context : contextualEgoNetwork.contexts)
     		context.contextualEgoNetwork = contextualEgoNetwork;
@@ -200,10 +193,12 @@ public class ContextualEgoNetwork {
     public Node getOrCreateNode(String nodeId, Object data) {
     	if(nodeId==null) Utils.error(new NullPointerException());
     	if(nodeId.isEmpty()) Utils.error(new IllegalArgumentException());
-    	Node node = nodes.get(nodeId);
+    	Serializer serializer = getSerializer();
+    	Object object = serializer.getObject(nodeId);
+    	Node node = object==null?null:(Node)object;
     	if(node==null) {
     		node = new Node(nodeId, data);
-    		nodes.put(nodeId, node);
+    		serializer.registerId(node, node.getId());
     	}
     	return node;
     }
