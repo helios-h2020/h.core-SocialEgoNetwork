@@ -81,8 +81,7 @@ public final class Edge {
     /**
      * @return The timestamp of the edge
      */
-    public long getCreationTime()
-    {
+    public long getCreationTime() {
         return this.timeCreated;
     }
     

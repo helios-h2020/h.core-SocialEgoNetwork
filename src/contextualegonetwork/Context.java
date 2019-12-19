@@ -362,9 +362,7 @@ public final class Context
     }
 
     /**
-     * Adds a node to the context. A node is added because it has been detected by the application running on the
-     * device of the ego. Two edge are thus added (from the ego to the new node and vice versa) to model the new relationship
-     * between them.
+     * Adds a node to the context.
      * @param newNode The new node to be added
      * @throws NullPointerException if newNode is null
      */
@@ -374,6 +372,20 @@ public final class Context
         if(nodes.contains(node)) Utils.error("Node already in context");
         nodes.add(node);
         contextualEgoNetwork.getSerializer().registerId(node, node.getId());
+    }
+
+    /**
+     * Adds a node to the context. Does nothing if the node already exists in the context.
+     * @param newNode The new node to be added
+     * @throws NullPointerException if newNode is null
+     */
+    public void addNodeIfNecessary(Node node) {
+    	assertLoaded();
+        if(node == null) Utils.error(new NullPointerException());
+        if(!nodes.contains(node)) {
+            nodes.add(node);
+            contextualEgoNetwork.getSerializer().registerId(node, node.getId());
+        }
     }
 
     /**

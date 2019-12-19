@@ -35,7 +35,7 @@ public final class Node {
      * @throws NullPointerException if id is null
      * @throws IllegalArgumentException if the id parameters is empty
      * @deprecated This constructor will be protected in future versions.
-     * 	Call getOrCreateNode(id, data) of a ContextualEgoNetwork insteance instead.
+     * 	Call getOrCreateNode(id, data) of a ContextualEgoNetwork instance instead.
      */
     public Node(String id, Object data) {
         if(id == null) Utils.error(new NullPointerException());

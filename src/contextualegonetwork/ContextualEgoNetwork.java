@@ -122,6 +122,7 @@ public class ContextualEgoNetwork {
     public Context createContext(Object data) {
     	Context context = new Context(this, data);
     	contexts.add(context);
+    	Utils.log("Created context"+data.toString());
     	return context;
     }
     
@@ -135,7 +136,7 @@ public class ContextualEgoNetwork {
      */
     public Context getOrCreateContext(Object data) {
     	for(Context context : contexts)
-    		if(data.equals(context.getData()))
+    		if(data.equals(context.getData())) 
     			return context;
     	return createContext(data);
     }
@@ -188,7 +189,7 @@ public class ContextualEgoNetwork {
      * Creates a node for which all contexts are accessible.
      * @param nodeId
      * @param data
-     * @return
+     * @return The found or created node.
      */
     public Node getOrCreateNode(String nodeId, Object data) {
     	if(nodeId==null) Utils.error(new NullPointerException());

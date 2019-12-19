@@ -17,9 +17,18 @@ public class Utils {
 		logger.warning(exception.getLocalizedMessage());
 	}
 
-	public static void log(String message) {
-		if(development)
-			logger.info(message);
+	public static void log(Object... messages) {
+		if(development) {
+			StringBuilder message = new StringBuilder();
+			if(messages.length>1)
+				message.append("|");
+			for(Object obj : messages) {
+				message.append(obj.toString());
+				if(messages.length>1)
+					message.append("\t|");
+			}
+			logger.info(message.toString());
+		}
 	}
 
 	/**

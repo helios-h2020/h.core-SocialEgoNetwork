@@ -28,6 +28,7 @@ public class ExampleSave {
 		
 		// the second way to create context
 		Context context2 = egoNetwork.getOrCreateContext("ContextName2");
+		System.out.println(context2.getNodes().size());
 		context2.addNode(user3);
 		context2.addNode(user4);
 		context2.addEdge(user1, user3);
