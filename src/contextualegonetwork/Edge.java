@@ -58,24 +58,46 @@ public final class Edge {
     /**
      * @return The source node of the edge
      */
-    public Node getSrc()
-    {
+    public Node getSrc() {
         return src;
     }
 
     /**
      * @return The destination node of the edge
      */
-    public Node getDst()
-    {
+    public Node getDst() {
         return dst;
+    }
+    
+    /**
+     * @return the ego node of the edge context's ego network if it's a member of the edge, null otherwise
+     */
+    public Node getEgo() {
+    	Node ego = getContext().getContextualEgoNetwork().getEgo();
+    	if(ego==src || ego==dst)
+    		return ego;
+    	return null;
+    }
+    
+    /**
+     * @return the edge node that is not the ego of the edge context's ego network
+     * @exception runtime exception if {@link #getEgo()} is null
+     */
+    public Node getAlter() {
+    	Node ego = getContext().getContextualEgoNetwork().getEgo();
+    	if(ego==src)
+    		return dst;
+    	if(ego==dst)
+    		return src;
+    	Utils.error("Cannot retrieve alter for a node that has no ego");
+    	return null;
     }
 
     /**
      * @return The context
      */
     public Context getContext() {
-        return this.context;
+        return context;
     }
 
     /**
@@ -96,17 +118,17 @@ public final class Edge {
     }
 
     /**
-     * Adds a new interaction on this edge
+     * Creates and adds a new interaction on this edge
      * @param timestamp The start timestamp of the interaction
      * @param duration The duration of the interaction
      * @param type The type of the interaction
-     * @return 
+     * @return the created interaction
      */
     public Interaction addInteraction(long timestamp, int duration, String type) {
         if(type == null) Utils.error(new NullPointerException());
         if(timestamp < 0 || duration < 0) Utils.error(new IllegalArgumentException("Timestamp and duration cannot be negative"));
         if(type.equals("")) Utils.error(new IllegalArgumentException("Type cannot be empty"));
-        Interaction interaction = new Interaction(timestamp, duration, type);
+        Interaction interaction = new Interaction(this, timestamp, duration, type);
         interactions.add(interaction);
         return interaction;
     }
@@ -121,6 +143,13 @@ public final class Edge {
         if(elapsed==0)
         	return 0;
         return (double) (this.interactions.size()) / (double) (now - this.timeCreated);
+    }
+
+    /**
+     * @return A shallow copy of the edge's interaction list
+     */
+    public ArrayList<Interaction> getInteractions() {
+    	return new ArrayList<Interaction>(interactions);
     }
     
 }

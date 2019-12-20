@@ -16,9 +16,13 @@ public final class Interaction {
      */
     private int duration;
     /**
-     * The interaction type
+     * The interaction's type
      */
     private String type;
+    /**
+     * The interaction's parent edge
+     */
+    private Edge edge;
 
     /**
      * Used in deserialization
@@ -34,39 +38,44 @@ public final class Interaction {
      * @throws IllegalArgumentException if timestamp or duration are less than 0
      * @throws NullPointerException if type is null
      */
-    protected Interaction(long timestamp, int duration, String type) {
+    protected Interaction(Edge edge, long timestamp, int duration, String type) {
         if(timestamp < 0 || duration < 0) throw new IllegalArgumentException();
         if(type == null) throw new NullPointerException();
         this.startTimestamp = timestamp;
         this.duration = duration;
         this.type = type;
+        this.edge = edge;
+    }
+    
+    public Edge getEdge() {
+    	return edge;
     }
 
     /**
      * @return The timestamp that corresponds to the start of the interaction
      */
     public long getStartTime() {
-        return this.startTimestamp;
+        return startTimestamp;
     }
     
     /**
      * @return The timestamp that corresponds to the start of the interaction
      */
     public long getEndTime() {
-        return this.startTimestamp + this.duration;
+        return startTimestamp + duration;
     }
 
     /**
      * @return The duration of the interaction
      */
     public int getDuration() {
-        return this.duration;
+        return duration;
     }
 
     /**
      * @return The type of this interaction
      */
     public String getType() {
-        return this.type;
+        return type;
     }
 }

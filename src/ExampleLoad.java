@@ -1,6 +1,7 @@
 import contextualegonetwork.Context;
 import contextualegonetwork.ContextualEgoNetwork;
 import contextualegonetwork.Edge;
+import contextualegonetwork.Interaction;
 import contextualegonetwork.Utils;
 import contextualegonetwork.dataExamples.DefaultContextData;
 
@@ -31,6 +32,8 @@ public class ExampleLoad {
 			System.out.println("Context: "+context.getData().toString());
 			for(Edge edge : context.getEdges()) {
 				System.out.println(edge.getSrc().getData()+" -> "+edge.getDst().getData());
+				for(Interaction interaction : edge.getInteractions())
+					System.out.println(interaction.getEdge().toString());//assert that edge has been loaded
 			}
 			System.out.println();
 		}

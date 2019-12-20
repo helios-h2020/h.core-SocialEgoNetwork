@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -94,7 +95,7 @@ class Serializer {
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected Object deserializeToNewObject(Object jsonValue, Type defaultClass, int levelsOfLoadingDemand) throws Exception {
+	protected Object deserializeToNewObject(Object jsonValue, Type defaultClass, int levelsOfLoadingDemand, ArrayList<Object> parents) throws Exception {
 		if(jsonValue==null)
 			return null;
 		if(jsonValue instanceof String) {
@@ -121,18 +122,28 @@ class Serializer {
 				JSONArray array = (JSONArray)jsonValue;
 				Class<?> componentType = ((Class<?>) defaultClass).getComponentType();
 				Object list = Array.newInstance(componentType, array.size());
+				parents.add(list);
 				for(int i=0;i<array.size();i++) 
-					Array.set(list, i, deserializeToNewObject(array.get(i), componentType, levelsOfLoadingDemand));
+					Array.set(list, i, deserializeToNewObject(array.get(i), componentType, levelsOfLoadingDemand, parents));
+				parents.remove(list);
 				return list;
 			}
 			else {
 				List<?> list = (List<?>) ((Class<?>)((java.lang.reflect.ParameterizedType) defaultClass).getRawType()).newInstance();
 				Class<?> defaultListType = (Class<?>)((java.lang.reflect.ParameterizedType) defaultClass).getActualTypeArguments()[0];
 				JSONArray array = (JSONArray)jsonValue;
+				parents.add(list);
 				for(int i=0;i<array.size();i++) 
-					((List<Object>)list).add(deserializeToNewObject(array.get(i), defaultListType, levelsOfLoadingDemand));
+					((List<Object>)list).add(deserializeToNewObject(array.get(i), defaultListType, levelsOfLoadingDemand, parents));
+				parents.remove(list);
 				return list;
 			}
+		}
+		if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@par")) {
+        	for(Object obj : parents)
+        		System.out.println(obj.getClass().toString());
+        	System.out.println(parents.get(parents.size()-Integer.parseInt((String) ((JSONObject)jsonValue).get("@par"))).getClass().toString());
+			return parents.get(parents.size()-Integer.parseInt((String) ((JSONObject)jsonValue).get("@par")));
 		}
 		if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@class")) {
 			Class<?> valueType = Class.forName((String)((JSONObject)jsonValue).get("@class"));
@@ -148,22 +159,26 @@ class Serializer {
 						reload(value, levelsOfLoadingDemand-1);
 				}
 			}
-			else 
-				deserializeInstantiatedObject(jsonValue, value, levelsOfLoadingDemand);
+			else  {
+				//donnot add to parents here (this is done in the called function)
+				deserializeInstantiatedObject(jsonValue, value, levelsOfLoadingDemand, parents);
+			}
 			return value;
 		}
 		if(!(defaultClass instanceof Class) && ((java.lang.reflect.ParameterizedType) defaultClass).getRawType()==HashMap.class) {
 			HashMap<?,?> map = (HashMap<?,?>) ((Class<?>)((java.lang.reflect.ParameterizedType) defaultClass).getRawType()).newInstance();
 			Class<?> defaultMapType = (Class<?>)((java.lang.reflect.ParameterizedType) defaultClass).getActualTypeArguments()[1];
+			parents.add(map);
 			for(Object entry : ((JSONObject)jsonValue).keySet()) 
-				((HashMap<String, Object>)map).put((String)entry, deserializeToNewObject(((JSONObject)jsonValue).get(entry), defaultMapType, levelsOfLoadingDemand));
+				((HashMap<String, Object>)map).put((String)entry, deserializeToNewObject(((JSONObject)jsonValue).get(entry), defaultMapType, levelsOfLoadingDemand, parents));
+			parents.remove(map);
 			return map;
 		}
 		System.out.println(defaultClass.toString());
 		throw new RuntimeException("Unclear deserialization "+jsonValue);
 	}
 	
-	protected void deserializeInstantiatedObject(Object json, Object object, int levelsOfLoadingDemand) {
+	protected void deserializeInstantiatedObject(Object json, Object object, int levelsOfLoadingDemand, ArrayList<Object> parents) {
 		if(json==null || object==null)
 			return;
 		if(!(json instanceof JSONObject)) {
@@ -176,19 +191,21 @@ class Serializer {
 			if(classObject.containsKey(fieldName)) {
 				boolean prevAccessible = field.isAccessible();
 				field.setAccessible(true);
+				parents.add(object);
 				try {
-					field.set(object, deserializeToNewObject(classObject.get(fieldName), field.getGenericType(), levelsOfLoadingDemand));
+					field.set(object, deserializeToNewObject(classObject.get(fieldName), field.getGenericType(), levelsOfLoadingDemand, parents));
 				}
 				catch(Exception e) {
 					Utils.error("Deserialization error for field "+object.getClass().toString()+"."+field.getName()+" : "+e.toString());
 				}
+				parents.remove(object);
 				field.setAccessible(prevAccessible);
 			}
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected Object serialize(Object object, boolean convertToIdIfPossible, HashSet<Object> objectsWithKnownClasses) throws Exception {
+	protected Object serialize(Object object, boolean convertToIdIfPossible, HashSet<Object> objectsWithKnownClasses, ArrayList<Object> parents) throws Exception {
 		if(object==null)
 			return null;
 		if(object.getClass().isPrimitive()
@@ -200,21 +217,27 @@ class Serializer {
 				|| object instanceof Enum)
 			return object.toString();
 		if(object instanceof List) {
+			parents.add(object);
 			JSONArray list = new JSONArray();
 			for(Object element : ((List<?>)object))
-				list.add(serialize(element, true, objectsWithKnownClasses));
+				list.add(serialize(element, true, objectsWithKnownClasses, parents));
+			parents.remove(object);
 			return list;
 		}
 		if(object.getClass().isArray()) {
 			JSONArray list = new JSONArray();
+			parents.add(object);
 			for(int i=0;i<Array.getLength(object);i++)
-				list.add(serialize(Array.get(object, i), true, objectsWithKnownClasses));
+				list.add(serialize(Array.get(object, i), true, objectsWithKnownClasses, parents));
+			parents.remove(object);
 			return list;
 		}
 		else if(object instanceof Map) {
+			parents.add(object);
 			JSONObject map = new JSONObject();
 			for(String key : ((Map<String,?>)object).keySet()) 
-				map.put(key.toString(), serialize(((Map<String,?>)object).get(key), true, objectsWithKnownClasses));
+				map.put(key.toString(), serialize(((Map<String,?>)object).get(key), true, objectsWithKnownClasses, parents));
+			parents.remove(object);
 			return map;
 		}
 		
@@ -227,15 +250,20 @@ class Serializer {
         		objectsWithKnownClasses.add(id);
         	}
         }
-        if(id==null || !convertToIdIfPossible){
+        if(id==null && parents.contains(object)) {
+        	classObject.put("@par", ""+(parents.size()-parents.indexOf(object)));
+        }
+        else if(id==null || !convertToIdIfPossible){
+            parents.add(object);
         	if(id==null && !objectsWithKnownClasses.contains(object))
         		classObject.put("@class", object.getClass().getTypeName().toString());
     		for(Field field : object.getClass().getDeclaredFields()) {
     			boolean prevAccessible = field.isAccessible();
     			field.setAccessible(true);
-				classObject.put(field.getName(), serialize(field.get(object), true, objectsWithKnownClasses));
-    			field.setAccessible(prevAccessible);
+				classObject.put(field.getName(), serialize(field.get(object), true, objectsWithKnownClasses, parents));
+				field.setAccessible(prevAccessible);
     		}
+            parents.remove(object);
         }
 		return classObject;
 	}
@@ -260,7 +288,7 @@ class Serializer {
             Files.createFile(dirPath);
 			FileOutputStream outputStream = new FileOutputStream(path);
 	        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-	        outputStreamWriter.write(serialize(object, false, new HashSet<Object>()).toString());
+	        outputStreamWriter.write(serialize(object, false, new HashSet<Object>(), new ArrayList<Object>()).toString());
 	        outputStreamWriter.close();
 	        Utils.log("Saved "+objectIds.get(object)+" "+object.getClass().getName()+" ("+(System.nanoTime()-tic)/1000.0/1000.0+" ms)");
 	        return true;
@@ -287,7 +315,7 @@ class Serializer {
 		    }
 		    String read = builder.toString();
 		    JSONObject jsonObject = (JSONObject) JSONValue.parse(read);
-		    deserializeInstantiatedObject(jsonObject, object, levelsOfLoadingDemand);
+		    deserializeInstantiatedObject(jsonObject, object, levelsOfLoadingDemand, new ArrayList<Object>());
 		    br.close();
 			Utils.log("Loaded "+objectIds.get(object)+" "+object.getClass().getName()+" ("+(System.nanoTime()-tic)/1000.0/1000.0+" ms)");
 		    return true;
