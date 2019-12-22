@@ -16,9 +16,9 @@ public final class Interaction {
      */
     private int duration;
     /**
-     * The interaction's type
+     * The interaction's data
      */
-    private String type;
+    private Object data;
     /**
      * The interaction's parent edge
      */
@@ -34,16 +34,13 @@ public final class Interaction {
      * Constructor method
      * @param timestamp The start timestamp
      * @param duration The duration of the interaction
-     * @param type The type of the interaction
      * @throws IllegalArgumentException if timestamp or duration are less than 0
-     * @throws NullPointerException if type is null
      */
-    protected Interaction(Edge edge, long timestamp, int duration, String type) {
+    protected Interaction(Edge edge, long timestamp, int duration, Object data) {
         if(timestamp < 0 || duration < 0) throw new IllegalArgumentException();
-        if(type == null) throw new NullPointerException();
         this.startTimestamp = timestamp;
         this.duration = duration;
-        this.type = type;
+        this.data = data;
         this.edge = edge;
     }
     
@@ -73,9 +70,18 @@ public final class Interaction {
     }
 
     /**
-     * @return The type of this interaction
+     * @return This interaction's data
+     */
+    public Object getData() {
+    	return data;
+    }
+
+    /**
+     * @return The type of this interaction's data, an empty string if no such data
      */
     public String getType() {
-        return type;
+    	if(data==null)
+    		return "";
+        return data.getClass().toString();
     }
 }

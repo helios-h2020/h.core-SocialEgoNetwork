@@ -24,7 +24,8 @@ public class ExampleSave {
 		context1.addNode(user4);
 		context1.getOrAddEdge(user1, user2);//creates the edge if it doesn't exist
 		context1.getOrAddEdge(user1, user4);
-		context1.getOrAddEdge(user2, user4).addDetectedInteraction("HANDSHAKE");
+		for(int i=0;i<100;i++)
+			context1.getOrAddEdge(user2, user4).addDetectedInteraction("HANDSHAKE");
 		
 		// the second way to create context
 		Context context2 = egoNetwork.getOrCreateContext("ContextName2");
