@@ -1,8 +1,8 @@
-package contextualegonetwork;
+package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.util.ArrayList;
 
-import contextualegonetwork.Node;
+import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
  * This class implements an edge of the Social Graph. An edge, in a context, can link the ego of the Contextual Ego Network to one of the alters or two of the alters.
@@ -89,7 +89,7 @@ public final class Edge {
     		return dst;
     	if(ego==dst)
     		return src;
-    	Utils.error("Cannot retrieve alter for a node that has no ego");
+    	Utils.error("Cannot retrieve alter for an edge that doesn't contain the ego");
     	return null;
     }
 

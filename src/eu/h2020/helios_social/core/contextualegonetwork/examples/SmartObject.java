@@ -1,6 +1,6 @@
-package contextualegonetwork.dataExamples;
+package eu.h2020.helios_social.core.contextualegonetwork.examples;
 
-import contextualegonetwork.Utils;
+import eu.h2020.helios_social.core.contextualegonetwork.Utils;
 
 public class SmartObject {
 

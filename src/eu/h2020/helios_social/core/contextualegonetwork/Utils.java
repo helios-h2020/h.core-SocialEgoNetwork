@@ -1,4 +1,4 @@
-package contextualegonetwork;
+package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.util.logging.Logger;
 

@@ -1,4 +1,4 @@
-package contextualegonetwork;
+package eu.h2020.helios_social.core.contextualegonetwork;
 
 /**
  * This class implements a generic interaction between two entities in a context. We assume that interactions

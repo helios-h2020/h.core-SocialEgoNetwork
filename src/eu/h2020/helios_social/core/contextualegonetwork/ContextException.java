@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package contextualegonetwork;
+package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.util.NoSuchElementException;
 

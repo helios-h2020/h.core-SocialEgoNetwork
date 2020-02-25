@@ -1,9 +1,9 @@
-import contextualegonetwork.Context;
-import contextualegonetwork.ContextualEgoNetwork;
-import contextualegonetwork.Edge;
-import contextualegonetwork.Interaction;
-import contextualegonetwork.Utils;
-import contextualegonetwork.dataExamples.DefaultContextData;
+package eu.h2020.helios_social.core.contextualegonetwork.examples;
+import eu.h2020.helios_social.core.contextualegonetwork.Context;
+import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
+import eu.h2020.helios_social.core.contextualegonetwork.Edge;
+import eu.h2020.helios_social.core.contextualegonetwork.Interaction;
+import eu.h2020.helios_social.core.contextualegonetwork.Utils;
 
 public class ExampleLoad {
 

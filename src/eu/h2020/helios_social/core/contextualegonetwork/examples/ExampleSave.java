@@ -1,9 +1,7 @@
-import contextualegonetwork.Context;
-import contextualegonetwork.ContextualEgoNetwork;
-import contextualegonetwork.Node;
-import contextualegonetwork.dataExamples.DefaultContextData;
-import contextualegonetwork.dataExamples.Location;
-import contextualegonetwork.dataExamples.PersonData;
+package eu.h2020.helios_social.core.contextualegonetwork.examples;
+import eu.h2020.helios_social.core.contextualegonetwork.Context;
+import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
+import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 public class ExampleSave {
 

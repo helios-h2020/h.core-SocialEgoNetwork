@@ -1,4 +1,4 @@
-package contextualegonetwork.dataExamples;
+package eu.h2020.helios_social.core.contextualegonetwork.examples;
 
 public class PersonData {
 

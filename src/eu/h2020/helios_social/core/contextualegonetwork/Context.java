@@ -1,12 +1,12 @@
-package contextualegonetwork;
+package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.stream.Stream;
 
-import contextualegonetwork.Edge;
-import contextualegonetwork.Node;
+import eu.h2020.helios_social.core.contextualegonetwork.Edge;
+import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
  * This class implements a context of the Contextual Ego Network. The context stores all the information related

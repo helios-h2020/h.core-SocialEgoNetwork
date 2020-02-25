@@ -1,6 +1,6 @@
-package contextualegonetwork;
+package eu.h2020.helios_social.core.contextualegonetwork;
 
-import contextualegonetwork.Node;
+import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
  * This class implements a node in the social graph. Multiple instances of the same nodes can be found in
