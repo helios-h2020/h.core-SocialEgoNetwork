@@ -27,9 +27,9 @@ public class SmartObject {
      * Constructor method
      * @param username Username of the node
      * @param id Unique identifier of the node
-     * @param macAddr MAC Address of the devide
-     * @param man Manufacturer of the device
-     * @param own Name of the owner of the device
+     * @param MACAddress MAC Address of the device
+     * @param manufacturer Manufacturer of the device
+     * @param owner Name of the device's owner
      * @throws NullPointerException if username, macAddr, man or own are null
      * @throws IllegalArgumentException if the length of macAddr is different than 12, or if man or own are empty strings
      */
@@ -80,7 +80,7 @@ public class SmartObject {
     /**
      * Sets the MAC address of the smart object
      * @param macAddress The MAC address to be set
-     * @throws Exception 
+     * @throws Exception  if an invalid MAC address is given
      * @throws NullPointerException if macAddress is null
      * @throws IllegalArgumentException if the length of macAddress is different than 12
      */

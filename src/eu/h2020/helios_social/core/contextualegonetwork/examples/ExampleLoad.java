@@ -13,7 +13,6 @@ public class ExampleLoad {
 		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("user-00001", null);
 		
 		//assert that deserialization loads the ego correctly
-		System.out.println(egoNetwork.testattr);
 		System.out.println(egoNetwork.getEgo().getId());
 		System.out.println(egoNetwork.getEgo().getData());
 		

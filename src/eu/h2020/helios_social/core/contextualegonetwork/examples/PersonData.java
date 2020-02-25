@@ -21,8 +21,6 @@ public class PersonData {
 
     /**
      * Constructor method
-     * @param identifier Unique identifier of the node
-     * @param username Username of the node
      * @param firstName First name of the person
      * @param secondName Second name of the person
      * @param surname Surname of the person

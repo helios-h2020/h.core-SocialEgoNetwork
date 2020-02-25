@@ -10,9 +10,11 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
  * This class implements a context of the Contextual Ego Network. The context stores all the information related
- * to the nodes, i.e. the actors (humans or smart objects) that engage in relationships inside it, and keeps track of its spatial and temporal
- * characteristics. The context can be in three possible states: it can be the current online context, it can be one
- * of the active contexts (saved in local memory), or it can be non-active (and thus serialized and stored on disk).
+ * to the nodes, i.e. the actors that engage in interactions inside it,
+ * and keeps track of its spatial and temporal characteristics.
+ * The context can be unloaded from memory using the {@link #cleanup()} function and can be forced to be written anew
+ * in the device's storage by calling the {@link #removeFromStorage()} method. If the context is unloaded from memory,
+ * references to it remain and its data are reloaded on the first demand or by calling {@link #load()}.
  */
 public final class Context
 {
@@ -246,21 +248,6 @@ public final class Context
     {
     	assertLoaded();
         return timeCounter;
-    }
-
-    /**
-     * Sets the recurrencies array to the value passed as argument of the method
-     * @param temp The array timeCounter is set to
-     * @throws IllegalArgumentException If temp doesn't have the right size
-     */
-    public void setTimeCounter(long[][] temp)
-    {
-    	assertLoaded();
-        if(temp.length != 7) throw new IllegalArgumentException();
-        for(int i = 0; i < temp.length; i++) {
-            if(temp[i].length != 24) throw new IllegalArgumentException();
-        }
-        this.timeCounter = temp;
     }
 
     /**

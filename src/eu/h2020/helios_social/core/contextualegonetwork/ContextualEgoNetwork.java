@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
- * This class implements a Contextual Ego Network, that is the conceptual model of our Heterogeneous Social Graph.
+ * This class implements a Contextual Ego Network, which is the conceptual model of our Heterogeneous Social Graph.
  * It contains information about the various contexts, i.e. the different layers of the multi-layer network, and about the
  * nodes (users) that belong to the contexts. Moreover, it divides the contexts into a current one, some active ones (that are kept
  * in memory) and some inactive ones (that are serialized in dedicated files).
@@ -15,7 +15,6 @@ public class ContextualEgoNetwork {
     private Node ego;
     private ArrayList<Context> contexts;
     private Context currentContext;
-    public String testattr = "testattr";
     
     /**
      * Creates a ContextualEgoNetwork.
@@ -37,10 +36,11 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Creates a ContextualEgoNetwork or loads a previous one.
-     * @param egoName
-     * @param egoData
-     * @return
+     * Instantiates a ContextualEgoNetwork by creating a new ego node with the given data.
+     * Loads a previously saved one if such a node exists.
+     * @param egoName - The name of the ego network's ego.
+     * @param egoData - The data with which to create the network's node.
+     * @return the created or loaded contextual ego network
      */
     public static ContextualEgoNetwork createOrLoad(String egoName, Object egoData) {
     	String path = egoName + File.separator;
@@ -64,7 +64,7 @@ public class ContextualEgoNetwork {
      * Creates an empty contextual ego network that corresponds to the ego with the given name (effectively determines
      * the stored path) and uses a deserializer to parse it and its ego into memory.
      * This requires that a ContextualEgoNetwork had been created through its constructor and saved in the past.
-     * @param egoName
+     * @param egoName The name of the ego node
      * @return the created ego network
      * @deprecated This function will be removed in future versions.
      * 	Call ContextualEgoNetwork.createOrLoad(egoName, null) instead.
@@ -115,8 +115,8 @@ public class ContextualEgoNetwork {
 	}
     
     /**
-     * The default method to create a new context in this ContextualEgoNetwork.
-     * @param Data the data that the context should hold.
+     * The default method to create a new context in a ContextualEgoNetwork.
+     * @param data The data that the context should hold.
      * @return The newly created context
      */
     public Context createContext(Object data) {
@@ -127,12 +127,12 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Returns a context based that satisfies data.equals(context.getData()) .
+     * Returns a context that satisfies data.equals(context.getData()) .
      * Overriding the {@link Object#equals(Object)} function of the query data
      * can be used to affect the outcome of the obtained context.
      * If no such context exists, a new one is created.
-     * @param data The query data that the context should hold.
-     * @return The newly created context
+     * @param data The query data that the created context should hold.
+     * @return The found or newly created context
      */
     public Context getOrCreateContext(Object data) {
     	for(Context context : contexts)
@@ -153,11 +153,11 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Method to access the contexts
-     * @return an ArrayList of Context objects
+     * Method to grant safe access all context of the contextual ego networks
+     * @return an ArrayList of contexts
      */
     public ArrayList<Context> getContexts(){
-    	return contexts;
+    	return new ArrayList<Context>(contexts);
     }
     
     /**
@@ -171,24 +171,25 @@ public class ContextualEgoNetwork {
     
     /**
      * Method to return the current context.
-     * @return the context labeled as current.
+     * @return The current context.
+     * @see setCurrent
      */
     public Context getCurrentContext() {
     	return this.currentContext;
     }
     
     /**
-     * Shortcut to get the node of the Ego
-     * @return the Node object of the Ego
+     * Shortcut to get the node of the ego
+     * @return the {@link Node} that serves as the ego of the contextual ego network
      */
     public Node getEgo() {
     	return ego;
     }
     
     /**
-     * Creates a node for which all contexts are accessible.
-     * @param nodeId
-     * @param data
+     * Searches for a node with the given id. If no such node is found, a new one is created using the given data.
+     * @param nodeId The node's id
+     * @param data The node's data (only used if a new node is created)
      * @return The found or created node.
      */
     public Node getOrCreateNode(String nodeId, Object data) {
