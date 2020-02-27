@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
- * This class implements an edge of the Social Graph. An edge, in a context, can link the ego of the Contextual Ego Network to one of the alters or two of the alters.
- * Each edge is enriched by temporal information, particularly the one related to the creation timestamp, and with social information, that is the
- * interactions that take place between the source and the destination nodes in the life span of the edge (this information is stored on the source and destination nodes).
- * Moreover, the edge has a weight, which is its tie strenght, i.e. the number of interactions on the edge divided by the number of seconds passed since the creation date.
+ * This class implements an edge of the Social Graph. An edge, in a context, can link the ego of the Contextual Ego Network to one of the alters.
+ * Edges comprise multiple interactions.
  */
-public final class Edge {
+public final class Edge extends CrossModuleComponent {
     /**
      * UNIX timestamp of the creation time of the edge
      */
