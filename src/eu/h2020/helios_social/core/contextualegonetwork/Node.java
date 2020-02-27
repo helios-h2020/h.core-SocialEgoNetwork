@@ -1,5 +1,7 @@
 package eu.h2020.helios_social.core.contextualegonetwork;
 
+import java.util.HashMap;
+
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
@@ -26,6 +28,10 @@ public final class Node {
      * Number of times the node's status has been set to online
      */
     private long onlineCounter;
+    /**
+     * Module data stored in this node.
+     */
+    private HashMap<String, Object> moduleData;
 
     /**
      * Constructor method
@@ -42,6 +48,7 @@ public final class Node {
         this.creationTime = Utils.getCurrentTimestamp();
         this.id = id;
         this.data = data;
+        this.moduleData = new HashMap<String, Object>();
     }
 
     /**
@@ -49,6 +56,53 @@ public final class Node {
      */
     protected Node()
     {}
+    
+    /**
+     * Returns an instance of the given class that is stored in the node. If no such instance exists,
+     * a new one is created first. Created instances are saved and loaded alongside nodes if these are
+     * part of a contextual ego network structure.
+     * @param moduleClass A given class (e.g. that stores the node's data needed by a HELIOS module)
+     * @return An instance of the given class
+     */
+    public <ModuleObjectDataType> ModuleObjectDataType getOrCreateInstance(Class<ModuleObjectDataType> moduleClass) {
+    	String dataTypeName = moduleClass.getCanonicalName();
+    	Object found = moduleData.get(dataTypeName);
+    	if(found==null) {
+    		try {
+    			found = moduleClass.getConstructor().newInstance();
+    			moduleData.put(dataTypeName, found);
+    		}
+    		catch(Exception e) {
+    			Utils.error("Failed to initialized default instance of "+dataTypeName);
+    		}
+    	}
+    	return (ModuleObjectDataType) found;
+    }
+    
+    /*
+    public Object getModuleData() {
+    	StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+    	if(trace.length<2)
+    		return null;
+    	return getModuleData(trace[1].getClassName());
+    }
+
+    public void setModuleData(Object data) {
+    	StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+    	if(trace.length<2)
+    		Utils.error("Trace too shallow");
+    	else
+    		setModuleData(trace[1].getClassName());
+    }
+    
+    public void setModuleData(String module, Object data) {
+    	moduleData.put(module, data);
+    }
+    
+    public Object getModuleData(String module) {
+    	return moduleData.get(module);
+    }
+    */
 
     /**
      * @return The number of times the node's state has been online

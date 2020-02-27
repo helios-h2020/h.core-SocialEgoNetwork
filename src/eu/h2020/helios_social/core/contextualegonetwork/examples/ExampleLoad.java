@@ -24,6 +24,8 @@ public class ExampleLoad {
 		System.out.println(((DefaultContextData)egoNetwork.getContexts().get(0).getData()).getName());
 		//assert that deserialization works for arrays (it would throw a nullptr exception if it didn't work)
 		System.out.println(egoNetwork.getContexts().get(1).getTimeCounter()[6][23]);
+		//assert that crated class instances work correctly
+		System.out.println(egoNetwork.getEgo().getOrCreateInstance(ExampleSave.class).toString());
 		
 		//print the edges of all contexts
 		for(Context context : egoNetwork.getContexts()) {

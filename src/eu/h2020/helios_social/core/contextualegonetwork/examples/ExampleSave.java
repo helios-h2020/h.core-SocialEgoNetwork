@@ -4,7 +4,6 @@ import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 public class ExampleSave {
-
 	public static void main(String[] args) {
 		//Use this example to demonstrate a simple management use case.
 		
@@ -36,6 +35,9 @@ public class ExampleSave {
 		
 		egoNetwork.getContexts().get(1).addNode(user2);//this will reload the context in memory
 		egoNetwork.getContexts().get(1).addEdge(user1, user2);
+
+		System.out.println(egoNetwork.getEgo().getOrCreateInstance(ExampleSave.class).toString());
+		System.out.println(egoNetwork.getEgo().getOrCreateInstance(ExampleSave.class).toString());
 		
 		egoNetwork.save(); //saves the ego network (also saves the contexts and nodes)
 	}

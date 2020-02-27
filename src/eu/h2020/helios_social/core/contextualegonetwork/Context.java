@@ -101,7 +101,7 @@ public final class Context
     }
     
     /**
-     * Saves the context to a file and removes it from memory and the dynamic serializer
+     * Saves the context to a file and removes its data memory and it from the dynamic serializer
      * (so that universal save does not save it anymore)
      * @see #save()
      */

@@ -140,9 +140,9 @@ class Serializer {
 			}
 		}
 		if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@par")) {
-        	for(Object obj : parents)
-        		System.out.println(obj.getClass().toString());
-        	System.out.println(parents.get(parents.size()-Integer.parseInt((String) ((JSONObject)jsonValue).get("@par"))).getClass().toString());
+        	//for(Object obj : parents)
+        	//	System.out.println(obj.getClass().toString());
+        	//System.out.println(parents.get(parents.size()-Integer.parseInt((String) ((JSONObject)jsonValue).get("@par"))).getClass().toString());
 			return parents.get(parents.size()-Integer.parseInt((String) ((JSONObject)jsonValue).get("@par")));
 		}
 		if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@class")) {
@@ -174,7 +174,7 @@ class Serializer {
 			parents.remove(map);
 			return map;
 		}
-		System.out.println(defaultClass.toString());
+		//System.out.println(defaultClass.toString());
 		throw new RuntimeException("Unclear deserialization "+jsonValue);
 	}
 	
