@@ -321,8 +321,8 @@ public final class Context
      * @param src The source node
      * @param dst The destination node
      * @return The found or created {@link Edge}
-     * @see {@link #getEdge(Node, Node)}
-     * @see {@link #addEdge(Node, Node)}
+     * @see #getEdge(Node, Node)
+     * @see #addEdge(Node, Node)
      */
     public Edge getOrAddEdge(Node src, Node dst) {
     	Edge edge = getEdge(src, dst);
@@ -363,7 +363,8 @@ public final class Context
 
     /**
      * Adds a node to the context. Does nothing if the node already exists in the context.
-     * @param newNode The new node to be added
+     * Node can be created through the {@link ContextualEgoNetwork#getOrCreateNode} function.
+     * @param node The node to be added
      * @throws NullPointerException if newNode is null
      */
     public void addNodeIfNecessary(Node node) {
@@ -392,9 +393,9 @@ public final class Context
     }
 
     /**
-     * Gets the in-going edges of a node
-     * @param nodeName The given node
-     * @return A stream of the in-going edges
+     * Gets the in-going edges of a given node
+     * @param node The given node
+     * @return A stream of the incoming edges
      * @throws NullPointerException If the node is null
      * @throws IllegalArgumentException If the node is not in the context
      */
@@ -406,9 +407,9 @@ public final class Context
     }
     
     /**
-     * Gets the out-going edges of a node
-     * @param nodeName The given node
-     * @return A stream of the out-going edges
+     * Gets the out-going edges of a given node
+     * @param node The given node
+     * @return A stream of the outgoing edges
      * @throws NullPointerException If the node is null
      * @throws IllegalArgumentException If the node is not in the context
      */

@@ -1,7 +1,5 @@
 package eu.h2020.helios_social.core.contextualegonetwork;
 
-import java.util.HashMap;
-
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
@@ -32,7 +30,7 @@ public final class Node extends CrossModuleComponent {
     /**
      * Constructor method
      * @param id identifier of the node
-     * @param alias name of the node that appears on screen
+     * @param data data to store inside the node (can be null)
      * @throws NullPointerException if id is null
      * @throws IllegalArgumentException if the id parameters is empty
      * @deprecated This constructor will be protected in future versions.

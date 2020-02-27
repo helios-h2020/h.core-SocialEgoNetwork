@@ -34,7 +34,7 @@ public final class Edge extends CrossModuleComponent {
      * Constructor method
      * @param src The source node of the edge
      * @param dst The destination node of the edge
-     * @param identifier Id of the edge
+     * @param context The context the edge appears in
      * @throws NullPointerException if src or dst are null
      */
     Edge(Node src, Node dst, Context context)
@@ -68,7 +68,7 @@ public final class Edge extends CrossModuleComponent {
     }
     
     /**
-     * @return the ego node of the edge context's ego network if it's a member of the edge, null otherwise
+     * @return The ego node of the edge context's ego network if it's a member of the edge, null otherwise
      */
     public Node getEgo() {
     	Node ego = getContext().getContextualEgoNetwork().getEgo();
@@ -78,8 +78,8 @@ public final class Edge extends CrossModuleComponent {
     }
     
     /**
-     * @return the edge node that is not the ego of the edge context's ego network
-     * @exception runtime exception if {@link #getEgo()} is null
+     * @return The edge endpoint that is not the ego of the edge context's ego network
+     * @exception RuntimeException if the edge doesn't contain the contextual ego network's ego
      */
     public Node getAlter() {
     	Node ego = getContext().getContextualEgoNetwork().getEgo();
@@ -92,14 +92,14 @@ public final class Edge extends CrossModuleComponent {
     }
 
     /**
-     * @return The context
+     * @return The context the edge belongs to
      */
     public Context getContext() {
         return context;
     }
 
     /**
-     * @return The timestamp of the edge
+     * @return The creation timestamp of the edge
      */
     public long getCreationTime() {
         return this.timeCreated;
@@ -107,19 +107,19 @@ public final class Edge extends CrossModuleComponent {
     
 
     /**
-     * Adds a new interaction with no duration on this edge
-     * @param type The type of the interaction
+     * Adds a new interaction with no duration on this edge at the current timestamp
+     * @param data The data to be stored in the interaction
      * @return the created interaction
      */
-    public Interaction addDetectedInteraction(String type) {
-    	return addInteraction(Utils.getCurrentTimestamp(), 0, type);
+    public Interaction addDetectedInteraction(Object data) {
+    	return addInteraction(Utils.getCurrentTimestamp(), 0, data);
     }
 
     /**
      * Creates and adds a new interaction on this edge
      * @param timestamp The start timestamp of the interaction
      * @param duration The duration of the interaction
-     * @param type The data stored in the interaction
+     * @param data The data stored in the interaction
      * @return the created interaction
      */
     public Interaction addInteraction(long timestamp, int duration, Object data) {

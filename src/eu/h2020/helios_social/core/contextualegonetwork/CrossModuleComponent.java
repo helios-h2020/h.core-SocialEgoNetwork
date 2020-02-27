@@ -23,12 +23,14 @@ public abstract class CrossModuleComponent {
     /**
      * Returns an instance of the given class that is stored in the node. If no such instance exists,
      * a new one is created first using the default construtor.
-     * Created instances are saved and loaded alongside nodes if these are part of a contextual ego network structure.<br/>
+     * Created instances are saved and loaded alongside nodes if these are part of a contextual ego network structure.
      * (Note, if they reference objects that aren't registered in the {@link Serializer}, these are loaded as separate instances.)
      * @param moduleClass A given class (e.g. that stores the node's data needed by a HELIOS module)
+     * @param ModuleObjectDataType The type of the returned object (is resolved to the same as the type of the class)
      * @return An instance of the given class
      */
-    public <ModuleObjectDataType> ModuleObjectDataType getOrCreateInstance(Class<ModuleObjectDataType> moduleClass) {
+    @SuppressWarnings("unchecked")
+	public <ModuleObjectDataType> ModuleObjectDataType getOrCreateInstance(Class<ModuleObjectDataType> moduleClass) {
     	if(moduleData==null)
     		moduleData = new HashMap<String, Object>();
     	String dataTypeName = moduleClass.getCanonicalName();
