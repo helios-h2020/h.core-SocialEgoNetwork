@@ -28,15 +28,13 @@ public final class Node extends CrossModuleComponent {
     private long onlineCounter;
 
     /**
-     * Constructor method
+     * Call getOrCreateNode(id, data) of a ContextualEgoNetwork instance to create nodes.
      * @param id identifier of the node
      * @param data data to store inside the node (can be null)
      * @throws NullPointerException if id is null
      * @throws IllegalArgumentException if the id parameters is empty
-     * @deprecated This constructor will be protected in future versions.
-     * 	Call getOrCreateNode(id, data) of a ContextualEgoNetwork instance instead.
      */
-    public Node(String id, Object data) {
+    protected Node(String id, Object data) {
         if(id == null) Utils.error(new NullPointerException());
         if(id.equals("")) Utils.error(new IllegalArgumentException("The node id or alias cannot be an empty string"));
         this.creationTime = Utils.getCurrentTimestamp();
@@ -87,14 +85,7 @@ public final class Node extends CrossModuleComponent {
     public boolean getOnlineStatus() {
         return this.online;
     }
-
-    /**
-     * @return A double, which is the score of the node (number of times online divided life span of the node)
-     */
-    public double getScore() {
-        return ((double)onlineCounter)/((double)(Utils.getCurrentTimestamp()-creationTime));
-    }
-
+    
     /**
      *
      * @return The identifier of the node declared in its constructor

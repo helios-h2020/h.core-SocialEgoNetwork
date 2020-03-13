@@ -73,6 +73,13 @@ public final class Context
     }
     
     /**
+     * @return The id assigned to this context during serialization
+     */
+    public String getSerializationId() {
+    	return getContextualEgoNetwork().getSerializer().getRegisteredId(this);
+    }
+    
+    /**
      * @return The ContextualEgoNetwork in which the context resides
      */
     public ContextualEgoNetwork getContextualEgoNetwork() {
@@ -89,14 +96,17 @@ public final class Context
     		return false;
     	//for(Node node : nodes) 
         	//contextualEgoNetwork.getSerializer().save(node);
-    	return contextualEgoNetwork.getSerializer().save(this);
+    	boolean succesfull = contextualEgoNetwork.getSerializer().save(this);
+        for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
+        	listener.onSaveContext(this);
+    	return succesfull;
     }
     
     /**
      * Removes any local files used to store the context (but retains the context in memory)
      * These files will be re-created once the context is saved again.
      */
-    public void removeFromStorage() {
+    protected void removeFromStorage() {
     	contextualEgoNetwork.getSerializer().removeFromStorage(this);
     }
     
@@ -122,6 +132,8 @@ public final class Context
     	contextualEgoNetwork.getSerializer().reload(this, 1);//loads all of its nodes
     	contextualEgoNetwork.getSerializer().setSavePermission(this, true);
     	registerTimeOfLoad();
+        for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
+        	listener.onLoadContext(this);
     }
     
     /**
@@ -294,11 +306,13 @@ public final class Context
         		return Utils.error(new IllegalArgumentException("Edge already exists in context"), edge);
         Edge edge = new Edge(src, dst, this);
         edges.add(edge);
+        for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
+        	listener.onCreateEdge(edge);
         return edge;
     }
     
     /**
-     * Gets the edge (if it exists) between two nodes of the social graph
+     * Gets the edge (if it exists) between two nodes in the context
      * @param src The source node
      * @param dst The destination node
      * @return The edge if the source and the destination nodes are in the social graph and are
@@ -317,7 +331,8 @@ public final class Context
     }
     
     /**
-     * Gets the edge (if it exists) between two nodes of the social graph or creates it if it doesn't exist
+     * Gets the edge (if it exists) between two nodes of the social graph or creates it if it doesn't exist.
+     * If the nodes are not part of the context, then they are also added.
      * @param src The source node
      * @param dst The destination node
      * @return The found or created {@link Edge}
@@ -325,6 +340,8 @@ public final class Context
      * @see #addEdge(Node, Node)
      */
     public Edge getOrAddEdge(Node src, Node dst) {
+    	addNodeIfNecessary(src);
+    	addNodeIfNecessary(dst);
     	Edge edge = getEdge(src, dst);
     	if(edge==null)
     		edge = addEdge(src, dst);
@@ -332,37 +349,41 @@ public final class Context
     }
 
     /**
-     * Removes an edge between a source and the destination node, and if either the source or the destination node is the ego
-     *        the alter node is removed from the social graph too (because the condition for which a node belongs to the ego network, that is only if
-     *        it is connected to the ego with an edge, isn't satisfied anymore)
+     * Removes an edge between a source and a destination node.
      * @param src The source node
      * @param dst The destination node
-     * @return The edge removed
+     * @return The removed edge, null if no such edge found
      * @throws NullPointerException If src and dst are null
      * @throws IllegalArgumentException If src and dst are the same node
      */
     public Edge removeEdge(Node src, Node dst) {
     	assertLoaded();
     	Edge edge = getEdge(src, dst);
+    	if(edge==null)
+    		return null;
     	edges.remove(edge);
+        for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
+        	listener.onRemoveEdge(edge);
     	return edge;
     }
 
     /**
-     * Adds a node to the context.
+     * Adds a new node to the context.
      * @param newNode The new node to be added
      * @throws NullPointerException if newNode is null
      */
     public void addNode(Node node) {
     	assertLoaded();
         if(node == null) Utils.error(new NullPointerException());
-        if(nodes.contains(node)) Utils.error("Node already in context");
+        if(nodes.contains(node)) {Utils.error("Node already in context"); return;}
         nodes.add(node);
         contextualEgoNetwork.getSerializer().registerId(node, node.getId());
+        for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
+        	listener.onAddNode(this, node);
     }
 
     /**
-     * Adds a node to the context. Does nothing if the node already exists in the context.
+     * Adds a node to the context if it’s not already part of it. Does nothing if the node already exists in the context.
      * Node can be created through the {@link ContextualEgoNetwork#getOrCreateNode} function.
      * @param node The node to be added
      * @throws NullPointerException if newNode is null
@@ -373,6 +394,8 @@ public final class Context
         if(!nodes.contains(node)) {
             nodes.add(node);
             contextualEgoNetwork.getSerializer().registerId(node, node.getId());
+            for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
+            	listener.onAddNode(this, node);
         }
     }
 
@@ -390,6 +413,8 @@ public final class Context
         edges.removeIf(edge -> edge.getSrc()==node);
         edges.removeIf(edge -> edge.getDst()==node);
         nodes.remove(node);
+        for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
+        	listener.onRemoveNode(this, node);
     }
 
     /**
@@ -418,14 +443,5 @@ public final class Context
         if(node == null) throw new NullPointerException();
         if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
         return edges.stream().filter(edge -> edge.getSrc()==node);
-    }
-
-    /**
-     * Removes all edges from the context if the tie strength is less than a threshold.
-     * @param threshold The value that is compared to the tie strength
-     */
-    public void removeWeakEdges(double threshold) {
-    	assertLoaded();
-    	edges.removeIf(edge -> edge.getTieStrength()<threshold);
     }
 }

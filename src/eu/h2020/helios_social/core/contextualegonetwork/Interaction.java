@@ -43,7 +43,10 @@ public final class Interaction {
         this.data = data;
         this.edge = edge;
     }
-    
+
+    /**
+     * @return The edge the interaction belongs to
+     */
     public Edge getEdge() {
     	return edge;
     }

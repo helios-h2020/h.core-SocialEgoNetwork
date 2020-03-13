@@ -3,7 +3,7 @@ package eu.h2020.helios_social.core.contextualegonetwork;
 import java.util.HashMap;
 
 /**
- * This class is used as a base class by HELIOS components, such as {@link Node} and {@link Edge} instances that
+ * This class is used as a base class by HELIOS components, such as {@link Node} and {@link Edge} that
  * need to store data coming from multiple modules. The {@link #getOrCreateInstance} method can be used to create
  * and access instances of data structures needed by each module.
  */
@@ -22,7 +22,7 @@ public abstract class CrossModuleComponent {
     
     /**
      * Returns an instance of the given class that is stored in the node. If no such instance exists,
-     * a new one is created first using the default construtor.
+     * a new one is created first using the default constructor.
      * Created instances are saved and loaded alongside nodes if these are part of a contextual ego network structure.
      * (Note, if they reference objects that aren't registered in the {@link Serializer}, these are loaded as separate instances.)
      * @param moduleClass A given class (e.g. that stores the node's data needed by a HELIOS module)

@@ -6,7 +6,7 @@ import java.util.logging.Logger;
  * This class implements static error parsing and logging methods, with the ability to suppress errors that can be silently handled during deployment.
  */
 public class Utils {
-	public static boolean development = true;
+	public static boolean development = false;
 	private static Logger logger = Logger.getGlobal();
 	
 	/**
@@ -15,8 +15,10 @@ public class Utils {
 	 * @throws ExceptionType The given exception if Utils.development is set to true
 	 */
 	public synchronized static <ExceptionType extends Throwable> void error(ExceptionType exception) throws ExceptionType {
-		if(development)
+		if(development) {
+			exception.printStackTrace();
 			throw exception;
+		}
 		logger.warning(exception.getLocalizedMessage());
 	}
 

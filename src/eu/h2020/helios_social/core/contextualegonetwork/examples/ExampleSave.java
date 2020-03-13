@@ -2,12 +2,14 @@ package eu.h2020.helios_social.core.contextualegonetwork.examples;
 import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
+import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener;
 
 public class ExampleSave {
 	public static void main(String[] args) {
 		//Use this example to demonstrate a simple management use case.
 		
 		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("user-00001", new PersonData("RandomName1", "", "RandomSurname1", "1/1/00"));
+		
 		Node user1 = egoNetwork.getEgo();
 		Node user2 = egoNetwork.getOrCreateNode("user-00002", null);//can set any object as node data 
 		Node user3 = egoNetwork.getOrCreateNode("user-00003", new PersonData("RandomName3", "", "RandomSurname3", "3/3/00"));
@@ -31,14 +33,11 @@ public class ExampleSave {
 		context2.addNode(user4);
 		context2.addEdge(user1, user3);
 		context2.addEdge(user1, user4);
-		context2.cleanup();//remove context contents from memory
+		//context2.cleanup();//remove context contents from memory
 		
 		egoNetwork.getContexts().get(1).addNode(user2);//this will reload the context in memory
 		egoNetwork.getContexts().get(1).addEdge(user1, user2);
-
-		System.out.println(egoNetwork.getEgo().getOrCreateInstance(ExampleSave.class).toString());
-		System.out.println(egoNetwork.getEgo().getOrCreateInstance(ExampleSave.class).toString());
 		
-		egoNetwork.save(); //saves the ego network (also saves the contexts and nodes)
+		//egoNetwork.save(); //saves the ego network (also saves the contexts and nodes)
 	}
 }

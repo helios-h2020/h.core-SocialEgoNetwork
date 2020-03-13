@@ -16,6 +16,9 @@ public class ContextualEgoNetwork {
     private ArrayList<Context> contexts;
     private Context currentContext;
     
+    @Serializer.Serialization(enabled=false)
+    private ArrayList<ContextualEgoNetworkListener> listeners = new ArrayList<ContextualEgoNetworkListener>();
+    
     /**
      * Creates a ContextualEgoNetwork.
      * @param ego The ego Node
@@ -35,6 +38,15 @@ public class ContextualEgoNetwork {
     private ContextualEgoNetwork() {
     }
     
+    public void addListener(ContextualEgoNetworkListener listener) {
+    	listeners.add(listener);
+    	listener.init(this);
+    }
+    
+    public ArrayList<ContextualEgoNetworkListener> getListeners() {
+    	return new ArrayList<ContextualEgoNetworkListener>(listeners);
+    }
+    
     /**
      * Instantiates a ContextualEgoNetwork by creating a new ego node with the given data.
      * Loads a previously saved one if such a node exists.
@@ -43,6 +55,7 @@ public class ContextualEgoNetwork {
      * @return the created or loaded contextual ego network
      */
     public static ContextualEgoNetwork createOrLoad(String egoName, Object egoData) {
+    	//TODO: ensure that multiple instances of the same CEN cannot be loaded at the same time
     	String path = egoName + File.separator;
     	ContextualEgoNetwork contextualEgoNetwork;
     	Serializer serializer = Serializer.getSerializer(path);
@@ -55,8 +68,10 @@ public class ContextualEgoNetwork {
 	    	for(Context context : contextualEgoNetwork.contexts)
 	    		context.contextualEgoNetwork = contextualEgoNetwork;
     	}
-    	else
+    	else {
     		contextualEgoNetwork = new ContextualEgoNetwork(new Node(egoName, egoData));
+    		contextualEgoNetwork.save();
+    	}
     	return contextualEgoNetwork;
     }
     
@@ -93,7 +108,7 @@ public class ContextualEgoNetwork {
      * @return The {@link Serializer} object used to save and load data in the
      * folder determined by {@link #getPath()}
      */
-    Serializer getSerializer() {
+    public Serializer getSerializer() {
     	return Serializer.getSerializer(getPath());
     }
     
@@ -107,7 +122,7 @@ public class ContextualEgoNetwork {
 	}
 	
 	/**
-	 * Applies {@link Context#cleanup()} on all contexts
+	 * Applies {@link Context#cleanup()} on all contexts. Non-saved changes are lost.
 	 */
 	public void cleanup() {
 		for(Context context : contexts)
@@ -122,7 +137,8 @@ public class ContextualEgoNetwork {
     public Context createContext(Object data) {
     	Context context = new Context(this, data);
     	contexts.add(context);
-    	Utils.log("Created context"+data.toString());
+		for(ContextualEgoNetworkListener listener : listeners)
+			listener.onCreateContext(context);
     	return context;
     }
     
@@ -141,6 +157,14 @@ public class ContextualEgoNetwork {
     	return createContext(data);
     }
     
+    public Context getContextBySerializationId(String serializationId) {
+    	Serializer serializer = getSerializer();
+    	for(Context context : contexts)
+    		if(context.getSerializationId().equals(serializationId))
+    			return context;
+    	return null;
+    }
+    
     /**
      * Removes a given context from the ContextualEgoNetwork's contexts.
      * @param context The given context
@@ -150,10 +174,12 @@ public class ContextualEgoNetwork {
     	if(!contexts.contains(context)) Utils.error("Context not found");
     	contexts.remove(context);
     	context.removeFromStorage();
+		for(ContextualEgoNetworkListener listener : listeners)
+			listener.onRemoveContext(context);
     }
     
     /**
-     * Method to grant safe access all context of the contextual ego networks
+     * Method to grant safe access to all contexts of the contextual ego networks
      * @return an ArrayList of contexts
      */
     public ArrayList<Context> getContexts(){
@@ -179,7 +205,7 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Shortcut to get the node of the ego
+     * Get the ego node
      * @return the {@link Node} that serves as the ego of the contextual ego network
      */
     public Node getEgo() {
@@ -187,7 +213,7 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Searches for a node with the given id. If no such node is found, a new one is created using the given data.
+     * Searches for a node with the given id and if no such node is found, a new one is created using the given data.
      * @param nodeId The node's id
      * @param data The node's data (only used if a new node is created)
      * @return The found or created node.
@@ -201,6 +227,8 @@ public class ContextualEgoNetwork {
     	if(node==null) {
     		node = new Node(nodeId, data);
     		serializer.registerId(node, node.getId());
+    		for(ContextualEgoNetworkListener listener : listeners)
+    			listener.onCreateNode(this, node);
     	}
     	return node;
     }

@@ -11,7 +11,7 @@ This information supports dynamic loading and unloading from memory while preser
 
 ## API Usage
 Adding an interaction to the contextual ego network by loading the respective objects or creating them when they don't already exist:
-```javascript
+```java
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;

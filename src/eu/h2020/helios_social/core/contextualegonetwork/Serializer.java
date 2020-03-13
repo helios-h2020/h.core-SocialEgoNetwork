@@ -5,6 +5,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.OutputStreamWriter;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -27,21 +31,44 @@ import org.json.simple.JSONValue;
  * This class supports dynamic object serialization, with the capability of reloading
  * only parts of objects and saving only particular objects.
  * 
- * To declare an object as a dynamic object that is referenced in other serializations using only its id
+ * To declare an object as dynamic so that it is referenced by others with its id after serialization
  * use the function {@link #registerId(Object)} to automatically create a UUId or a 
  * {@link #registerId(Object, String)} to specify a given id.
  * 
  * Serialization supports non-enum primitive datatypes, lists, arrays and maps with String keys.
  * 
+ * To declare that a class field should not be saved, put the annotation
+ * <code>@Serializer.Serialization(enabled=false)</code> over it.
+ * 
  * @author Emmanouil Krasanakis (maniospas@hotmail.com)
  */
-class Serializer {
+public class Serializer {
+	@Target({ ElementType.FIELD }) 
+    @Retention(RetentionPolicy.RUNTIME) 
+    public static @interface Serialization { 
+        boolean enabled() default true; 
+    } 
+	
 	private HashMap<Object, Boolean> enableSaving;
 	private HashMap<Object, String> objectIds;
 	private HashMap<String, Object> idObjects;
 	private String path;
 	private static HashMap<String, Serializer> serializers = new HashMap<String, Serializer>(); 
 	
+	/**
+	 * This function removes all serializers.
+	 * @deprecated Only use for testing.
+	 */
+	public synchronized static void clearSerializers() {
+		serializers.clear();
+	}
+	
+	/**
+	 * Obtains a serializer that stores objects at a specific path.
+	 * Serializers are 1-1 mapped to paths.
+	 * @param path The path in which to store objects
+	 * @return The serializer's instance
+	 */
 	public synchronized static Serializer getSerializer(String path) {
 		Serializer serializer = serializers.get(path);
 		if(serializer==null)
@@ -56,8 +83,19 @@ class Serializer {
 		this.path = path;
 	}
 	
+	/**
+	 * @return The path the serializer is stored in
+	 */
 	public String getPath() {
 		return path;
+	}
+	
+	public synchronized String getRegisteredId(Object object) {
+		if(object==null) Utils.error(new NullPointerException());
+		String id = objectIds.get(object);
+		if(id!=null)
+			return id;
+		return Utils.error(object.toString()+" has no id", null);
 	}
 	
 	synchronized String registerId(Object object) {
@@ -258,6 +296,9 @@ class Serializer {
         	if(id==null && !objectsWithKnownClasses.contains(object))
         		classObject.put("@class", object.getClass().getTypeName().toString());
     		for(Field field : object.getClass().getDeclaredFields()) {
+    			Serialization serializeable = field.getAnnotation(Serialization.class);
+    			if(serializeable!=null && !serializeable.enabled())
+    				continue;
     			boolean prevAccessible = field.isAccessible();
     			field.setAccessible(true);
 				classObject.put(field.getName(), serialize(field.get(object), true, objectsWithKnownClasses, parents));
@@ -288,13 +329,22 @@ class Serializer {
             Files.createFile(dirPath);
 			FileOutputStream outputStream = new FileOutputStream(path);
 	        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-	        outputStreamWriter.write(serialize(object, false, new HashSet<Object>(), new ArrayList<Object>()).toString());
+	        outputStreamWriter.write(serialize(object));
 	        outputStreamWriter.close();
 	        Utils.log("Saved "+objectIds.get(object)+" "+object.getClass().getName()+" ("+(System.nanoTime()-tic)/1000.0/1000.0+" ms)");
 	        return true;
 		}
 		catch(Exception e) {
 			return Utils.error("Failed to save: "+e.toString(), false);
+		}
+	}
+	
+	public synchronized String serialize(Object object) {
+		try {
+			return serialize(object, false, new HashSet<Object>(), new ArrayList<Object>()).toString();
+		}
+		catch(Exception e) {
+			return Utils.error("Failed to serialize: "+e.toString(), null);
 		}
 	}
 	
@@ -326,6 +376,15 @@ class Serializer {
 		}
 	}
 
+	/**
+	 * Enables or disables saving for the registered object for the serializer. When enabled (default behavior)
+	 * this will save the given object to a file determined by the path and registered object's serialization
+	 * identifier.
+	 * @param object The given object
+	 * @param allowSave Whether the serializer is allowed to save the given object
+	 * @exception Exception if the given object is not registered, for example with {@link #registerId(Object)}
+	 * @see #saveAllRegistered()
+	 */
 	public synchronized void setSavePermission(Object object, boolean allowSave) {
 		if(!objectIds.containsKey(object))
 			Utils.error(new IllegalArgumentException());
@@ -334,8 +393,9 @@ class Serializer {
 	}
 	
 	/**
-	 * Removes an object from the manager.
-	 * @param object
+	 * Removes an object from the serializer. This object will no longer have a unique id
+	 * and hence won't be stored in its own file.
+	 * @param object The object to remove
 	 */
 	public synchronized void unregister(Object object) {
 		String id = objectIds.get(object);
@@ -345,16 +405,16 @@ class Serializer {
 	}
 	
 	/**
-	 * Used to empty the folder the serializer is initialized in from any previously saved data.
+	 * Empties the folder the serializer is initialized in from any previously saved data.
 	 */
 	public void removePreviousSaved() {
 		File path = new File(this.path);
 		if(path.exists())
 			for(File file : path.listFiles()) 
 				file.delete();
-		}
+	}
 
-	public Object getObject(String specificId) {
+	Object getObject(String specificId) {
 		return idObjects.get(specificId);
 	}
 }
