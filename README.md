@@ -24,6 +24,16 @@ Interaction interaction = context.getOrAddEdge(cen.getEgo(), alter).addDetectedI
 cen.save(); //saves the contextual ego network
 ```
 
+Automating the saving process in a fault-tolerant manner:
+```java
+import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
+import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener;
+
+ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad("ego_user_id", null);
+cen.addListener(new RecoveryListener()); //saves data in temporary log files that are resistant to device errors
+```
+
+
 Storing node-related parameters in the library:
 ```java
 public class ModuleNodeParameters {
