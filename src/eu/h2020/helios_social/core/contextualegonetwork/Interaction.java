@@ -14,7 +14,7 @@ public final class Interaction {
     /**
      * The number of seconds that elapse between the start time and the end time of the interaction
      */
-    private int duration;
+    private long duration;
     /**
      * The interaction's data
      */
@@ -36,7 +36,7 @@ public final class Interaction {
      * @param duration The duration of the interaction
      * @throws IllegalArgumentException if timestamp or duration are less than 0
      */
-    protected Interaction(Edge edge, long timestamp, int duration, Object data) {
+    protected Interaction(Edge edge, long timestamp, long duration, Object data) {
         if(timestamp < 0 || duration < 0) throw new IllegalArgumentException();
         this.startTimestamp = timestamp;
         this.duration = duration;
@@ -68,7 +68,7 @@ public final class Interaction {
     /**
      * @return The duration of the interaction
      */
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 

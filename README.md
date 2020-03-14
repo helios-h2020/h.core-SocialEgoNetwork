@@ -34,7 +34,7 @@ cen.addListener(new RecoveryListener()); //saves data in temporary log files tha
 ```
 
 
-Storing node-related parameters in the library:
+Storing node-related parameters in the library (same usage for storing in contexts and edges):
 ```java
 public class ModuleNodeParameters {
 	private Integer[] parameters;

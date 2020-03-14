@@ -1,8 +1,6 @@
 package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.stream.Stream;
 
 import eu.h2020.helios_social.core.contextualegonetwork.Edge;
@@ -16,32 +14,12 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
  * in the device's storage by calling the {@link #removeFromStorage()} method. If the context is unloaded from memory,
  * references to it remain and its data are reloaded on the first demand or by calling {@link #load()}.
  */
-public final class Context
+public final class Context extends CrossModuleComponent
 {
     /**
      * The contextual ego network the context is part of
      */
     ContextualEgoNetwork contextualEgoNetwork;
-    /**
-     * Total number of hours the context has been active
-     */
-    private long totalHourActive;
-    /**
-     * Counter of the times the context has been active during the week. It is useful
-     * to determine the temporal slots in which the context is recurrently active
-     * (i.e. reccurring days of the week, recurring hours during a specific day of the week)
-     * It is updated every time the context is unloaded
-     * N.B. timeCounter[0] represents sunday
-     */
-    private long[][] timeCounter;
-    /**
-     * Day of the week the context has been loaded
-     */
-    private int tempDayOfWeek;
-    /**
-     * Hour of the day the context has been loaded
-     */
-    private int tempHour;
     /**
      * Object data carried by the context
      */
@@ -67,8 +45,6 @@ public final class Context
         nodes = new ArrayList<Node>();
         edges = new ArrayList<Edge>();
         nodes.add(contextualEgoNetwork.getEgo());
-        timeCounter = new long[7][24];
-        registerTimeOfLoad();
         contextualEgoNetwork.getSerializer().registerId(this);
     }
     
@@ -116,12 +92,10 @@ public final class Context
      * @see #save()
      */
     public void cleanup() {
-    	registerTimeOfUnload();
     	save();
     	contextualEgoNetwork.getSerializer().setSavePermission(this, false);
     	nodes = null;
     	edges = null;
-    	timeCounter = null;
     }
     
     /**
@@ -131,7 +105,7 @@ public final class Context
     public void load() {
     	contextualEgoNetwork.getSerializer().reload(this, 1);//loads all of its nodes
     	contextualEgoNetwork.getSerializer().setSavePermission(this, true);
-    	registerTimeOfLoad();
+    	Utils.log("Loaded context "+data.toString()+" with "+nodes.size()+" nodes, "+edges.size()+" edges");
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onLoadContext(this);
     }
@@ -142,8 +116,9 @@ public final class Context
      * @see #isLoaded()
      */
     protected boolean assertLoaded() {
-    	if(!isLoaded())
+    	if(!isLoaded()) {
     		load();//Utils.error("Context needs be loaded before use", false);
+    	}
     	return true;
     }
     
@@ -167,108 +142,6 @@ public final class Context
     {
     	assertLoaded();
         return data;
-    }
-
-    /**
-     * Saves the activation hour of the context
-     */
-    protected void registerTimeOfLoad()
-    {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        this.tempDayOfWeek = c.get(Calendar.DAY_OF_WEEK)-1;
-        this.tempHour = c.get(Calendar.HOUR_OF_DAY);
-    }
-
-    /**
-     * Updates the recurrencies array with the days of the week and hours of the days the context has been active.
-     */
-    protected void registerTimeOfUnload()
-    {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        int day = c.get(Calendar.DAY_OF_WEEK)-1;
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-
-        /*if the context has been loaded and unloaded during the same day (with at least 1 hour of difference)*/
-        if(tempHour<hour && tempDayOfWeek==day)
-        {
-            for(int i = tempHour; i<=hour; i++)
-            {
-                timeCounter[day][i]++;
-                totalHourActive++;
-            }
-        }
-        /*if the context has been loaded and unloaded within the same hour of the same day*/
-        else if(tempHour==hour && tempDayOfWeek==day)
-        {
-            timeCounter[day][hour]++;
-            totalHourActive++;
-        }
-        /*if the context has been loaded and unloaded in two different days*/
-        else
-        {
-            for(int i = tempHour; i<24; i++)
-            {
-                timeCounter[tempDayOfWeek][i]++;
-                totalHourActive++;
-            }
-            for(int i = 0;i<hour+1;i++)
-            {
-                timeCounter[day][i]++;
-                totalHourActive++;
-            }
-
-            int cont = (tempDayOfWeek+1)%7;
-            while(cont != day)
-            {
-                for(int i=0;i<24;i++)
-                {
-                    timeCounter[cont][i]++;
-                    totalHourActive++;
-                }
-                cont = (cont++)%7;
-            }
-
-        }
-    }
-
-    /**
-     * Extracts the percentage of days of the week and hours of the day in which the context has been active
-     * @return An array containing the weekly recurrencies rates
-     */
-    public float[][] getRecurrencyArray()
-    {
-        if(totalHourActive==0)
-            return null;
-        
-        float[][] res = new float[7][24];
-        for(int i=0;i<7;i++)
-        {
-            for(int j=0;j<24;j++)
-            {
-                res[i][j] = ((float)timeCounter[i][j]/(float)totalHourActive)*100;  //slot percentage
-            }
-        }
-        return res;
-    }
-
-    /**
-     * @return A mutable copy of the recurrencies array
-     */
-    public long[][] getTimeCounter()
-    {
-    	assertLoaded();
-        return timeCounter;
-    }
-
-    /**
-     * @return The total number of hours the context has been active
-     */
-    public long getTotalHourActive()
-    {
-    	assertLoaded();
-        return totalHourActive;
     }
 
     /**
@@ -303,7 +176,7 @@ public final class Context
         if(!nodes.contains(src) || !nodes.contains(dst)) return Utils.error(new IllegalArgumentException("Either source or destination nodes are not in context"), null);
         for(Edge edge : edges)
         	if(edge.getSrc()==src && edge.getDst()==dst)
-        		return Utils.error(new IllegalArgumentException("Edge already exists in context"), edge);
+        		return Utils.error(new IllegalArgumentException("Edge already exists in context (maybe you meant to add a new interaction on that edge instead)"), edge);
         Edge edge = new Edge(src, dst, this);
         edges.add(edge);
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())

@@ -65,8 +65,11 @@ public class ContextualEgoNetwork {
 	    	serializer.reload(contextualEgoNetwork);
 	    	serializer.reload(contextualEgoNetwork.ego);
 	    	// make contexts know where to look for the serializer
-	    	for(Context context : contextualEgoNetwork.contexts)
+	    	for(Context context : contextualEgoNetwork.contexts) {
 	    		context.contextualEgoNetwork = contextualEgoNetwork;
+	    		if(!context.isLoaded())
+	    			serializer.setSavePermission(context, false);
+	    	}
     	}
     	else {
     		contextualEgoNetwork = new ContextualEgoNetwork(new Node(egoName, egoData));
@@ -119,6 +122,9 @@ public class ContextualEgoNetwork {
 	public void save() {
 		Serializer serializer = getSerializer();
 		serializer.saveAllRegistered();
+		for(Context context : contexts)
+			for(ContextualEgoNetworkListener listener : listeners)
+				listener.onSaveContext(context);
 	}
 	
 	/**
@@ -134,7 +140,7 @@ public class ContextualEgoNetwork {
      * @param data The data that the context should hold.
      * @return The newly created context
      */
-    public Context createContext(Object data) {
+    protected Context createContext(Object data) {
     	Context context = new Context(this, data);
     	contexts.add(context);
 		for(ContextualEgoNetworkListener listener : listeners)
@@ -158,7 +164,6 @@ public class ContextualEgoNetwork {
     }
     
     public Context getContextBySerializationId(String serializationId) {
-    	Serializer serializer = getSerializer();
     	for(Context context : contexts)
     		if(context.getSerializationId().equals(serializationId))
     			return context;

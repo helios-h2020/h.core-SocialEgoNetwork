@@ -19,8 +19,9 @@ import eu.h2020.helios_social.core.contextualegonetwork.Utils;
 
 /**
  * This class implements a {@link ContextualEgoNetworkListener} that automatically 
- * safeguards the contextual ego network from failures that would occur from failing
- * to call save and load function before exiting it.
+ * safeguards the contextual ego network from failing to call save() before terminating the application.
+ * For the time being, this does not safeguard against keeping unsaved changes on objects obtained of the
+ * {@link eu.h2020.helios_social.core.contextualegonetwork.CrossModuleComponent#getOrCreateInstance(Class)}.
  * 
  * @author Emmanouil Krasanakis (maniospas@hotmail.com)
  */
@@ -29,12 +30,17 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	private ContextualEgoNetwork contextualEgoNetwork = null;
 	private static String SEPARATOR = " @@ ";
 	
-	protected synchronized void recover(String path) {
-		if(!(new File(path)).exists())
+	/**
+	 * Used by the {@link #init(ContextualEgoNetwork)} of this listener to recover context actions that have not been saved.
+	 * Immediately saves the recovered contextual ego network.
+	 * @param recoveryFile : The path to the recovery file
+	 */
+	protected synchronized void recover(String recoveryFile) {
+		if(!(new File(recoveryFile)).exists())
 			return;
 	    HashMap<String, ArrayList<String>> contextLines = new HashMap<String, ArrayList<String>>();
 		try{
-			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
+			BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(recoveryFile)));
 		    String line;
 		    while ((line = br.readLine()) != null) {
 		    	String contextId = line.split(Pattern.quote(SEPARATOR))[1];
@@ -45,7 +51,7 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 		    br.close();
 		}
 		catch(Exception e) {
-			Utils.error("Failed to recover: "+e.toString());
+			Utils.error(e);
 		}
 	    for(String contextId : contextLines.keySet()) {
 	    	ArrayList<String> activeLines = new ArrayList<String>();
@@ -65,6 +71,14 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	    			context.addEdge(contextualEgoNetwork.getOrCreateNode(action[2], null), contextualEgoNetwork.getOrCreateNode(action[3], null));
 	    		else if(action[0].equals("context.removeEdge"))
 	    			context.removeEdge(contextualEgoNetwork.getOrCreateNode(action[2], null), contextualEgoNetwork.getOrCreateNode(action[3], null));
+	    		else if(action[0].equals("context.removeEdge"))
+	    			context.removeEdge(contextualEgoNetwork.getOrCreateNode(action[2], null), contextualEgoNetwork.getOrCreateNode(action[3], null));
+	    		else if(action[0].equals("edge.createInteraction")) {
+	    			Edge edge = context.getEdge(contextualEgoNetwork.getOrCreateNode(action[2], null), contextualEgoNetwork.getOrCreateNode(action[3], null));
+	    			Object data = edge.getContext().getContextualEgoNetwork().getSerializer().deserializeFromString(action[6]);
+	    			edge.addInteraction(Long.parseLong(action[4]), Long.parseLong(action[5]), data);
+	    		}
+	    	
 	    	}
 	    }
 	}
@@ -82,8 +96,7 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 			writer = new PrintWriter(new File("recovery.txt"));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			Utils.error("Failed to initialize recovery: "+e.toString());
+			Utils.error(e);
 		}
 	}
 	protected synchronized void write(String line) {
@@ -97,8 +110,8 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 		contextualEgoNetwork.getSerializer().save(node);
 	}
 	public void onCreateContext(Context context) {
+		context.save();//order is important
 		contextualEgoNetwork.getSerializer().save(contextualEgoNetwork);
-		context.save();
 	}
 	public void onLoadContext(Context context) {
 	}
@@ -119,6 +132,12 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	}
 	public void onCreateInteraction(Interaction interaction) {
 		Edge edge = interaction.getEdge();
-		write("interaction"+SEPARATOR+edge.getContext().getSerializationId()+SEPARATOR+edge.getSrc().getId()+SEPARATOR+edge.getDst().getId());
+		write("edge.createInteraction"
+				+SEPARATOR+edge.getContext().getSerializationId()
+				+SEPARATOR+edge.getSrc().getId()
+				+SEPARATOR+edge.getDst().getId()
+				+SEPARATOR+interaction.getStartTime()
+				+SEPARATOR+interaction.getDuration()
+				+SEPARATOR+edge.getContext().getContextualEgoNetwork().getSerializer().serializeToString(interaction.getData()));
 	}
 }

@@ -14,10 +14,10 @@ public class Utils {
 	 * @param exception the given Throwable
 	 * @throws ExceptionType The given exception if Utils.development is set to true
 	 */
-	public synchronized static <ExceptionType extends Throwable> void error(ExceptionType exception) throws ExceptionType {
+	public synchronized static <ExceptionType extends Throwable> void error(ExceptionType exception) throws RuntimeException {
 		if(development) {
 			exception.printStackTrace();
-			throw exception;
+			throw new RuntimeException(exception);
 		}
 		logger.warning(exception.getLocalizedMessage());
 	}
@@ -36,7 +36,7 @@ public class Utils {
 				if(messages.length>1)
 					message.append("\t|");
 			}
-			logger.info(message.toString());
+			System.out.println(message.toString());
 		}
 	}
 
@@ -58,7 +58,7 @@ public class Utils {
 	 * @return The given defaultValue
 	 * @throws ExceptionType The given exception if Utils.development is set to true
 	 */
-	public synchronized static <ExceptionType extends Throwable, ValueType> ValueType error(ExceptionType exception, ValueType defaultValue) throws ExceptionType {
+	public synchronized static <ExceptionType extends Throwable, ValueType> ValueType error(ExceptionType exception, ValueType defaultValue) throws RuntimeException {
 		error(exception);
 		return defaultValue;
 	}

@@ -10,10 +10,6 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
  */
 public final class Edge extends CrossModuleComponent {
     /**
-     * UNIX timestamp of the creation time of the edge
-     */
-    private long timeCreated;
-    /**
      * Source node
      */
     private Node src;
@@ -40,7 +36,6 @@ public final class Edge extends CrossModuleComponent {
     Edge(Node src, Node dst, Context context)
     {
         if(src == null || dst == null) Utils.error(new NullPointerException());
-        this.timeCreated = Utils.getCurrentTimestamp();
         this.src = src;
         this.dst = dst;
         this.context = context;
@@ -99,14 +94,6 @@ public final class Edge extends CrossModuleComponent {
     }
 
     /**
-     * @return The creation timestamp of the edge
-     */
-    public long getCreationTime() {
-        return this.timeCreated;
-    }
-    
-
-    /**
      * Adds a new interaction with no duration on this edge at the current timestamp
      * @param data The data to be stored in the interaction
      * @return the created interaction
@@ -122,23 +109,13 @@ public final class Edge extends CrossModuleComponent {
      * @param data The data stored in the interaction
      * @return the created interaction
      */
-    public Interaction addInteraction(long timestamp, int duration, Object data) {
+    public Interaction addInteraction(long timestamp, long duration, Object data) {
         if(timestamp < 0 || duration < 0) Utils.error(new IllegalArgumentException("Timestamp and duration cannot be negative"));
         Interaction interaction = new Interaction(this, timestamp, duration, data);
         interactions.add(interaction);
+        for(ContextualEgoNetworkListener listener : getContext().getContextualEgoNetwork().getListeners())
+        	listener.onCreateInteraction(interaction);
         return interaction;
-    }
-
-    /**
-     * @return The weight of the edge. i.e. the tie strength between the source and the destination
-     *          (the number of interactions that have taken place on this edge divided by the life span of the edge)
-     */
-    public double getTieStrength() {
-        long now = Utils.getCurrentTimestamp();
-        double elapsed = (double) (now - this.timeCreated);
-        if(elapsed==0)
-        	return 0;
-        return (double) (this.interactions.size()) / (double) (now - this.timeCreated);
     }
 
     /**

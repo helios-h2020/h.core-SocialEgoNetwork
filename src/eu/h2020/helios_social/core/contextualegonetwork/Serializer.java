@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +55,13 @@ public class Serializer {
 	private HashMap<String, Object> idObjects;
 	private String path;
 	private static HashMap<String, Serializer> serializers = new HashMap<String, Serializer>(); 
+	
+	protected static List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<Field>();
+        for (Class<?> c = type; c != null; c = c.getSuperclass())
+            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+        return fields;
+    }
 	
 	/**
 	 * This function removes all serializers.
@@ -136,20 +144,23 @@ public class Serializer {
 	protected Object deserializeToNewObject(Object jsonValue, Type defaultClass, int levelsOfLoadingDemand, ArrayList<Object> parents) throws Exception {
 		if(jsonValue==null)
 			return null;
+		if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@value")) {
+			//System.out.println("Loading: "+((JSONObject)jsonValue).get("@value")+" of type "+((JSONObject)jsonValue).get("@class"));
+			Class<?> primitiveType = Class.forName((String)((JSONObject)jsonValue).get("@class"));
+			return deserializeToNewObject(((JSONObject)jsonValue).get("@value"), primitiveType, levelsOfLoadingDemand, parents);
+		}
 		if(jsonValue instanceof String) {
 			if(defaultClass==String.class)
 				return (String)jsonValue;
 			if(defaultClass==Boolean.class || defaultClass==boolean.class)
-				return (boolean)Boolean.parseBoolean((String)jsonValue);
+				return new Boolean(Boolean.parseBoolean((String)jsonValue));
 			if(defaultClass==Long.class || defaultClass==long.class)
-				return (long)Long.parseLong((String)jsonValue);
+				return new Long(Long.parseLong((String)jsonValue));
 			if(defaultClass==Integer.class || defaultClass==int.class)
-				return (int)Integer.parseInt((String)jsonValue);
+				return new Integer(Integer.parseInt((String)jsonValue));
 			if(defaultClass==Double.class || defaultClass==double.class)
-				return (double)Double.parseDouble((String)jsonValue);
-			if(defaultClass==Object.class)
-				return (String)jsonValue;//strings are parsed as generic objects
-			return Utils.error("Unknown primitive datatype: "+defaultClass.toString(), null);
+				return new Double(Double.parseDouble((String)jsonValue));
+			return Utils.error("Unknown primitive datatype: "+defaultClass, null);
 		}
 		if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@id")
 				&& idObjects.containsKey((String)((JSONObject)jsonValue).get("@id"))) {
@@ -186,6 +197,8 @@ public class Serializer {
 		if(jsonValue instanceof JSONObject && ((JSONObject)jsonValue).containsKey("@class")) {
 			Class<?> valueType = Class.forName((String)((JSONObject)jsonValue).get("@class"));
 			Constructor<?> constructor = valueType.getDeclaredConstructor();
+			if(constructor==null)
+				throw new RuntimeException("Cannot deserialize class with no default constructor: "+valueType.toString());
 			boolean prevConstructorAccessible = constructor.isAccessible();
 			constructor.setAccessible(true);
 			Object value = constructor.newInstance();
@@ -224,7 +237,7 @@ public class Serializer {
 			return;
 		}
 		JSONObject classObject = (JSONObject)json;
-		for(Field field : object.getClass().getDeclaredFields()) {
+		for(Field field : getAllFields(object.getClass())) {
 			String fieldName = field.getName();
 			if(classObject.containsKey(fieldName)) {
 				boolean prevAccessible = field.isAccessible();
@@ -234,16 +247,17 @@ public class Serializer {
 					field.set(object, deserializeToNewObject(classObject.get(fieldName), field.getGenericType(), levelsOfLoadingDemand, parents));
 				}
 				catch(Exception e) {
+					e.printStackTrace();
 					Utils.error("Deserialization error for field "+object.getClass().toString()+"."+field.getName()+" : "+e.toString());
 				}
-				parents.remove(object);
+				parents.remove(parents.size()-1);
 				field.setAccessible(prevAccessible);
 			}
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected Object serialize(Object object, boolean convertToIdIfPossible, HashSet<Object> objectsWithKnownClasses, ArrayList<Object> parents) throws Exception {
+	protected Object serialize(Object object, Class<?> wouldHaveSuggestedClass, boolean convertToIdIfPossible, HashSet<Object> objectsWithKnownClasses, ArrayList<Object> parents) throws Exception {
 		if(object==null)
 			return null;
 		if(object.getClass().isPrimitive()
@@ -252,13 +266,20 @@ public class Serializer {
 				|| object instanceof Long
 				|| object instanceof Integer
 				|| object instanceof Double
-				|| object instanceof Enum)
+				|| object instanceof Enum) {
+			if(wouldHaveSuggestedClass==null || !wouldHaveSuggestedClass.getSimpleName().replace("int", "Integer").equalsIgnoreCase(object.getClass().getSimpleName())) {
+				JSONObject classObject = new JSONObject(); 
+	    		classObject.put("@class", object.getClass().getTypeName().toString());
+	    		classObject.put("@value", object.toString());
+				return classObject;
+			}
 			return object.toString();
+		}
 		if(object instanceof List) {
 			parents.add(object);
 			JSONArray list = new JSONArray();
 			for(Object element : ((List<?>)object))
-				list.add(serialize(element, true, objectsWithKnownClasses, parents));
+				list.add(serialize(element, null, true, objectsWithKnownClasses, parents));
 			parents.remove(object);
 			return list;
 		}
@@ -266,7 +287,7 @@ public class Serializer {
 			JSONArray list = new JSONArray();
 			parents.add(object);
 			for(int i=0;i<Array.getLength(object);i++)
-				list.add(serialize(Array.get(object, i), true, objectsWithKnownClasses, parents));
+				list.add(serialize(Array.get(object, i), object.getClass().getComponentType(), true, objectsWithKnownClasses, parents));
 			parents.remove(object);
 			return list;
 		}
@@ -274,7 +295,7 @@ public class Serializer {
 			parents.add(object);
 			JSONObject map = new JSONObject();
 			for(String key : ((Map<String,?>)object).keySet()) 
-				map.put(key.toString(), serialize(((Map<String,?>)object).get(key), true, objectsWithKnownClasses, parents));
+				map.put(key.toString(), serialize(((Map<String,?>)object).get(key), null, true, objectsWithKnownClasses, parents));
 			parents.remove(object);
 			return map;
 		}
@@ -295,13 +316,13 @@ public class Serializer {
             parents.add(object);
         	if(id==null && !objectsWithKnownClasses.contains(object))
         		classObject.put("@class", object.getClass().getTypeName().toString());
-    		for(Field field : object.getClass().getDeclaredFields()) {
+    		for(Field field : getAllFields(object.getClass())) {
     			Serialization serializeable = field.getAnnotation(Serialization.class);
     			if(serializeable!=null && !serializeable.enabled())
     				continue;
     			boolean prevAccessible = field.isAccessible();
     			field.setAccessible(true);
-				classObject.put(field.getName(), serialize(field.get(object), true, objectsWithKnownClasses, parents));
+				classObject.put(field.getName(), serialize(field.get(object), field.getType(), true, objectsWithKnownClasses, parents));
 				field.setAccessible(prevAccessible);
     		}
             parents.remove(object);
@@ -329,7 +350,7 @@ public class Serializer {
             Files.createFile(dirPath);
 			FileOutputStream outputStream = new FileOutputStream(path);
 	        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-	        outputStreamWriter.write(serialize(object));
+	        outputStreamWriter.write(serialize(object, null, false, new HashSet<Object>(), new ArrayList<Object>()).toString());
 	        outputStreamWriter.close();
 	        Utils.log("Saved "+objectIds.get(object)+" "+object.getClass().getName()+" ("+(System.nanoTime()-tic)/1000.0/1000.0+" ms)");
 	        return true;
@@ -339,12 +360,27 @@ public class Serializer {
 		}
 	}
 	
-	public synchronized String serialize(Object object) {
+	public synchronized Object deserializeFromString(String serializedObject) {
+		if(serializedObject.isEmpty())
+			return null;
 		try {
-			return serialize(object, false, new HashSet<Object>(), new ArrayList<Object>()).toString();
+		    JSONObject jsonObject = (JSONObject) JSONValue.parse(serializedObject);
+		    return deserializeToNewObject(jsonObject, null, 0, new ArrayList<Object>());
 		}
 		catch(Exception e) {
-			return Utils.error("Failed to serialize: "+e.toString(), null);
+			Utils.error(e);
+			return null;
+		}
+	}
+	
+	public synchronized String serializeToString(Object object) {
+		try {
+			if(object==null)
+				return "";
+			return serialize(object, null, false, new HashSet<Object>(), new ArrayList<Object>()).toString();
+		}
+		catch(Exception e) {
+			return Utils.error(e, null);
 		}
 	}
 	
@@ -352,7 +388,7 @@ public class Serializer {
 		return reload(object, 0);
 	}
 	
-	public synchronized boolean reload(Object object, int levelsOfLoadingDemand) {
+	public synchronized boolean reload(Object object, int levelsOfLoadingDemand) {//zero levels to NOT iteratively reload
 		try {
 			long tic = System.nanoTime();
 			BufferedReader br = new BufferedReader(new FileReader(path+objectIds.get(object)));
@@ -371,8 +407,7 @@ public class Serializer {
 		    return true;
 		}
 		catch(Exception e) {
-			e.printStackTrace();
-			return Utils.error("Failed to load: "+e.toString(), false);
+			return Utils.error(e, false);
 		}
 	}
 

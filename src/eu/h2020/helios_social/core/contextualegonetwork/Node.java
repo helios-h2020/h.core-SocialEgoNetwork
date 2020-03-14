@@ -14,18 +14,6 @@ public final class Node extends CrossModuleComponent {
      * Data carried by the node
      */
     private Object data;
-    /**
-     * Status of the node (if false offline, if true online)
-     */
-    private boolean online;
-    /**
-     * Timestamp of creation of the node
-     */
-    private long creationTime;
-    /**
-     * Number of times the node's status has been set to online
-     */
-    private long onlineCounter;
 
     /**
      * Call getOrCreateNode(id, data) of a ContextualEgoNetwork instance to create nodes.
@@ -37,7 +25,6 @@ public final class Node extends CrossModuleComponent {
     protected Node(String id, Object data) {
         if(id == null) Utils.error(new NullPointerException());
         if(id.equals("")) Utils.error(new IllegalArgumentException("The node id or alias cannot be an empty string"));
-        this.creationTime = Utils.getCurrentTimestamp();
         this.id = id;
         this.data = data;
     }
@@ -48,21 +35,6 @@ public final class Node extends CrossModuleComponent {
     protected Node()
     {}
     
-
-    /**
-     * @return The number of times the node's state has been online
-     */
-    public long getOnlineCounter() {
-        return this.onlineCounter;
-    }
-
-    /**
-     * @return The timestamp of when the node was created
-     */
-    public long getCreationTime() {
-        return this.creationTime;
-    }
-
     /**
      * @return The data attached to the node
      */
@@ -70,22 +42,7 @@ public final class Node extends CrossModuleComponent {
     {
         return data;
     }
-    
-    /**
-     * Sets the status of the node to online or offline
-     * @param online Whether the node is online
-     */
-    public void setOnlineStatus(boolean online) {
-        this.online = online;
-    }
-    
-    /**
-     * @return The status of the node (true if online, false if offline)
-     */
-    public boolean getOnlineStatus() {
-        return this.online;
-    }
-    
+ 
     /**
      *
      * @return The identifier of the node declared in its constructor

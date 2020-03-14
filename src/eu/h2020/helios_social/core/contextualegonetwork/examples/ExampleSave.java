@@ -2,7 +2,6 @@ package eu.h2020.helios_social.core.contextualegonetwork.examples;
 import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
-import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener;
 
 public class ExampleSave {
 	public static void main(String[] args) {
@@ -18,7 +17,7 @@ public class ExampleSave {
 		
 		
 		//example context management
-		Context context1 = egoNetwork.createContext(new DefaultContextData("ContextName1", new Location(1,1)));
+		Context context1 = egoNetwork.getOrCreateContext(new DefaultContextData("ContextName1", new DefaultContextData.Location(1,1)));
 		context1.addNode(user2);
 		context1.addNode(user4);
 		context1.getOrAddEdge(user1, user2);//creates the edge if it doesn't exist
@@ -38,6 +37,6 @@ public class ExampleSave {
 		egoNetwork.getContexts().get(1).addNode(user2);//this will reload the context in memory
 		egoNetwork.getContexts().get(1).addEdge(user1, user2);
 		
-		//egoNetwork.save(); //saves the ego network (also saves the contexts and nodes)
+		egoNetwork.save(); //saves the ego network (also saves the contexts and nodes)
 	}
 }

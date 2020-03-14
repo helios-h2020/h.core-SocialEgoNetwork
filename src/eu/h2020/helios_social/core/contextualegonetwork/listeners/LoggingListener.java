@@ -1,7 +1,5 @@
 package eu.h2020.helios_social.core.contextualegonetwork.listeners;
 
-import java.util.logging.Logger;
-
 import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetworkListener;
@@ -9,26 +7,48 @@ import eu.h2020.helios_social.core.contextualegonetwork.Edge;
 import eu.h2020.helios_social.core.contextualegonetwork.Interaction;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
+/**
+ * This class implements a {@link ContextualEgoNetworkListener} that logs contextual ego network events.
+ * 
+ * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ */
 public class LoggingListener implements ContextualEgoNetworkListener {
-	private static Logger logger = Logger.getGlobal();
-	@Override
+	//private static Logger logger = Logger.getGlobal();
+	
+	private void info(String text) {
+		System.out.println(text);
+	}
+	public synchronized void init(ContextualEgoNetwork contextualEgoNetwork) {
+		info("Started logging on CEN of node: "+contextualEgoNetwork.getEgo().getId());
+	}
 	public void onCreateNode(ContextualEgoNetwork contextualEgoNetwork, Node node) {
-		logger.info("Created node: "+node);
+		info("Created node: "+node.getId());
 	}
-	@Override
 	public void onCreateContext(Context context) {
-		logger.info("Created context: "+context);
+		info("Created context: "+context.getData().toString());
 	}
-	@Override
+	public void onLoadContext(Context context) {
+		info("Loaded context: "+context.getData().toString());
+	}
 	public void onSaveContext(Context context) {
-		logger.info("Saved context: "+context);
+		info("Loaded context: "+context.getData().toString());
 	}
-	@Override
+	public void onRemoveContext(Context context) {
+		info("Removed context: "+context.getData().toString());
+	}
+	public void onAddNode(Context context, Node node) {
+		info("Added a node to context: "+context.getData().toString());
+	}
+	public void onRemoveNode(Context context, Node node) {
+		info("Removed a node from context: "+context.getData().toString());
+	}
 	public void onCreateEdge(Edge edge) {
-		logger.info("Created edge: "+edge);
+		info("Added an edge to context: "+edge.getContext().getData().toString());
 	}
-	@Override
+	public void onRemoveEdge(Edge edge) {
+		info("Removed an edge from context: "+edge.getContext().getData().toString());
+	}
 	public void onCreateInteraction(Interaction interaction) {
-		logger.info("Created interaction: "+interaction);
+		info("Added a "+interaction.getData().toString()+" interaction to context: "+interaction.getEdge().getContext().getData().toString());
 	}
 }

@@ -21,9 +21,9 @@ public class ExampleLoad {
 		//assert that deserialization identifies the same data objects
 		System.out.println(egoNetwork+" == "+egoNetwork.getContexts().get(0).getContextualEgoNetwork());
 		//assert that deserialization works for nested data types
-		System.out.println(((DefaultContextData)egoNetwork.getContexts().get(0).getData()).getName());
+		//System.out.println(((DefaultContextData)egoNetwork.getContexts().get(0).getData()).getName());
 		//assert that deserialization works for arrays (it would throw a nullptr exception if it didn't work)
-		System.out.println(egoNetwork.getContexts().get(1).getTimeCounter()[6][23]);
+		//System.out.println(egoNetwork.getContexts().get(1).getTimeCounter()[6][23]);
 		//assert that crated class instances work correctly
 		System.out.println(egoNetwork.getEgo().getOrCreateInstance(ExampleSave.class).toString());
 		
@@ -31,6 +31,7 @@ public class ExampleLoad {
 		for(Context context : egoNetwork.getContexts()) {
 			context.cleanup();
 			System.out.println("Context: "+context.getData().toString());
+			System.out.println(context.getEdges().size()+" edges");
 			for(Edge edge : context.getEdges()) {
 				System.out.println(edge.getSrc().getData()+" -> "+edge.getDst().getData());
 				for(Interaction interaction : edge.getInteractions())
