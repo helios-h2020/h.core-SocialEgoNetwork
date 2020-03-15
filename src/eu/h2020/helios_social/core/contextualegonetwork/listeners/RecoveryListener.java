@@ -84,6 +84,7 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	}
 	
 	public synchronized void init(ContextualEgoNetwork contextualEgoNetwork) {
+		String path = contextualEgoNetwork.getSerializer().getPath()+"recovery.log";
 		if(this.contextualEgoNetwork!=null && this.contextualEgoNetwork!=contextualEgoNetwork)
 			Utils.error("RecoveryListener can be assigned only to one ContextualEgoNetwork");
 		this.contextualEgoNetwork = contextualEgoNetwork;
@@ -91,9 +92,9 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 			if(writer!=null) 
 				writer.close();
 			else
-				recover("recovery.txt");
+				recover(path);
 			contextualEgoNetwork.save();
-			writer = new PrintWriter(new File("recovery.txt"));
+			writer = new PrintWriter(new File(path));
 		}
 		catch (Exception e) {
 			Utils.error(e);

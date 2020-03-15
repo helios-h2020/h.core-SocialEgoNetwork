@@ -1,3 +1,0 @@
-edge.createInteraction @@ 3b0d9db5-81ad-4fe3-8fbf-30214babf16f @@ user-00002 @@ user-00003 @@ 1584223877091 @@ 0 @@ {"@class":"java.lang.String","@value":"HANDSHAKE1"}
-edge.createInteraction @@ 3b0d9db5-81ad-4fe3-8fbf-30214babf16f @@ user-00002 @@ user-00003 @@ 1584223877092 @@ 0 @@ {"@class":"java.lang.String","@value":"HANDSHAKE2"}
-context.save @@ 3b0d9db5-81ad-4fe3-8fbf-30214babf16f

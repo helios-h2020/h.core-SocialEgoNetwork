@@ -132,7 +132,7 @@ public class Serializer {
 	
 	public synchronized void removeFromStorage(Object object) {
         try{
-            Path path = Paths.get(this.path+objectIds.get(object));
+            Path path = Paths.get(this.path+objectIds.get(object)+".json");
             Files.deleteIfExists(path);
         }
         catch(Exception e){
@@ -342,7 +342,7 @@ public class Serializer {
 		try {
 			long tic = System.nanoTime();
 	        registerId(object);
-	    	String path = this.path+objectIds.get(object);
+	    	String path = this.path+objectIds.get(object)+".json";
 	        Path dirPath = Paths.get(path);
 	        if(dirPath.getParent()!=null)
         		Files.createDirectories(dirPath.getParent());
@@ -350,7 +350,8 @@ public class Serializer {
             Files.createFile(dirPath);
 			FileOutputStream outputStream = new FileOutputStream(path);
 	        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream);
-	        outputStreamWriter.write(serialize(object, null, false, new HashSet<Object>(), new ArrayList<Object>()).toString());
+	        JSONObject jsonSerialized = (JSONObject)serialize(object, null, false, new HashSet<Object>(), new ArrayList<Object>());
+	        outputStreamWriter.write(jsonSerialized.toString());
 	        outputStreamWriter.close();
 	        Utils.log("Saved "+objectIds.get(object)+" "+object.getClass().getName()+" ("+(System.nanoTime()-tic)/1000.0/1000.0+" ms)");
 	        return true;
@@ -391,7 +392,7 @@ public class Serializer {
 	public synchronized boolean reload(Object object, int levelsOfLoadingDemand) {//zero levels to NOT iteratively reload
 		try {
 			long tic = System.nanoTime();
-			BufferedReader br = new BufferedReader(new FileReader(path+objectIds.get(object)));
+			BufferedReader br = new BufferedReader(new FileReader(path+objectIds.get(object)+".json"));
 		    StringBuilder builder = new StringBuilder();
 		    String line = br.readLine();
 		    while (line != null) {
