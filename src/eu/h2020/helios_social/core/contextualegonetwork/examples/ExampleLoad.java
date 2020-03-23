@@ -10,7 +10,7 @@ public class ExampleLoad {
 	public static void main(String[] args) {
 		Utils.development = false;//disable logging and make exceptions try to forcefully continue execution
 		
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("user-00001", null);
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", null);
 		
 		//assert that deserialization loads the ego correctly
 		System.out.println(egoNetwork.getEgo().getId());

@@ -254,6 +254,7 @@ public final class Context extends CrossModuleComponent
     	assertLoaded();
         if(node == null) Utils.error(new NullPointerException());
         if(!nodes.contains(node)) {
+        	assertSameContextualEgoNetwork(node);
             nodes.add(node);
             getContextualEgoNetwork().getSerializer().registerId(node, node.getId());
             for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())

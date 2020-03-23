@@ -10,7 +10,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListen
 public class Example {
 
 	public static void main(String[] args) {
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("user-00001", null);
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", null);
 		
 		egoNetwork.addListener(new RecoveryListener());//automatic saving with minimal overhead
 		egoNetwork.addListener(new CreationListener());//keep timestamps

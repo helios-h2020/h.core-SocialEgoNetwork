@@ -7,7 +7,7 @@ public class ExampleSave {
 	public static void main(String[] args) {
 		//Use this example to demonstrate a simple management use case.
 		
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("user-00001", new PersonData("RandomName1", "", "RandomSurname1", "1/1/00"));
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", new PersonData("RandomName1", "", "RandomSurname1", "1/1/00"));
 		
 		Node user1 = egoNetwork.getEgo();
 		Node user2 = egoNetwork.getOrCreateNode("user-00002", null);//can set any object as node data 

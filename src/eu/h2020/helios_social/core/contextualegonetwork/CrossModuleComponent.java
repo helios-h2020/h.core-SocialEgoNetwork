@@ -14,7 +14,7 @@ public abstract class CrossModuleComponent {
     ContextualEgoNetwork contextualEgoNetwork;
     
     protected CrossModuleComponent (ContextualEgoNetwork contextualEgoNetwork) {
-        if(contextualEgoNetwork == null) Utils.error(new NullPointerException());
+        //if(contextualEgoNetwork == null) Utils.error(new NullPointerException());
     	this.contextualEgoNetwork = contextualEgoNetwork;
     }
     
@@ -31,6 +31,16 @@ public abstract class CrossModuleComponent {
      */
     public ContextualEgoNetwork getContextualEgoNetwork() {
     	return contextualEgoNetwork;
+    }
+    
+    /**
+     * Checks that this component belongs to the same ego network as the compared component
+     * @param with The compared component
+     * @throws RuntimeException if the two components are part of different networks
+     */
+    public void assertSameContextualEgoNetwork(CrossModuleComponent with) {
+    	if(with.getContextualEgoNetwork()!=getContextualEgoNetwork() || getContextualEgoNetwork()==null)
+    		Utils.error("Components not part of the same ContextualEgoNetwork instance");
     }
     
     /**

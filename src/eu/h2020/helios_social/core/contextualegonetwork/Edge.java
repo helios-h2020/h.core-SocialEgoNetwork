@@ -37,6 +37,8 @@ public final class Edge extends CrossModuleComponent {
     {
     	super(contextualEgoNetwork);
         if(src == null || dst == null) Utils.error(new NullPointerException());
+    	assertSameContextualEgoNetwork(src);
+    	assertSameContextualEgoNetwork(dst);
         this.src = src;
         this.dst = dst;
         this.context = context;

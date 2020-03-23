@@ -9,7 +9,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListen
 
 public class ExampleRecovery {
 	public static ContextualEgoNetwork createNetworkWithRecovery() {
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("user-00001", null);
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", null);
 		
 		egoNetwork.addListener(new RecoveryListener());//insure against failing operation
 		
@@ -25,7 +25,7 @@ public class ExampleRecovery {
 	}
 	
 	public static ContextualEgoNetwork loadNetworkWithoutRecovery() {
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("user-00001", null);
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", null);
 		return egoNetwork;
 	}
 	

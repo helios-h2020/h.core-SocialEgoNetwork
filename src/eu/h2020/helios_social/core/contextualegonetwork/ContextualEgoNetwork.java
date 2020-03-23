@@ -14,22 +14,24 @@ import java.util.ArrayList;
 public class ContextualEgoNetwork {
     private Node ego;
     private ArrayList<Context> contexts;
+    private ArrayList<Node> alters;
     private Context currentContext;
+    private String internalStoragePath;
     
     @Serializer.Serialization(enabled=false)
     private ArrayList<ContextualEgoNetworkListener> listeners = new ArrayList<ContextualEgoNetworkListener>();
     
     /**
      * Creates a ContextualEgoNetwork.
+     * @param internalStoragePath - The path to the internal storage location (can be any path)
      * @param ego The ego Node
-     * @deprecated This constructor will be made protected in future versions.
-     * 	Call ContextualEgoNetwork.createOrLoad(egoName, egoData)
-     * 	and NOT ContextualEgoNetwork(new Node(egoName, egoData)).
      */
-    public ContextualEgoNetwork(Node ego) {
+    protected ContextualEgoNetwork(String internalStoragePath, Node ego) {
+    	this.internalStoragePath = internalStoragePath;
         if(ego == null) Utils.error(new NullPointerException());
         this.ego = ego;
         contexts = new ArrayList<Context>();
+        alters = new ArrayList<Node>();
         getSerializer().removePreviousSaved();
         getSerializer().registerId(this, "CEN");
         getSerializer().registerId(ego, ego.getId());
@@ -50,13 +52,16 @@ public class ContextualEgoNetwork {
     /**
      * Instantiates a ContextualEgoNetwork by creating a new ego node with the given data.
      * Loads a previously saved one if such a node exists.
+     * @param internalStoragePath - The path to the internal storage location (can be any path)
      * @param egoName - The name of the ego network's ego.
      * @param egoData - The data with which to create the network's node.
      * @return the created or loaded contextual ego network
      */
-    public static ContextualEgoNetwork createOrLoad(String egoName, Object egoData) {
+    public static ContextualEgoNetwork createOrLoad(String internalStoragePath, String egoName, Object egoData) {
     	//TODO: ensure that multiple instances of the same CEN cannot be loaded at the same time
-    	String path = egoName + File.separator;
+    	if(!internalStoragePath.isEmpty() && !internalStoragePath.endsWith(File.separator))
+    		Utils.error("internalStoragePath should either be empty or end with a '"+File.separator+"' character");
+    	String path = internalStoragePath + egoName + File.separator; // cannot call getPath() at this point
     	ContextualEgoNetwork contextualEgoNetwork;
     	Serializer serializer = Serializer.getSerializer(path);
     	if(Files.exists(Paths.get(path + "CEN.json"))) {
@@ -73,7 +78,7 @@ public class ContextualEgoNetwork {
     	}
     	else {
     		Node ego = new Node(null, egoName, egoData);
-    		contextualEgoNetwork = new ContextualEgoNetwork(ego);
+    		contextualEgoNetwork = new ContextualEgoNetwork(internalStoragePath, ego);
     		ego.contextualEgoNetwork = contextualEgoNetwork;
     		contextualEgoNetwork.save();
     	}
@@ -106,7 +111,7 @@ public class ContextualEgoNetwork {
      * @return The path folder in which the ego network is saved
      */
     public String getPath() {
-    	return ego.getId()+File.separator;
+    	return internalStoragePath+ego.getId()+File.separator;
     }
     
     /**
@@ -213,10 +218,20 @@ public class ContextualEgoNetwork {
     
     /**
      * Get the ego node
-     * @return the {@link Node} that serves as the ego of the contextual ego network
+     * @return The {@link Node} that serves as the ego of the contextual ego network
+     * @see #getAlters()
      */
     public Node getEgo() {
     	return ego;
+    }
+
+    /**
+     * Get the alters (not including the ego)
+     * @return A list of {@link Node}
+     * @see #getEgo()
+     */
+    public ArrayList<Node> getAlters() {
+    	return new ArrayList<Node>(alters);
     }
     
     /**
@@ -234,6 +249,7 @@ public class ContextualEgoNetwork {
     	if(node==null) {
     		node = new Node(this, nodeId, data);
     		serializer.registerId(node, node.getId());
+    		alters.add(node);
     		for(ContextualEgoNetworkListener listener : listeners)
     			listener.onCreateNode(this, node);
     	}
