@@ -59,7 +59,7 @@ public class ContextualEgoNetwork {
     	String path = egoName + File.separator;
     	ContextualEgoNetwork contextualEgoNetwork;
     	Serializer serializer = Serializer.getSerializer(path);
-    	if(Files.exists(Paths.get(path + "CEN"))) {
+    	if(Files.exists(Paths.get(path + "CEN.json"))) {
     		contextualEgoNetwork = new ContextualEgoNetwork();
 	    	serializer.registerId(contextualEgoNetwork, "CEN");
 	    	serializer.reload(contextualEgoNetwork);
@@ -72,7 +72,9 @@ public class ContextualEgoNetwork {
 	    	}
     	}
     	else {
-    		contextualEgoNetwork = new ContextualEgoNetwork(new Node(egoName, egoData));
+    		Node ego = new Node(null, egoName, egoData);
+    		contextualEgoNetwork = new ContextualEgoNetwork(ego);
+    		ego.contextualEgoNetwork = contextualEgoNetwork;
     		contextualEgoNetwork.save();
     	}
     	return contextualEgoNetwork;
@@ -230,7 +232,7 @@ public class ContextualEgoNetwork {
     	Object object = serializer.getObject(nodeId);
     	Node node = object==null?null:(Node)object;
     	if(node==null) {
-    		node = new Node(nodeId, data);
+    		node = new Node(this, nodeId, data);
     		serializer.registerId(node, node.getId());
     		for(ContextualEgoNetworkListener listener : listeners)
     			listener.onCreateNode(this, node);

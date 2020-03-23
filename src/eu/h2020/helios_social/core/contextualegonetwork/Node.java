@@ -22,7 +22,8 @@ public final class Node extends CrossModuleComponent {
      * @throws NullPointerException if id is null
      * @throws IllegalArgumentException if the id parameters is empty
      */
-    protected Node(String id, Object data) {
+    protected Node(ContextualEgoNetwork contextualEgoNetwork, String id, Object data) {
+    	super(contextualEgoNetwork);
         if(id == null) Utils.error(new NullPointerException());
         if(id.equals("")) Utils.error(new IllegalArgumentException("The node id or alias cannot be an empty string"));
         this.id = id;

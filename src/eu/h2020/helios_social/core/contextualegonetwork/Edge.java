@@ -33,8 +33,9 @@ public final class Edge extends CrossModuleComponent {
      * @param context The context the edge appears in
      * @throws NullPointerException if src or dst are null
      */
-    Edge(Node src, Node dst, Context context)
+    Edge(ContextualEgoNetwork contextualEgoNetwork, Node src, Node dst, Context context)
     {
+    	super(contextualEgoNetwork);
         if(src == null || dst == null) Utils.error(new NullPointerException());
         this.src = src;
         this.dst = dst;

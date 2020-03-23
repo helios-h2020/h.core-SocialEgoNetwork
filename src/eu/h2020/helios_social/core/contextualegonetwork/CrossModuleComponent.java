@@ -8,16 +8,29 @@ import java.util.HashMap;
  * and access instances of data structures needed by each module.
  */
 public abstract class CrossModuleComponent {
-    /**
-     * Module data stored in this node.
-     */
+	// module data stored in this component
     private HashMap<String, Object> moduleData;
+    // contextual ego network
+    ContextualEgoNetwork contextualEgoNetwork;
+    
+    protected CrossModuleComponent (ContextualEgoNetwork contextualEgoNetwork) {
+        if(contextualEgoNetwork == null) Utils.error(new NullPointerException());
+    	this.contextualEgoNetwork = contextualEgoNetwork;
+    }
     
     /**
      * Default constructor.
      * Since it's used in serialization and deserialization and to save serialization space, module data are initialized on-demand.
      */
     protected CrossModuleComponent() {
+    }
+
+    /**
+     * Returns the contextual ego network instance in whose hierarchy the component resides
+     * @return The enclosing ContextualEgoNetwork
+     */
+    public ContextualEgoNetwork getContextualEgoNetwork() {
+    	return contextualEgoNetwork;
     }
     
     /**

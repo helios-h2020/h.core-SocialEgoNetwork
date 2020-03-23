@@ -62,7 +62,7 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	    		activeLines.add(line);
 	    	}
 	    	for(String line : activeLines) {
-	    		String[] action = line.split(Pattern.quote(SEPARATOR));
+	    		String[] action = line.split(Pattern.quote(SEPARATOR), 6);
 	    		if(action[0].equals("context.addNode")) 
 	    			context.addNode(contextualEgoNetwork.getOrCreateNode(action[2], null));
 	    		else if(action[0].equals("context.removeNode"))

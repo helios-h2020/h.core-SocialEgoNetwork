@@ -17,10 +17,6 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
 public final class Context extends CrossModuleComponent
 {
     /**
-     * The contextual ego network the context is part of
-     */
-    ContextualEgoNetwork contextualEgoNetwork;
-    /**
      * Object data carried by the context
      */
     private Object data;
@@ -39,8 +35,8 @@ public final class Context extends CrossModuleComponent
      */
     Context(ContextualEgoNetwork contextualEgoNetwork, Object data)
     {
-        if(data == null || contextualEgoNetwork == null || data==null) Utils.error(new NullPointerException());
-        this.contextualEgoNetwork = contextualEgoNetwork;
+        super(contextualEgoNetwork);
+        if(data == null || data==null) Utils.error(new NullPointerException());
         this.data = data;
         nodes = new ArrayList<Node>();
         edges = new ArrayList<Edge>();
@@ -56,13 +52,6 @@ public final class Context extends CrossModuleComponent
     }
     
     /**
-     * @return The ContextualEgoNetwork in which the context resides
-     */
-    public ContextualEgoNetwork getContextualEgoNetwork() {
-    	return contextualEgoNetwork;
-    }
-    
-    /**
      * If the context is loaded, it is serialized to a file. The context's nodes
      * are not serialized though
      * @return Whether the context was saved.
@@ -72,7 +61,7 @@ public final class Context extends CrossModuleComponent
     		return false;
     	//for(Node node : nodes) 
         	//contextualEgoNetwork.getSerializer().save(node);
-    	boolean succesfull = contextualEgoNetwork.getSerializer().save(this);
+    	boolean succesfull = getContextualEgoNetwork().getSerializer().save(this);
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onSaveContext(this);
     	return succesfull;
@@ -83,7 +72,7 @@ public final class Context extends CrossModuleComponent
      * These files will be re-created once the context is saved again.
      */
     protected void removeFromStorage() {
-    	contextualEgoNetwork.getSerializer().removeFromStorage(this);
+    	getContextualEgoNetwork().getSerializer().removeFromStorage(this);
     }
     
     /**
@@ -93,7 +82,7 @@ public final class Context extends CrossModuleComponent
      */
     public void cleanup() {
     	save();
-    	contextualEgoNetwork.getSerializer().setSavePermission(this, false);
+    	getContextualEgoNetwork().getSerializer().setSavePermission(this, false);
     	nodes = null;
     	edges = null;
     }
@@ -103,8 +92,8 @@ public final class Context extends CrossModuleComponent
      * This operation is automatically performed on-demand by other context access operations.
      */
     public void load() {
-    	contextualEgoNetwork.getSerializer().reload(this, 1);//loads all of its nodes
-    	contextualEgoNetwork.getSerializer().setSavePermission(this, true);
+    	getContextualEgoNetwork().getSerializer().reload(this, 1);//loads all of its nodes too
+    	getContextualEgoNetwork().getSerializer().setSavePermission(this, true);
     	Utils.log("Loaded context "+data.toString()+" with "+nodes.size()+" nodes, "+edges.size()+" edges");
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onLoadContext(this);
@@ -177,7 +166,7 @@ public final class Context extends CrossModuleComponent
         for(Edge edge : edges)
         	if(edge.getSrc()==src && edge.getDst()==dst)
         		return Utils.error(new IllegalArgumentException("Edge already exists in context (maybe you meant to add a new interaction on that edge instead)"), edge);
-        Edge edge = new Edge(src, dst, this);
+        Edge edge = new Edge(getContextualEgoNetwork(), src, dst, this);
         edges.add(edge);
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onCreateEdge(edge);
@@ -250,7 +239,7 @@ public final class Context extends CrossModuleComponent
         if(node == null) Utils.error(new NullPointerException());
         if(nodes.contains(node)) {Utils.error("Node already in context"); return;}
         nodes.add(node);
-        contextualEgoNetwork.getSerializer().registerId(node, node.getId());
+        getContextualEgoNetwork().getSerializer().registerId(node, node.getId());
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onAddNode(this, node);
     }
@@ -266,7 +255,7 @@ public final class Context extends CrossModuleComponent
         if(node == null) Utils.error(new NullPointerException());
         if(!nodes.contains(node)) {
             nodes.add(node);
-            contextualEgoNetwork.getSerializer().registerId(node, node.getId());
+            getContextualEgoNetwork().getSerializer().registerId(node, node.getId());
             for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
             	listener.onAddNode(this, node);
         }
@@ -281,7 +270,7 @@ public final class Context extends CrossModuleComponent
     public void removeNode(Node node) {
     	assertLoaded();
         if(node == null) Utils.error(new NullPointerException());
-        if(node == contextualEgoNetwork.getEgo()) Utils.error(new IllegalArgumentException());
+        if(node == getContextualEgoNetwork().getEgo()) Utils.error(new IllegalArgumentException());
         if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
         edges.removeIf(edge -> edge.getSrc()==node);
         edges.removeIf(edge -> edge.getDst()==node);
