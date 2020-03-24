@@ -9,6 +9,29 @@ The Contextual Ego Network (CEN) Library is responsible for the management of in
 
 This information supports dynamic loading and unloading from memory while preserving pointers to data objects. Serialization is handled automatically. *All serialized classes require a (protected) default constructor.*
 
+## Installation for Anroid Studio
+For ease of use, the library is deployed through the jitpack.io platform. To add it as a dependency on a gradle module, add the following dependency on the application's global gradle script:
+```
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+'''
+
+Then, add the following configuration (temporary solution to a junit conflict bug) and dependency at the module-level gradle:
+```
+configurations {
+    compile.exclude group: "junit", module: "junit"
+}
+dependencies {
+	...
+    implementation 'com.github.DistributedSystemsSocialNetworkAnalysis:Contextual-Ego-Network:0.8-SNAPSHOT'
+}
+'''
+
+
 ## API Usage
 Adding an interaction to the contextual ego network by loading the respective objects or creating them when they don't already exist:
 ```java
@@ -29,7 +52,7 @@ Automating the saving process in a fault-tolerant manner:
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener;
 
-ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad("ego_user_id", null);
+ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad(getFilesDir().getPath(), "ego_user_id", null);
 cen.addListener(new RecoveryListener()); //saves data in temporary log files that are resistant to device errors
 ```
 

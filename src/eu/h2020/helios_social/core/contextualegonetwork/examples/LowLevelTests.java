@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 public class LowLevelTests {
-	
+	// THIS IS NOT AN EXAMPLE - USED AS A TEMP FILE FOR INTERNAL DEVELOPMENT
 	public class TestClass {
 		public void foo() {
 			
