@@ -40,11 +40,24 @@ public class ContextualEgoNetwork {
     private ContextualEgoNetwork() {
     }
     
+
+    /**
+     * Attaches a {@link ContextualEgoNetworkListener} to the contextual ego network, which 
+     * will be called on the respective events.
+     * 
+     * @param listener The lister to attach
+     */
     public void addListener(ContextualEgoNetworkListener listener) {
     	listeners.add(listener);
     	listener.init(this);
     }
-    
+
+    /**
+     * Obtain all listeners attached to the contextual ego network
+     * 
+     * @return A list of listeners
+     * @see #addListener(ContextualEgoNetworkListener)
+     */
     public ArrayList<ContextualEgoNetworkListener> getListeners() {
     	return new ArrayList<ContextualEgoNetworkListener>(listeners);
     }
@@ -69,6 +82,8 @@ public class ContextualEgoNetwork {
 	    	serializer.registerId(contextualEgoNetwork, "CEN");
 	    	serializer.reload(contextualEgoNetwork);
 	    	serializer.reload(contextualEgoNetwork.ego);
+	    	for(Node alter : contextualEgoNetwork.alters)
+	    		serializer.reload(alter);
 	    	// make contexts know where to look for the serializer
 	    	for(Context context : contextualEgoNetwork.contexts) {
 	    		context.contextualEgoNetwork = contextualEgoNetwork;
@@ -85,7 +100,7 @@ public class ContextualEgoNetwork {
     	return contextualEgoNetwork;
     }
     
-    /**
+    /*
      * Creates an empty contextual ego network that corresponds to the ego with the given name (effectively determines
      * the stored path) and uses a deserializer to parse it and its ego into memory.
      * This requires that a ContextualEgoNetwork had been created through its constructor and saved in the past.
@@ -94,7 +109,7 @@ public class ContextualEgoNetwork {
      * @deprecated This function will be removed in future versions.
      * 	Call ContextualEgoNetwork.createOrLoad(egoName, null) instead.
      */
-    public static ContextualEgoNetwork load(String egoName) {
+    /*public static ContextualEgoNetwork load(String egoName) {
     	String path = egoName + File.separator;
     	ContextualEgoNetwork contextualEgoNetwork = new ContextualEgoNetwork();
     	Serializer serializer = Serializer.getSerializer(path);
@@ -105,7 +120,7 @@ public class ContextualEgoNetwork {
     	for(Context context : contextualEgoNetwork.contexts)
     		context.contextualEgoNetwork = contextualEgoNetwork;
     	return contextualEgoNetwork;
-    }
+    }*/
     
     /**
      * @return The path folder in which the ego network is saved
@@ -125,13 +140,16 @@ public class ContextualEgoNetwork {
     /**
      * Makes the {@link #getSerializer()} save the contextual ego network. This
      * includes all explicitly serializeable objects, namely the contexts and nodes.
+     * Only {@link Context#isLoaded()} contexts are saved, since otherwise they would 
+     * have already been saved with {@link Context#cleanup()}.
      */
 	public void save() {
 		Serializer serializer = getSerializer();
 		serializer.saveAllRegistered();
 		for(Context context : contexts)
-			for(ContextualEgoNetworkListener listener : listeners)
-				listener.onSaveContext(context);
+			if(context.isLoaded())
+				for(ContextualEgoNetworkListener listener : listeners)
+					listener.onSaveContext(context);
 	}
 	
 	/**
@@ -170,6 +188,12 @@ public class ContextualEgoNetwork {
     	return createContext(data);
     }
     
+    /**
+     * Searches all ContextualEgoNetwork contexts for one with the same serializationId
+     * assigned to it during serialization
+     * @param serializationId The serializationId of the context
+     * @return The found context, null if no such context found
+     */
     public Context getContextBySerializationId(String serializationId) {
     	for(Context context : contexts)
     		if(context.getSerializationId().equals(serializationId))
@@ -254,6 +278,31 @@ public class ContextualEgoNetwork {
     			listener.onCreateNode(this, node);
     	}
     	return node;
+    }
+    
+    
+    /**
+     * Removes a node from the contextual ego network. This includes removing from both the list of alters and the list.
+     * This involves loading and potentially loading unloaded all contexts (they are unloaded afterwards) and <b>calling {@link #save()}</b>.
+     * If no node with that id exists, nothing happens. 
+     * @param nodeId The serialization id of the node to remove
+     */
+    public void removeNodeIfExists(String nodeId) {
+    	Serializer serializer = getSerializer();
+    	Object object = serializer.getObject(nodeId);
+    	Node node = object==null?null:(Node)object;
+    	if(node!=null) {
+	    	for(Context context : contexts) {
+	    		boolean isLoaded = context.isLoaded();
+	    		context.removeNodeIfExists(node);
+	    		if(!isLoaded)
+	    			context.cleanup();
+	    	}
+	    	alters.remove(node);
+	    	serializer.removeFromStorage(node);
+	    	serializer.unregister(node);
+	    	save();
+    	}
     }
 }
 

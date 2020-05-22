@@ -25,12 +25,6 @@ public final class Interaction {
     private Edge edge;
 
     /**
-     * Used in deserialization
-     */
-    protected Interaction()
-    {}
-
-    /**
      * Constructor method
      * @param timestamp The start timestamp
      * @param duration The duration of the interaction
@@ -43,6 +37,12 @@ public final class Interaction {
         this.data = data;
         this.edge = edge;
     }
+
+    /**
+     * Used in deserialization
+     */
+    protected Interaction()
+    {}
 
     /**
      * @return The edge the interaction belongs to

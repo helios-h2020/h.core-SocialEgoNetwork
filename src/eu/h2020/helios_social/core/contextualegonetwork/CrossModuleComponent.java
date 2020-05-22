@@ -64,7 +64,7 @@ public abstract class CrossModuleComponent {
     			moduleData.put(dataTypeName, found);
     		}
     		catch(Exception e) {
-    			Utils.error("Failed to initialized default instance of "+dataTypeName);
+    			Utils.error("Failed to initialize default instance of "+dataTypeName);
     		}
     	}
     	return (ModuleObjectDataType) found;

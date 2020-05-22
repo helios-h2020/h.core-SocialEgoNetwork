@@ -37,6 +37,6 @@ public class CreationListener implements ContextualEgoNetworkListener {
 		edge.getOrCreateInstance(CreationTimestamp.class);
 	}
 	public void onCreateInteraction(Interaction interaction) {
-		//timestamps are an organic part of interactions
+		//timestamps are an organic part of interactions and don't need to be tracked by this listener
 	}
 }

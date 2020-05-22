@@ -23,7 +23,7 @@ public class Example {
 		Context context = egoNetwork.getOrCreateContext("Test Context");
 		context.getOrAddEdge(user1, user2);
 		context.getOrAddEdge(user1, user3);
-		context.getOrAddEdge(user2, user3).addDetectedInteraction("HANDSHAKE1");
+		context.getOrAddEdge(user2, user3).addDetectedInteraction(null);
 		context.getOrAddEdge(user2, user3).addDetectedInteraction("HANDSHAKE2");
 		egoNetwork.save();
 	}

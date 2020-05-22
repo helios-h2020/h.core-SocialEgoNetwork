@@ -49,6 +49,12 @@ public class LoggingListener implements ContextualEgoNetworkListener {
 		info("Removed an edge from context: "+edge.getContext().getData().toString());
 	}
 	public void onCreateInteraction(Interaction interaction) {
-		info("Added a "+interaction.getData().toString()+" interaction to context: "+interaction.getEdge().getContext().getData().toString());
+		info("Added a "+toString(interaction.getData())+" interaction to context: "+interaction.getEdge().getContext().getData().toString());
+	}
+	protected static String toString(Object object) {
+		if(object==null)
+			return "null";
+		else
+			return object.toString();
 	}
 }

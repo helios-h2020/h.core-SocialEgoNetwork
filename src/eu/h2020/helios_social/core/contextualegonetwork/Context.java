@@ -105,9 +105,8 @@ public final class Context extends CrossModuleComponent
      * @see #isLoaded()
      */
     protected boolean assertLoaded() {
-    	if(!isLoaded()) {
-    		load();//Utils.error("Context needs be loaded before use", false);
-    	}
+    	if(!isLoaded()) 
+    		load();
     	return true;
     }
     
@@ -270,9 +269,23 @@ public final class Context extends CrossModuleComponent
      */
     public void removeNode(Node node) {
     	assertLoaded();
+        if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
+        removeNodeIfExists(node);
+    }
+    
+
+    /**
+     * Removes a node and its edges from the context if its part of it
+     * @param node The node to be removed
+     * @throws NullPointerException If the node is null
+     * @throws IllegalArgumentException If the node is the ego
+     */
+    public void removeNodeIfExists(Node node) {
+    	assertLoaded();
         if(node == null) Utils.error(new NullPointerException());
         if(node == getContextualEgoNetwork().getEgo()) Utils.error(new IllegalArgumentException());
-        if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
+        if(!nodes.contains(node)) 
+        	return;
         edges.removeIf(edge -> edge.getSrc()==node);
         edges.removeIf(edge -> edge.getDst()==node);
         nodes.remove(node);
