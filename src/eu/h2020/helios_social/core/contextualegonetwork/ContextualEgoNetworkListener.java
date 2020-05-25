@@ -3,7 +3,7 @@ package eu.h2020.helios_social.core.contextualegonetwork;
 /**
  * An interface of listeners that can be added on a {@link ContextualEgoNetwork} to listen to structural changes.
  * Modeled callbacks are triggered by the respective components. Call {@link ContextualEgoNetwork#addListener(ContextualEgoNetworkListener)}
- * to add a listener to a network. Callbacks are not polymorphised to improve understanding when implementing new listeners.<br/>
+ * to add a listener to a network. Callbacks are not polymorphised to improve understanding when implementing new listeners.<br>
  * 
  * <b>Be careful not to keep references to removed nodes and contexts</b> as these could potentially cause memory leaks (optimally, refrain
  * from keeping any references to such objects, but otherwise use the respective onRemove callbacks).

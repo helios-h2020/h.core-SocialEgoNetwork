@@ -60,13 +60,13 @@ public abstract class CrossModuleComponent {
      * Returns an instance of the given class that is stored in the node. If no such instance exists,
      * a new one is created first using either a constructor with this object as an argument or 
      * a default constructor (i.e. a constructor with no argument).
-     * Both classes to be created and constructors need be of public visibility. The default constructor assumes lower priority.<br/>
+     * Both classes to be created and constructors need be of public visibility. The default constructor assumes lower priority.<br>
      * <b>Refrain</b> from directly referencing other {@link CrossModuleComponent} objects (the one creating the instance is fine),
      * as these can be removed from the network and keeping references to them can induce unexpected behavior.
-     * <br/>
+     * <br>
      * Created instances are saved and loaded alongside nodes if these are part of a contextual ego network structure.
      * (Note, if they reference objects that aren't registered in the {@link Serializer}, these are loaded as separate instances.)
-     * <br/>
+     * <br>
      * If modifications of created instances occur, these <i>don't</i> trigger any listener callbacks of the contextual ego network.
      * For example, this means that changes to the created instances are notsaved by
      * {@link eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener}.

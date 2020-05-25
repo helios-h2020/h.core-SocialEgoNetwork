@@ -230,7 +230,7 @@ public final class Context extends CrossModuleComponent
 
     /**
      * Adds a new node to the context.
-     * @param newNode The new node to be added
+     * @param node The node to be added
      * @throws NullPointerException if newNode is null
      */
     public void addNode(Node node) {

@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"eu.h2020.helios_social.core.contextualegonetwork"},{"l":"eu.h2020.helios_social.core.contextualegonetwork.examples"}]
+packageSearchIndex = [{"l":"eu.h2020.helios_social.core.contextualegonetwork"},{"l":"eu.h2020.helios_social.core.contextualegonetwork.examples"},{"l":"eu.h2020.helios_social.core.contextualegonetwork.listeners"}]

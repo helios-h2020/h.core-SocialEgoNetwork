@@ -498,8 +498,7 @@ public class Serializer {
 	 * @throws Exception if the given object is not registered, for example with {@link #registerId(Object)}
 	 * @see #saveAllRegistered()
 	 */
-	public synchronized void setSavePermission(Object object,
-			boolean allowSave) {
+	public synchronized void setSavePermission(Object object, boolean allowSave) {
 		if (!objectIds.containsKey(object))
 			Utils.error(new IllegalArgumentException());
 		else
