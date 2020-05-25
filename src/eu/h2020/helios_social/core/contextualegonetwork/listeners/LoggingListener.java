@@ -21,7 +21,7 @@ public class LoggingListener implements ContextualEgoNetworkListener {
 	public synchronized void init(ContextualEgoNetwork contextualEgoNetwork) {
 		info("Started logging on CEN of node: "+contextualEgoNetwork.getEgo().getId());
 	}
-	public void onCreateNode(ContextualEgoNetwork contextualEgoNetwork, Node node) {
+	public void onCreateNode(Node node) {
 		info("Created node: "+node.getId());
 	}
 	public void onCreateContext(Context context) {

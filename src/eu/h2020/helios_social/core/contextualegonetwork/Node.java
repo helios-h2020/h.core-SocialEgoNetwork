@@ -4,7 +4,8 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
  * This class implements a node in the social graph. All contexts share the same instances of the same nodes.
- *  */
+ *  
+ */
 public final class Node extends CrossModuleComponent {
     /**
      * Global identifier of the node
@@ -33,14 +34,12 @@ public final class Node extends CrossModuleComponent {
     /**
      * Used in deserialization
      */
-    protected Node()
-    {}
+    protected Node() {}
     
     /**
      * @return The data attached to the node
      */
-    public Object getData()
-    {
+    public Object getData() {
         return data;
     }
  

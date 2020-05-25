@@ -107,8 +107,11 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 		writer.flush();
 	}
 	
-	public void onCreateNode(ContextualEgoNetwork contextualEgoNetwork, Node node) {
+	public void onCreateNode(Node node) {
 		contextualEgoNetwork.getSerializer().save(node);
+	}
+	public void onRemoveNode(Node node) {
+		//the contextual ego network autosaves when nodes are removed
 	}
 	public void onCreateContext(Context context) {
 		context.save();//order is important

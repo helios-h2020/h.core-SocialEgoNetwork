@@ -23,7 +23,7 @@ public class ContextualEgoNetwork {
     
     /**
      * Creates a ContextualEgoNetwork.
-     * @param internalStoragePath - The path to the internal storage location (can be any path)
+     * @param internalStoragePath The path to the internal storage location (can be any path)
      * @param ego The ego Node
      */
     protected ContextualEgoNetwork(String internalStoragePath, Node ego) {
@@ -37,9 +37,10 @@ public class ContextualEgoNetwork {
         getSerializer().registerId(ego, ego.getId());
     }
     
-    private ContextualEgoNetwork() {
-    }
-    
+    /**
+     * Constructor used by the {@link Serializer} for deserialization into an initially empty network.
+     */
+    private ContextualEgoNetwork() {}
 
     /**
      * Attaches a {@link ContextualEgoNetworkListener} to the contextual ego network, which 
@@ -65,9 +66,9 @@ public class ContextualEgoNetwork {
     /**
      * Instantiates a ContextualEgoNetwork by creating a new ego node with the given data.
      * Loads a previously saved one if such a node exists.
-     * @param internalStoragePath - The path to the internal storage location (can be any path)
-     * @param egoName - The name of the ego network's ego.
-     * @param egoData - The data with which to create the network's node.
+     * @param internalStoragePath The path to the internal storage location (can be any path)
+     * @param egoName The name of the ego network's ego.
+     * @param egoData The data with which to create the network's node.
      * @return the created or loaded contextual ego network
      */
     public static ContextualEgoNetwork createOrLoad(String internalStoragePath, String egoName, Object egoData) {
@@ -179,7 +180,7 @@ public class ContextualEgoNetwork {
      * can be used to affect the outcome of the obtained context.
      * If no such context exists, a new one is created.
      * @param data The query data that the created context should hold.
-     * @return The found or newly created context
+     * @return The found or newly created context.
      */
     public Context getOrCreateContext(Object data) {
     	for(Context context : contexts)
@@ -192,7 +193,7 @@ public class ContextualEgoNetwork {
      * Searches all ContextualEgoNetwork contexts for one with the same serializationId
      * assigned to it during serialization
      * @param serializationId The serializationId of the context
-     * @return The found context, null if no such context found
+     * @return The found context, null if no such context found.
      */
     public Context getContextBySerializationId(String serializationId) {
     	for(Context context : contexts)
@@ -202,29 +203,31 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Removes a given context from the ContextualEgoNetwork's contexts.
-     * @param context The given context
+     * Removes a given context from the ContextualEgoNetwork's contexts. Note that removing 
+	 * a context does <i>not</i> remove any nodes from the network, even if those are not currently
+	 * referenced by other contexts (because future contexts may use those nodes).
+     * @param context The context to remove.
      */
     public void removeContext(Context context) {
     	if(context==null) Utils.error(new NullPointerException());
     	if(!contexts.contains(context)) Utils.error("Context not found");
-    	contexts.remove(context);
-    	context.removeFromStorage();
 		for(ContextualEgoNetworkListener listener : listeners)
 			listener.onRemoveContext(context);
+    	contexts.remove(context);
+    	context.removeFromStorage();
     }
     
     /**
      * Method to grant safe access to all contexts of the contextual ego networks
-     * @return an ArrayList of contexts
+     * @return An ArrayList of contexts
      */
     public ArrayList<Context> getContexts(){
     	return new ArrayList<Context>(contexts);
     }
     
     /**
-     * Method to set a context in state Current.
-     * @param context the context to be set as active, or null if no context should be active at the present time.
+     * Method to set a context as the current context.
+     * @param context The context to be set as the current one, or null if no context should be active at the present time.
      */
     public void setCurrent(Context context) {
         if(context==null) Utils.error(new NullPointerException());
@@ -241,8 +244,8 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Get the ego node
-     * @return The {@link Node} that serves as the ego of the contextual ego network
+     * Retrieves the ego node.
+     * @return The {@link Node} that serves as the ego of the contextual ego network.
      * @see #getAlters()
      */
     public Node getEgo() {
@@ -250,8 +253,8 @@ public class ContextualEgoNetwork {
     }
 
     /**
-     * Get the alters (not including the ego)
-     * @return A list of {@link Node}
+     * Retrieves the alters (not including the ego).
+     * @return A list of {@link Node} alters.
      * @see #getEgo()
      */
     public ArrayList<Node> getAlters() {
@@ -259,9 +262,9 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Searches for a node with the given id and if no such node is found, a new one is created using the given data.
+     * Searches for a node with the given id and, if no such node is found, creates a new one using the given data.
      * @param nodeId The node's id
-     * @param data The node's data (only used if a new node is created)
+     * @param data The node's data (only used if a new node is created - can be null).
      * @return The found or created node.
      */
     public Node getOrCreateNode(String nodeId, Object data) {
@@ -275,17 +278,18 @@ public class ContextualEgoNetwork {
     		serializer.registerId(node, node.getId());
     		alters.add(node);
     		for(ContextualEgoNetworkListener listener : listeners)
-    			listener.onCreateNode(this, node);
+    			listener.onCreateNode(node);
     	}
     	return node;
     }
     
-    
     /**
-     * Removes a node from the contextual ego network. This includes removing from both the list of alters and the list.
-     * This involves loading and potentially loading unloaded all contexts (they are unloaded afterwards) and <b>calling {@link #save()}</b>.
-     * If no node with that id exists, nothing happens. 
-     * @param nodeId The serialization id of the node to remove
+     * Removes a node from the contextual ego network given its serialization id, which is the same as {@link Node#getId()}.
+     * This includes removing the node from both the list of alters, as well as potentially loading any unloaded all contexts
+     * (if so, they are unloaded afterwards). To avoid catastrophic missing references due to neglected saving, the network is 
+     * <b>forcefully saved</b> after removing the node by calling its {@link #save()} method.
+     * If no node with the given id is part of the network, none of the above happens. 
+     * @param nodeId The serialization id of the node to remove.
      */
     public void removeNodeIfExists(String nodeId) {
     	Serializer serializer = getSerializer();
@@ -298,6 +302,8 @@ public class ContextualEgoNetwork {
 	    		if(!isLoaded)
 	    			context.cleanup();
 	    	}
+    		for(ContextualEgoNetworkListener listener : listeners)
+    			listener.onRemoveNode(node);
 	    	alters.remove(node);
 	    	serializer.removeFromStorage(node);
 	    	serializer.unregister(node);

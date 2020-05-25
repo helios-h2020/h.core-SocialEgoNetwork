@@ -3,6 +3,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Edge;
 import eu.h2020.helios_social.core.contextualegonetwork.Interaction;
+import eu.h2020.helios_social.core.contextualegonetwork.Node;
 import eu.h2020.helios_social.core.contextualegonetwork.Utils;
 
 public class ExampleLoad {
@@ -15,6 +16,8 @@ public class ExampleLoad {
 		//assert that deserialization loads the ego correctly
 		System.out.println(egoNetwork.getEgo().getId());
 		System.out.println(egoNetwork.getEgo().getData());
+		for(Node alter : egoNetwork.getAlters())
+			System.out.println(alter.getId());
 		
 		//assert that deserialization finds contexts (these aren't loaded yet)
 		System.out.println(egoNetwork.getContexts());

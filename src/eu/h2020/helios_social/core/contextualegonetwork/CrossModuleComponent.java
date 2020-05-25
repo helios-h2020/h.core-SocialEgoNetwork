@@ -6,6 +6,8 @@ import java.util.HashMap;
  * This class is used as a base class by HELIOS components, such as {@link Node} and {@link Edge} that
  * need to store data coming from multiple modules. The {@link #getOrCreateInstance} method can be used to create
  * and access instances of data structures needed by each module.
+ * 
+ * @author Emmanouil Krasanakis (maniospas@hotmail.com)
  */
 public abstract class CrossModuleComponent {
 	// module data stored in this component
@@ -33,6 +35,17 @@ public abstract class CrossModuleComponent {
     	return contextualEgoNetwork;
     }
     
+
+    /**
+     * Checks that this component belongs to the given contextual ego network
+     * @param contextualEgoNetwork The given contextual ego network
+     * @throws RuntimeException if the component is not part of the network
+     */
+    public void assertSameContextualEgoNetwork(ContextualEgoNetwork contextualEgoNetwork) {
+    	if(contextualEgoNetwork!=getContextualEgoNetwork() || getContextualEgoNetwork()==null)
+    		Utils.error("Component not part of the given ContextualEgoNetwork instance");
+    }
+    
     /**
      * Checks that this component belongs to the same ego network as the compared component
      * @param with The compared component
@@ -45,9 +58,18 @@ public abstract class CrossModuleComponent {
     
     /**
      * Returns an instance of the given class that is stored in the node. If no such instance exists,
-     * a new one is created first using the default constructor.
+     * a new one is created first using either a constructor with this object as an argument or 
+     * a default constructor (i.e. a constructor with no argument).
+     * Both classes to be created and constructors need be of public visibility. The default constructor assumes lower priority.<br/>
+     * <b>Refrain</b> from directly referencing other {@link CrossModuleComponent} objects (the one creating the instance is fine),
+     * as these can be removed from the network and keeping references to them can induce unexpected behavior.
+     * <br/>
      * Created instances are saved and loaded alongside nodes if these are part of a contextual ego network structure.
      * (Note, if they reference objects that aren't registered in the {@link Serializer}, these are loaded as separate instances.)
+     * <br/>
+     * If modifications of created instances occur, these <i>don't</i> trigger any listener callbacks of the contextual ego network.
+     * For example, this means that changes to the created instances are notsaved by
+     * {@link eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener}.
      * @param moduleClass A given class (e.g. that stores the node's data needed by a HELIOS module)
      * @param ModuleObjectDataType The type of the returned object (is resolved to the same as the type of the class)
      * @return An instance of the given class
@@ -60,7 +82,10 @@ public abstract class CrossModuleComponent {
     	Object found = moduleData.get(dataTypeName);
     	if(found==null) {
     		try {
-    			found = moduleClass.getConstructor().newInstance();
+    			if(moduleClass.getConstructor(CrossModuleComponent.class)!=null)
+        			found = moduleClass.getConstructor(CrossModuleComponent.class).newInstance(this);
+    			else
+    				found = moduleClass.getConstructor().newInstance();
     			moduleData.put(dataTypeName, found);
     		}
     		catch(Exception e) {

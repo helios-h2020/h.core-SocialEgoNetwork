@@ -25,6 +25,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 		this.wrappedListener = wrappedListener;
 		lock = new ReentrantLock();
 	}
+	
 	/**
 	 * Retrieves the wrapped listener to which this listener's callbacks are asynchronously forwarded to.
 	 * @return The wrapped listener
@@ -32,6 +33,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 	public ContextualEgoNetworkListener getWrappedListener() {
 		return wrappedListener;
 	}
+	
 	public void init(ContextualEgoNetwork contextualEgoNetwork) {
 		try {
 			if((wrappedListener.getClass().getMethod("init", ContextualEgoNetwork.class)).isDefault())
@@ -52,9 +54,10 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
-	public void onCreateNode(ContextualEgoNetwork contextualEgoNetwork, Node node) {
+	
+	public void onCreateNode(Node node) {
 		try {
-			if((wrappedListener.getClass().getMethod("onCreateNode", ContextualEgoNetwork.class, Node.class)).isDefault())
+			if((wrappedListener.getClass().getMethod("onCreateNode", Node.class)).isDefault())
 				return;
 		}
 		catch(Exception e) {
@@ -65,13 +68,14 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			public void run() {
 			    lock.lock();
 			    try {
-			    	wrappedListener.onCreateNode(contextualEgoNetwork, node);
+			    	wrappedListener.onCreateNode(node);
 			    } finally {
 			        lock.unlock();
 			    }
 			}
 		}).start();
 	}
+	
 	public void onCreateContext(Context context) {
 		try {
 			if((wrappedListener.getClass().getMethod("onCreateContext", Context.class)).isDefault())
@@ -92,6 +96,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
+	
 	public void onLoadContext(Context context) {
 		try {
 			if((wrappedListener.getClass().getMethod("onLoadContext", Context.class)).isDefault())
@@ -112,6 +117,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
+	
 	public void onSaveContext(Context context) {
 		try {
 			if((wrappedListener.getClass().getMethod("onSaveContext", Context.class)).isDefault())
@@ -132,6 +138,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
+	
 	public void onRemoveContext(Context context) {
 		try {
 			if((wrappedListener.getClass().getMethod("onRemoveContext", Context.class)).isDefault())
@@ -152,6 +159,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
+	
 	public void onAddNode(Context context, Node node) {
 		try {
 			if((wrappedListener.getClass().getMethod("onAddNode", Context.class, Node.class)).isDefault())
@@ -172,6 +180,28 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
+
+	public void onRemoveNode(Node node) {
+		try {
+			if((wrappedListener.getClass().getMethod("onRemoveNode", Node.class)).isDefault())
+				return;
+		}
+		catch(Exception e) {
+			Utils.error(e);
+		}
+		(new Thread() {
+			@Override
+			public void run() {
+			    lock.lock();
+			    try {
+			    	wrappedListener.onRemoveNode(node);
+			    } finally {
+			        lock.unlock();
+			    }
+			}
+		}).start();
+	}
+	
 	public void onRemoveNode(Context context, Node node) {
 		try {
 			if((wrappedListener.getClass().getMethod("onRemoveNode", Context.class, Node.class)).isDefault())
@@ -192,6 +222,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
+	
 	public void onCreateEdge(Edge edge) {
 		try {
 			if((wrappedListener.getClass().getMethod("onCreateEdge", Edge.class)).isDefault())
@@ -212,6 +243,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
+	
 	public void onRemoveEdge(Edge edge) {
 		try {
 			if((wrappedListener.getClass().getMethod("onRemoveEdge", Edge.class)).isDefault())
@@ -232,6 +264,7 @@ public class AsyncRunListener implements ContextualEgoNetworkListener {
 			}
 		}).start();
 	}
+	
 	public void onCreateInteraction(Interaction interaction) {
 		try {
 			if((wrappedListener.getClass().getMethod("onCreateInteraction", Interaction.class)).isDefault())

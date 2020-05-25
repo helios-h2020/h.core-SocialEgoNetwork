@@ -27,15 +27,19 @@ public class CreationListener implements ContextualEgoNetworkListener {
 	public synchronized void init(ContextualEgoNetwork contextualEgoNetwork) {
 		contextualEgoNetwork.getEgo().getOrCreateInstance(CreationTimestamp.class);
 	}
-	public void onCreateNode(ContextualEgoNetwork contextualEgoNetwork, Node node) {
+	
+	public void onCreateNode(Node node) {
 		node.getOrCreateInstance(CreationTimestamp.class);
 	}
+	
 	public void onCreateContext(Context context) {
 		context.getOrCreateInstance(CreationTimestamp.class);
 	}
+	
 	public void onCreateEdge(Edge edge) {
 		edge.getOrCreateInstance(CreationTimestamp.class);
 	}
+	
 	public void onCreateInteraction(Interaction interaction) {
 		//timestamps are an organic part of interactions and don't need to be tracked by this listener
 	}

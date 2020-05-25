@@ -222,9 +222,9 @@ public final class Context extends CrossModuleComponent
     	Edge edge = getEdge(src, dst);
     	if(edge==null)
     		return null;
-    	edges.remove(edge);
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onRemoveEdge(edge);
+    	edges.remove(edge);
     	return edge;
     }
 
@@ -286,11 +286,11 @@ public final class Context extends CrossModuleComponent
         if(node == getContextualEgoNetwork().getEgo()) Utils.error(new IllegalArgumentException());
         if(!nodes.contains(node)) 
         	return;
+        for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
+        	listener.onRemoveNode(this, node);
         edges.removeIf(edge -> edge.getSrc()==node);
         edges.removeIf(edge -> edge.getDst()==node);
         nodes.remove(node);
-        for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
-        	listener.onRemoveNode(this, node);
     }
 
     /**

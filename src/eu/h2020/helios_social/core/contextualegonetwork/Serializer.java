@@ -65,7 +65,7 @@ public class Serializer {
 	}
 
 	/**
-	 * This function removes all serializers.
+	 * This function removes all serializers from memory. This effectively unloads every contextual ego network wiythout saving.
 	 *
 	 * @deprecated Only use for testing.
 	 */
@@ -137,7 +137,7 @@ public class Serializer {
 				object.getClass().getName());
 		return specificId;
 	}
-
+	
 	public synchronized void removeFromStorage(Object object) {
 		try {
 			Path path = Paths.get(this.path + objectIds.get(object) + ".json");
@@ -154,15 +154,8 @@ public class Serializer {
 		if (jsonValue == null)
 			return null;
 
-		if (defaultClass != null) {
-			System.out.println("DefaultClass: " + defaultClass.toString());
-		}
 		if (jsonValue instanceof JSONObject &&
 				((JSONObject) jsonValue).has("@value")) {
-			System.out.println(
-					"Loading: " + ((JSONObject) jsonValue).get("@value") +
-							" of type " +
-							((JSONObject) jsonValue).get("@class"));
 			Class<?> primitiveType = Class.forName(
 					(String) ((JSONObject) jsonValue).get("@class"));
 			return deserializeToNewObject(
@@ -232,9 +225,6 @@ public class Serializer {
 				((JSONObject) jsonValue).has("@class")) {
 			Class<?> valueType = Class.forName(
 					(String) ((JSONObject) jsonValue).get("@class"));
-
-			System.out.println("valueType: " + valueType);
-			System.out.println("jsonValue: " + jsonValue);
 			Constructor<?> constructor = valueType.getDeclaredConstructor();
 			if (constructor == null)
 				throw new RuntimeException(
@@ -306,7 +296,6 @@ public class Serializer {
 									field.getGenericType(),
 									levelsOfLoadingDemand, parents));
 				} catch (Exception e) {
-					e.printStackTrace();
 					Utils.error("Deserialization error for field " +
 							object.getClass().toString() + "." +
 							field.getName() + " : " + e.toString());
