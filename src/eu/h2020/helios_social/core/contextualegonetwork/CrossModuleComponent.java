@@ -82,14 +82,17 @@ public abstract class CrossModuleComponent {
     	Object found = moduleData.get(dataTypeName);
     	if(found==null) {
     		try {
-    			if(moduleClass.getConstructor(CrossModuleComponent.class)!=null)
-        			found = moduleClass.getConstructor(CrossModuleComponent.class).newInstance(this);
-    			else
+    			try {
+	    			if(moduleClass.getConstructor(CrossModuleComponent.class)!=null)
+	        			found = moduleClass.getConstructor(CrossModuleComponent.class).newInstance(this);
+    			}
+    			catch(NoSuchMethodException e) {
     				found = moduleClass.getConstructor().newInstance();
+    			}
     			moduleData.put(dataTypeName, found);
     		}
     		catch(Exception e) {
-    			Utils.error("Failed to initialize default instance of "+dataTypeName);
+    			Utils.error("Failed to initialize default or (CrossModuleComponent) instance of "+dataTypeName);
     		}
     	}
     	return (ModuleObjectDataType) found;
