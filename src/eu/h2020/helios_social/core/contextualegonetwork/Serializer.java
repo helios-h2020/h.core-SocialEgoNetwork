@@ -41,7 +41,7 @@ import org.json.JSONObject;
  * To declare that a class field should not be saved, put the annotation
  * <code>@Serializer.Serialization(enabled=false)</code> over it.
  *
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public class Serializer {
 	@Target({ElementType.FIELD})

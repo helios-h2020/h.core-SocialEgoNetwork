@@ -11,7 +11,7 @@ package eu.h2020.helios_social.core.contextualegonetwork;
  * Listeners are <i>not</i> saved alongside the network and must be added upon load,
  * i.e. immediately after calling {@link ContextualEgoNetwork#createOrLoad(String, String, Object)}
  * 
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public interface ContextualEgoNetworkListener {
 	/**

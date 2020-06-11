@@ -5,6 +5,9 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
 /**
  * This class implements a node in the social graph. All contexts share the same instances of the same nodes.
  *  
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
+ * @author Barbara Guidi (guidi@di.unipi.it)
+ * @author Andrea Michienzi (andrea.michienzi@di.unipi.it)
  */
 public final class Node extends CrossModuleComponent {
     /**

@@ -11,7 +11,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.Utils;
 /**
  * This class implements a {@link ContextualEgoNetworkListener} that assigns node, context and edge timestamps.
  * 
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public class CreationListener implements ContextualEgoNetworkListener {
 	public static class CreationTimestamp {

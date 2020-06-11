@@ -4,6 +4,10 @@ import java.util.logging.Logger;
 
 /**
  * This class implements static error parsing and logging methods, with the ability to suppress errors that can be silently handled during deployment.
+ * 
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
+ * @author Barbara Guidi (guidi@di.unipi.it)
+ * @author Andrea Michienzi (andrea.michienzi@di.unipi.it)
  */
 public class Utils {
 	public static boolean development = false;

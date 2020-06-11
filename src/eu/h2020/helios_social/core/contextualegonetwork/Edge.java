@@ -6,7 +6,11 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
  * This class implements an edge of the Social Graph. An edge, in a context, can link the ego of the Contextual Ego Network to one of the alters.
- * Edges comprise multiple interactions.
+ * Each edge comprises multiple interactions.
+ * 
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
+ * @author Barbara Guidi (guidi@di.unipi.it)
+ * @author Andrea Michienzi (andrea.michienzi@di.unipi.it)
  */
 public final class Edge extends CrossModuleComponent {
     /**

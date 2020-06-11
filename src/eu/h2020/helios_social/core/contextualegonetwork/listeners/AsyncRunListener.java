@@ -15,7 +15,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.Utils;
  * that performs callbacks asynchronously to the main thread. For example, this wrapper may be used
  * if a listener involves heavy computations that would create large overheads.
  * 
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public class AsyncRunListener implements ContextualEgoNetworkListener {
 	private ContextualEgoNetworkListener wrappedListener;

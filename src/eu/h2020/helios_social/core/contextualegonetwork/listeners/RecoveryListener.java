@@ -23,7 +23,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.Utils;
  * For the time being, this does not safeguard against keeping unsaved changes on objects obtained of the
  * {@link eu.h2020.helios_social.core.contextualegonetwork.CrossModuleComponent#getOrCreateInstance(Class)}.
  * 
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public final class RecoveryListener implements ContextualEgoNetworkListener {
 	private PrintWriter writer = null;  
