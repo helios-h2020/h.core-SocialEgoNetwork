@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>Contextual-Ego-Network</groupId>
   <artifactId>Contextual-Ego-Network</artifactId>
-  <version>0.6-SNAPSHOT</version>
+  <version>1.0.${BUILD_NUMBER}</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
