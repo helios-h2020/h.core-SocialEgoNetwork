@@ -23,7 +23,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.Utils;
  * For the time being, this does not safeguard against keeping unsaved changes on objects obtained of the
  * {@link eu.h2020.helios_social.core.contextualegonetwork.CrossModuleComponent#getOrCreateInstance(Class)}.
  * 
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public final class RecoveryListener implements ContextualEgoNetworkListener {
 	private PrintWriter writer = null;  
@@ -62,18 +62,28 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	    		activeLines.add(line);
 	    	}
 	    	for(String line : activeLines) {
-	    		String[] action = line.split(Pattern.quote(SEPARATOR), 6);
-	    		if(action[0].equals("context.addNode")) 
+	    		if(line.startsWith("context.addNode"+SEPARATOR)) {
+	    			String[] action = line.split(Pattern.quote(SEPARATOR), 3);
 	    			context.addNode(contextualEgoNetwork.getOrCreateNode(action[2], null));
-	    		else if(action[0].equals("context.removeNode"))
+	    		}
+	    		else if(line.startsWith("context.removeNode"+SEPARATOR)) {
+	    			String[] action = line.split(Pattern.quote(SEPARATOR), 3);
 	    			context.removeNode(contextualEgoNetwork.getOrCreateNode(action[2], null));
-	    		else if(action[0].equals("context.createEdge"))
+	    		}
+	    		else if(line.startsWith("context.createEdge"+SEPARATOR)) {
+	    			String[] action = line.split(Pattern.quote(SEPARATOR), 4);
 	    			context.addEdge(contextualEgoNetwork.getOrCreateNode(action[2], null), contextualEgoNetwork.getOrCreateNode(action[3], null));
-	    		else if(action[0].equals("context.removeEdge"))
+	    		}
+	    		else if(line.startsWith("context.removeEdge"+SEPARATOR)) {
+	    			String[] action = line.split(Pattern.quote(SEPARATOR), 4);
 	    			context.removeEdge(contextualEgoNetwork.getOrCreateNode(action[2], null), contextualEgoNetwork.getOrCreateNode(action[3], null));
-	    		else if(action[0].equals("context.removeEdge"))
+	    		}
+	    		else if(line.startsWith("context.removeEdge"+SEPARATOR)) {
+	    			String[] action = line.split(Pattern.quote(SEPARATOR), 4);
 	    			context.removeEdge(contextualEgoNetwork.getOrCreateNode(action[2], null), contextualEgoNetwork.getOrCreateNode(action[3], null));
-	    		else if(action[0].equals("edge.createInteraction")) {
+	    		}
+	    		else if(line.startsWith("edge.createInteraction"+SEPARATOR)) {
+	    			String[] action = line.split(Pattern.quote(SEPARATOR), 7);
 	    			Edge edge = context.getEdge(contextualEgoNetwork.getOrCreateNode(action[2], null), contextualEgoNetwork.getOrCreateNode(action[3], null));
 	    			Object data = edge.getContext().getContextualEgoNetwork().getSerializer().deserializeFromString(action[6]);
 	    			edge.addInteraction(Long.parseLong(action[4]), Long.parseLong(action[5]), data);

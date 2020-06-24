@@ -10,7 +10,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
 /**
  * This class implements a {@link ContextualEgoNetworkListener} that logs contextual ego network events.
  * 
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public class LoggingListener implements ContextualEgoNetworkListener {
 	//private static Logger logger = Logger.getGlobal();

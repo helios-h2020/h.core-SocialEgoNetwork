@@ -13,6 +13,10 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
  * The context can be unloaded from memory using the {@link #cleanup()} function and can be forced to be written anew
  * in the device's storage by calling the {@link #removeFromStorage()} method. If the context is unloaded from memory,
  * references to it remain and its data are reloaded on the first demand or by calling {@link #load()}.
+ * 
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
+ * @author Barbara Guidi (guidi@di.unipi.it)
+ * @author Andrea Michienzi (andrea.michienzi@di.unipi.it)
  */
 public final class Context extends CrossModuleComponent
 {

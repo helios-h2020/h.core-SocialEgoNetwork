@@ -10,7 +10,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.Interaction;
  * This class implements a {@link ContextualEgoNetworkListener} that counts the number of ego and alter interactions
  * over the course of the week and time of day.
  * 
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public class ActivityListener implements ContextualEgoNetworkListener {
 	public static class WeeklyHistory {

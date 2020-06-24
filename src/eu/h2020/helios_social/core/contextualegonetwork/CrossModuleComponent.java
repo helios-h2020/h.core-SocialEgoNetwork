@@ -7,7 +7,7 @@ import java.util.HashMap;
  * need to store data coming from multiple modules. The {@link #getOrCreateInstance} method can be used to create
  * and access instances of data structures needed by each module.
  * 
- * @author Emmanouil Krasanakis (maniospas@hotmail.com)
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
  */
 public abstract class CrossModuleComponent {
 	// module data stored in this component

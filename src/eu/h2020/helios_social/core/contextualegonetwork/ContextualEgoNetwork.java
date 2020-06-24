@@ -10,6 +10,10 @@ import java.util.ArrayList;
  * It contains information about the various contexts, i.e. the different layers of the multi-layer network, and about the
  * nodes (users) that belong to the contexts. Moreover, it divides the contexts into a current one, some active ones (that are kept
  * in memory) and some inactive ones (that are serialized in dedicated files).
+ * 
+ * @author Emmanouil Krasanakis (maniospas@iti.gr)
+ * @author Barbara Guidi (guidi@di.unipi.it)
+ * @author Andrea Michienzi (andrea.michienzi@di.unipi.it)
  */
 public class ContextualEgoNetwork {
     private Node ego;
