@@ -64,7 +64,7 @@ public interface ContextualEgoNetworkListener {
 	/**
 	 * Called when a context is removed from the contextual ego network by the {@link ContextualEgoNetwork#removeContext(Context)}
 	 * method. Contrary to creation callbacks, this is called <i>before</i> the context is removed from the network.
-	 * @param node The context to be removed.
+	 * @param context The context to be removed.
 	 */
 	public default void onRemoveContext(Context context) {}
 	
@@ -95,7 +95,7 @@ public interface ContextualEgoNetworkListener {
 	public default void onCreateEdge(Edge edge) {}
 	
 	/**
-	 * Called when an is removed from a context using the {@link Context#removeEdge(Node, Node)} method.
+	 * Called when an edge is removed from a context using the {@link Context#removeEdge(Node, Node)} method.
 	 * That method is also called by the {@link Context#removeNodeIfExists(Node)} and {@link Context#removeNode(Node)}.
 	 * Contrary to creation callbacks, this is called <i>before</i> the edge is removed from the context.
 	 * @param edge The edge to be removed.

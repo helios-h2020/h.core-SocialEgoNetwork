@@ -45,27 +45,31 @@ public final class Interaction {
     {}
 
     /**
-     * @return The edge the interaction belongs to
+     * Retrieves the edge the interaction belongs to.
+     * @return The edge.
      */
     public Edge getEdge() {
     	return edge;
     }
 
     /**
-     * @return The timestamp that corresponds to the start of the interaction
+     * Retrieves the timestamp that orresponds to the start of the interaction.
+     * @return The timestamp as a long.
      */
     public long getStartTime() {
         return startTimestamp;
     }
     
     /**
-     * @return The timestamp that corresponds to the start of the interaction
+     * Retrieves the timestamp that corresponds to the end of the interaction.
+     * @return The timestamp as a long.
      */
     public long getEndTime() {
         return startTimestamp + duration;
     }
 
     /**
+     * Retrieves the duration of the interaction.
      * @return The duration of the interaction
      */
     public long getDuration() {
@@ -73,6 +77,7 @@ public final class Interaction {
     }
 
     /**
+     * Retrieves the interaction's data.
      * @return This interaction's data
      */
     public Object getData() {
@@ -80,6 +85,7 @@ public final class Interaction {
     }
 
     /**
+     * Retrieves the type of the interaction's data as captured by the name of their class.
      * @return The type of this interaction's data, an empty string if no such data
      */
     public String getType() {

@@ -27,7 +27,7 @@ public final class Edge extends CrossModuleComponent {
     private ArrayList<Interaction> interactions;
 
     /**
-     * Constructor method
+     * Constructor method.
      * @param src The source node of the edge
      * @param dst The destination node of the edge
      * @param context The context the edge appears in
@@ -52,21 +52,24 @@ public final class Edge extends CrossModuleComponent {
     {}
 
     /**
-     * @return The source node of the edge
+     * Retrieves the source node of the edge.
+     * @return The source node.
      */
     public Node getSrc() {
         return src;
     }
 
     /**
-     * @return The destination node of the edge
+     * Retrieves the destination node of the edge.
+     * @return The destination node.
      */
     public Node getDst() {
         return dst;
     }
     
     /**
-     * @return The ego node of the edge context's ego network if it's a member of the edge, null otherwise
+     * Retrieves the ego node of the edge context's ego network if that ego a member of the edge.
+     * @return The ego node of the edge, null otherwise.
      */
     public Node getEgo() {
     	Node ego = getContext().getContextualEgoNetwork().getEgo();
@@ -76,8 +79,9 @@ public final class Edge extends CrossModuleComponent {
     }
     
     /**
-     * @return The edge endpoint that is not the ego of the edge context's ego network
-     * @exception RuntimeException if the edge doesn't contain the contextual ego network's ego
+     * Retrieve the edge's endpoint that is not the ego of the edge context's ego network if getEgo() finds an ego endpoint.
+     * @return The alter endpoint of the edge.
+     * @exception RuntimeException if the edge doesn't contain the contextual ego network's ego.
      */
     public Node getAlter() {
     	Node ego = getContext().getContextualEgoNetwork().getEgo();
@@ -90,14 +94,15 @@ public final class Edge extends CrossModuleComponent {
     }
 
     /**
-     * @return The context the edge belongs to
+     * Retrieves the context the edge belongs to.
+     * @return The edge's context.
      */
     public Context getContext() {
         return context;
     }
 
     /**
-     * Adds a new interaction with no duration on this edge at the current timestamp
+     * Adds a new interaction with no duration on this edge at the current timestamp.
      * @param data The data to be stored in the interaction
      * @return the created interaction
      */
@@ -106,7 +111,7 @@ public final class Edge extends CrossModuleComponent {
     }
 
     /**
-     * Creates and adds a new interaction on this edge
+     * Creates and adds a new interaction on this edge.
      * @param timestamp The start timestamp of the interaction
      * @param duration The duration of the interaction
      * @param data The data stored in the interaction
@@ -122,7 +127,8 @@ public final class Edge extends CrossModuleComponent {
     }
 
     /**
-     * @return A shallow copy of the edge's interaction list
+     * Retrieves a shallow copy of the edge's interaction list.
+     * @return A list of interactions.
      */
     public ArrayList<Interaction> getInteractions() {
     	return new ArrayList<Interaction>(interactions);

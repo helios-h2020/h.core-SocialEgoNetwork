@@ -64,7 +64,7 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Instantiates a ContextualEgoNetwork by creating a new ego node with the given data.
+     * Instantiates a ContextualEgoNetwork at the given storage path  by creating a new ego node with the given data.
      * Loads a previously saved one if such a node exists.
      * @param internalStoragePath The path to the internal storage location (can be any path)
      * @param egoName The name of the ego network's ego.
@@ -124,13 +124,15 @@ public class ContextualEgoNetwork {
     }*/
     
     /**
-     * @return The path folder in which the ego network is saved
+     * Retrieves the path folder in which the ego network is saved by its serializer.
+     * @return The path as a string.
      */
     public String getPath() {
     	return internalStoragePath+ego.getId()+File.separator;
     }
     
     /**
+     * Retrieves the Serializer responsible for saving and loading the ego network and its entities.
      * @return The {@link Serializer} object used to save and load data in the
      * folder determined by {@link #getPath()}
      */

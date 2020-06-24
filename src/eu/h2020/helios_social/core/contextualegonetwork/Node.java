@@ -37,15 +37,16 @@ public final class Node extends CrossModuleComponent {
     protected Node() {}
     
     /**
-     * @return The data attached to the node
+     * Retrieves the data object describing the node.
+     * @return The data attached to the node.
      */
     public Object getData() {
         return data;
     }
  
     /**
-     *
-     * @return The identifier of the node declared in its constructor
+     * Retrieves the identifier of the node used for serialization.
+     * @return A unique string node identifier.
      */
     public String getId() {
         return this.id;

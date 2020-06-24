@@ -495,7 +495,7 @@ public class Serializer {
 	 *
 	 * @param object    The given object
 	 * @param allowSave Whether the serializer is allowed to save the given object
-	 * @throws Exception if the given object is not registered, for example with {@link #registerId(Object)}
+	 * @throws RuntimeException if the given object is not registered, for example with {@link #registerId(Object)}
 	 * @see #saveAllRegistered()
 	 */
 	public synchronized void setSavePermission(Object object, boolean allowSave) {

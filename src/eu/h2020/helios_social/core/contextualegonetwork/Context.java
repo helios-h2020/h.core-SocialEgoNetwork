@@ -27,7 +27,7 @@ public final class Context extends CrossModuleComponent
     private ArrayList<Edge> edges;
 
     /**
-     * Constructor method
+     * Constructor method.
      * @param name the name of the context
      * @param contextualEgoNetwork the ContextualEgoNetwork in which the context resides
      * @throws NullPointerException if name or contextualEgoNetwork are null
@@ -45,7 +45,8 @@ public final class Context extends CrossModuleComponent
     }
     
     /**
-     * @return The id assigned to this context during serialization
+     * Retrieves the id assigned to this context during serialization.
+     * @return The context's unique string identifier.
      */
     public String getSerializationId() {
     	return getContextualEgoNetwork().getSerializer().getRegisteredId(this);
@@ -111,7 +112,8 @@ public final class Context extends CrossModuleComponent
     }
     
     /**
-     * @return Whether the context has been loaded in memory
+     * Checks whether the context has been loaded in memory.
+     * @return <code>true</code> if the context has has been loaded, <code>false</code> otherwise.
      */
     public boolean isLoaded() { 
     	return nodes!=null;
@@ -133,7 +135,8 @@ public final class Context extends CrossModuleComponent
     }
 
     /**
-     * @return A shallow copy of the context's node list
+     * Retrieves a shallow copy of the context's node list.
+     * @return A list of nods.
      */
     public ArrayList<Node> getNodes() {
     	assertLoaded();
@@ -141,7 +144,8 @@ public final class Context extends CrossModuleComponent
     }
     
     /**
-     * @return A shallow copy of the context's edge list
+     * Retrieves a shallow copy of the context's edge list.
+     * @return An edge list.
      */
     public ArrayList<Edge> getEdges() {
     	assertLoaded();
@@ -149,7 +153,7 @@ public final class Context extends CrossModuleComponent
     }
 
     /**
-     * Creates an edge between two nodes of the social graph
+     * Creates an edge between two nodes of the social graph.
      * @param src The source node
      * @param dst The destination node
      * @return The created {@link Edge}
@@ -173,7 +177,7 @@ public final class Context extends CrossModuleComponent
     }
     
     /**
-     * Gets the edge (if it exists) between two nodes in the context
+     * Retrieves the edge (if it exists) between two nodes in the context.
      * @param src The source node
      * @param dst The destination node
      * @return The edge if the source and the destination nodes are in the social graph and are
@@ -192,7 +196,7 @@ public final class Context extends CrossModuleComponent
     }
     
     /**
-     * Gets the edge (if it exists) between two nodes of the social graph or creates it if it doesn't exist.
+     * Retrieves the edge (if it exists) between two nodes of the social graph or creates it if it doesn't exist.
      * If the nodes are not part of the context, then they are also added.
      * @param src The source node
      * @param dst The destination node
@@ -294,7 +298,7 @@ public final class Context extends CrossModuleComponent
     }
 
     /**
-     * Gets the in-going edges of a given node
+     * Retrieves the incoming edges of a given node.
      * @param node The given node
      * @return A stream of the incoming edges
      * @throws NullPointerException If the node is null
@@ -308,7 +312,7 @@ public final class Context extends CrossModuleComponent
     }
     
     /**
-     * Gets the out-going edges of a given node
+     * Retrieves the outgoing edges of a given node.
      * @param node The given node
      * @return A stream of the outgoing edges
      * @throws NullPointerException If the node is null
