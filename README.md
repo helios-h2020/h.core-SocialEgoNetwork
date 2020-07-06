@@ -9,8 +9,16 @@ The Contextual Ego Network (CEN) Library is responsible for the management of in
 
 This information supports dynamic loading and unloading from memory while preserving pointers to data objects. Serialization is handled automatically. *All serialized classes require a (protected) default constructor.*
 
-## Installation for Anroid Studio
-For ease of use, the library is deployed through the jitpack.io platform. To add it as a dependency on a gradle module, add the following dependency on the application's global gradle script:
+## Installation
+[![](https://jitpack.io/v/helios-h2020/h.core-SocialEgoNetwork.svg)](https://jitpack.io/#helios-h2020/h.core-SocialEgoNetwork)
+
+### Jar File Installation
+This project can be downloaded as a [jar file](../jar/h.core-SocialEgoNetwork 1.0.0.jar), which can be added on a
+Java project's dependencies. This requires also downloading the respective [ContextualEgoNetwork JAR]().
+
+### Gradle Installation
+##### First step
+Add the JitPack repository to your build file. In particular, add it in your root build.gradle at the end of repositories:
 ```
 allprojects {
     repositories {
@@ -19,6 +27,41 @@ allprojects {
     }
 }
 '''
+##### Second step
+Add the dependency:
+```
+dependencies {
+        implementation 'com.github.helios-h2020:h.core-SocialEgoNetwork:Tag'
+}
+```
+
+### Maven Installation
+##### First step
+Add the JitPack repository to your build pom file:
+
+```xml
+<repositories>
+	<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+	</repository>
+</repositories>
+```
+
+##### Second step
+Add the dependency:
+
+```xml
+<dependency>
+    <groupId>com.github.helios-h2020</groupId>
+    <artifactId>h.core-SocialEgoNetwork</artifactId>
+    <version>Tag</version>
+</dependency>
+```
+
+## Installation for Anroid Studio
+For ease of use, the library is deployed through the jitpack.io platform. To add it as a dependency on a gradle module, add the following dependency on the application's global gradle script:
+
 
 Then, add the following configuration (temporary solution to a junit conflict bug) and dependency at the module-level gradle:
 ```
