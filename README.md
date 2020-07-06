@@ -19,6 +19,7 @@ Java project's dependencies.
 ### Gradle Installation
 ##### First step
 Add the JitPack repository to your build file. In particular, add it in your root build.gradle at the end of repositories:
+
 ```
 allprojects {
     repositories {
@@ -30,6 +31,7 @@ allprojects {
 
 ##### Second step
 Add the dependency:
+
 ```
 dependencies {
         implementation 'com.github.helios-h2020:h.core-SocialEgoNetwork:1.0.0'
@@ -59,22 +61,6 @@ Add the dependency:
     <version>1.0.0</version>
 </dependency>
 ```
-
-## Installation for Anroid Studio
-For ease of use, the library is deployed through the jitpack.io platform. To add it as a dependency on a gradle module, add the following dependency on the application's global gradle script:
-
-
-Then, add the following configuration (temporary solution to a junit conflict bug) and dependency at the module-level gradle:
-```
-configurations {
-    compile.exclude group: "junit", module: "junit"
-}
-dependencies {
-	...
-    implementation 'com.github.DistributedSystemsSocialNetworkAnalysis:Contextual-Ego-Network:0.8-SNAPSHOT'
-}
-'''
-
 
 ## API Usage
 Adding an interaction to the contextual ego network by loading the respective objects or creating them when they don't already exist:
