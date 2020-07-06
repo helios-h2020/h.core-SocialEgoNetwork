@@ -13,8 +13,8 @@ This information supports dynamic loading and unloading from memory while preser
 [![](https://jitpack.io/v/helios-h2020/h.core-SocialEgoNetwork.svg)](https://jitpack.io/#helios-h2020/h.core-SocialEgoNetwork)
 
 ### Jar File Installation
-This project can be downloaded as a [jar file](../jar/h.core-SocialEgoNetwork 1.0.0.jar), which can be added on a
-Java project's dependencies. This requires also downloading the respective [ContextualEgoNetwork JAR]().
+This library can be downloaded as a [jar file](../jar/h.core-SocialEgoNetwork 1.0.0.jar), which can be added to a
+Java project's dependencies.
 
 ### Gradle Installation
 ##### First step
@@ -26,12 +26,13 @@ allprojects {
         maven { url 'https://jitpack.io' }
     }
 }
-'''
+```
+
 ##### Second step
 Add the dependency:
 ```
 dependencies {
-        implementation 'com.github.helios-h2020:h.core-SocialEgoNetwork:Tag'
+        implementation 'com.github.helios-h2020:h.core-SocialEgoNetwork:1.0.0'
 }
 ```
 
@@ -55,7 +56,7 @@ Add the dependency:
 <dependency>
     <groupId>com.github.helios-h2020</groupId>
     <artifactId>h.core-SocialEgoNetwork</artifactId>
-    <version>Tag</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
