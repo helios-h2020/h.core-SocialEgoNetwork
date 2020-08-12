@@ -249,9 +249,8 @@ public class Serializer {
 			}
 			return value;
 		}
-		if (!(defaultClass instanceof Class) &&
-				((java.lang.reflect.ParameterizedType) defaultClass)
-						.getRawType() == HashMap.class) {
+		if (!(defaultClass instanceof Class) &&//making true if defaultClass==null to handle immediate deserialization from hashmaps
+				(defaultClass==null || ((java.lang.reflect.ParameterizedType) defaultClass).getRawType() == HashMap.class)) {
 			HashMap<?, ?> map =
 					(HashMap<?, ?>) ((Class<?>) ((java.lang.reflect.ParameterizedType) defaultClass)
 							.getRawType()).newInstance();
