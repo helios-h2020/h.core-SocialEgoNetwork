@@ -173,6 +173,8 @@ public class Serializer {
 				return new Integer(Integer.parseInt((String) jsonValue));
 			if (defaultClass == Double.class || defaultClass == double.class)
 				return new Double(Double.parseDouble((String) jsonValue));
+			if (defaultClass == Float.class || defaultClass == float.class)
+				return new Float(Float.parseFloat((String) jsonValue));
 			return Utils
 					.error("Unknown primitive datatype: " + defaultClass, null);
 		}
@@ -199,15 +201,12 @@ public class Serializer {
 				List<?> list =
 						(List<?>) ((Class<?>) ((java.lang.reflect.ParameterizedType) defaultClass)
 								.getRawType()).newInstance();
-				Class<?> defaultListType =
-						(Class<?>) ((java.lang.reflect.ParameterizedType) defaultClass)
-								.getActualTypeArguments()[0];
 				JSONArray array = (JSONArray) jsonValue;
 				parents.add(list);
 				for (int i = 0; i < array.length(); i++)
 					((List<Object>) list)
 							.add(deserializeToNewObject(array.get(i),
-									defaultListType, levelsOfLoadingDemand,
+									((java.lang.reflect.ParameterizedType) defaultClass).getActualTypeArguments()[0], levelsOfLoadingDemand,
 									parents));
 				parents.remove(list);
 				return list;
@@ -295,6 +294,7 @@ public class Serializer {
 									field.getGenericType(),
 									levelsOfLoadingDemand, parents));
 				} catch (Exception e) {
+					e.printStackTrace();
 					Utils.error("Deserialization error for field " +
 							object.getClass().toString() + "." +
 							field.getName() + " : " + e.toString());
@@ -306,7 +306,7 @@ public class Serializer {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected Object serialize(Object object, Class<?> wouldHaveSuggestedClass,
+	protected Object serialize(Object object, Type wouldHaveSuggestedClass,
 			boolean convertToIdIfPossible,
 			HashSet<Object> objectsWithKnownClasses, ArrayList<Object> parents)
 			throws Exception {
@@ -318,11 +318,11 @@ public class Serializer {
 				|| object instanceof Long
 				|| object instanceof Integer
 				|| object instanceof Double
+				|| object instanceof Float
 				|| object instanceof Enum) {
 			if (wouldHaveSuggestedClass == null ||
-					!wouldHaveSuggestedClass.getSimpleName()
-							.replace("int", "Integer").equalsIgnoreCase(
-									object.getClass().getSimpleName())) {
+					!(wouldHaveSuggestedClass.getTypeName().replace("int", "Integer").replace("java.lang.", "")
+					.equalsIgnoreCase(object.getClass().getTypeName().replace("java.lang.", "")))) {
 				JSONObject classObject = new JSONObject();
 				classObject.put("@class",
 						object.getClass().getTypeName().toString());
@@ -335,7 +335,7 @@ public class Serializer {
 			parents.add(object);
 			JSONArray list = new JSONArray();
 			for (Object element : ((List<?>) object))
-				list.put(serialize(element, null, true, objectsWithKnownClasses,
+				list.put(serialize(element, wouldHaveSuggestedClass==null?null:((java.lang.reflect.ParameterizedType) wouldHaveSuggestedClass).getActualTypeArguments()[0], true, objectsWithKnownClasses,
 						parents));
 			parents.remove(object);
 			return list;
@@ -386,7 +386,7 @@ public class Serializer {
 				boolean prevAccessible = field.isAccessible();
 				field.setAccessible(true);
 				classObject.put(field.getName(),
-						serialize(field.get(object), field.getType(), true,
+						serialize(field.get(object), field.getGenericType(), true,
 								objectsWithKnownClasses, parents));
 				field.setAccessible(prevAccessible);
 			}
@@ -427,6 +427,7 @@ public class Serializer {
 					(System.nanoTime() - tic) / 1000.0 / 1000.0 + " ms)");
 			return true;
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Utils.error("Failed to save: " + e.toString(), false);
 		}
 	}

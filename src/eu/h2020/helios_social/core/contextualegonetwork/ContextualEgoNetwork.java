@@ -160,7 +160,8 @@ public class ContextualEgoNetwork {
 	}
 	
 	/**
-	 * Applies {@link Context#cleanup()} on all contexts. Non-saved changes are lost.
+	 * Applies {@link Context#cleanup()} to all contexts. Non-saved changes are lost.
+	 * @see #save()
 	 */
 	public void cleanup() {
 		for(Context context : contexts)
@@ -224,7 +225,7 @@ public class ContextualEgoNetwork {
     }
     
     /**
-     * Method to grant safe access to all contexts of the contextual ego networks
+     * Method to grant safe access to all contexts of the contextual ego network.
      * @return An ArrayList of contexts
      */
     public ArrayList<Context> getContexts(){
