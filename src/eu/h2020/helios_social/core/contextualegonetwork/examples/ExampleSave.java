@@ -4,30 +4,33 @@ import java.util.ArrayList;
 import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
+import eu.h2020.helios_social.core.contextualegonetwork.Utils;
 public class ExampleSave {
 	public static class ExampleData {
 		public int testInt = 63;
 		public float testFLoat = 61.f;
-		public ArrayList<ArrayList<Float>> lists = new ArrayList<ArrayList<Float>>();;
+		public ArrayList<ArrayList<Float>> lists = new ArrayList<ArrayList<Float>>();
+		public ArrayList<String> lists2 = new ArrayList<String>();
 		public ExampleData() {
 		}
 		public void init() {
 			lists.add(new ArrayList<Float>());
 			lists.get(0).add(1023.f);
 			lists.get(0).add(1024.f);
+			lists2.add(null);
 		}
 	}
 	
 	public static void main(String[] args) {
 		//Use this example to demonstrate a simple management use case.
-		//Utils.development = false;
+		Utils.development = false;
 		
 		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", new PersonData("RandomName1", "", "RandomSurname1", "1/1/00"));
 		
 		Node user1 = egoNetwork.getEgo();
 		user1.getOrCreateInstance(ExampleData.class);
-		System.out.println(user1.getOrCreateInstance(ExampleData.class).lists.get(0).size());
 		user1.getOrCreateInstance(ExampleData.class).init();
+		System.out.println(user1.getOrCreateInstance(ExampleData.class).lists.get(0).size());
 		Node user2 = egoNetwork.getOrCreateNode("user-00002", null);//can set any object as node data 
 		Node user3 = egoNetwork.getOrCreateNode("user-00003", new PersonData("RandomName3", "", "RandomSurname3", "3/3/00"));
 		//all object data are recursively serialized, so pass an id if you don't want to serialize them

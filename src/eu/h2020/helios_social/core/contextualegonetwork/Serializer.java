@@ -151,7 +151,7 @@ public class Serializer {
 	protected Object deserializeToNewObject(Object jsonValue, Type defaultClass,
 			int levelsOfLoadingDemand, ArrayList<Object> parents)
 			throws Exception {
-		if (jsonValue == null)
+		if (jsonValue == null || jsonValue.toString().equals("null")) 
 			return null;
 
 		if (jsonValue instanceof JSONObject &&
