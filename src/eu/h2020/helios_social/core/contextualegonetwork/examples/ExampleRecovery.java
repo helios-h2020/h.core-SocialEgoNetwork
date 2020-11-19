@@ -4,12 +4,14 @@ import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
 import eu.h2020.helios_social.core.contextualegonetwork.Serializer;
+import eu.h2020.helios_social.core.contextualegonetwork.Storage;
 import eu.h2020.helios_social.core.contextualegonetwork.Utils;
 import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener;
+import eu.h2020.helios_social.core.contextualegonetwork.storage.NativeStorage;
 
 public class ExampleRecovery {
 	public static ContextualEgoNetwork createNetworkWithRecovery() {
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", null);
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad(Storage.getInstance("CEN\\", NativeStorage.class), "user-00001", null);
 		
 		egoNetwork.addListener(new RecoveryListener());//insure against failing operation
 		
@@ -25,7 +27,7 @@ public class ExampleRecovery {
 	}
 	
 	public static ContextualEgoNetwork loadNetworkWithoutRecovery() {
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", null);
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad(Storage.getInstance("CEN\\", NativeStorage.class), "user-00001", null);
 		return egoNetwork;
 	}
 	

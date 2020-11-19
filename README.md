@@ -39,8 +39,7 @@ dependencies {
 ```
 
 ### Maven Installation
-##### First step
-Add the JitPack repository to your build pom file:
+Firth, add the JitPack repository to your build pom file
 
 ```xml
 <repositories>
@@ -51,26 +50,69 @@ Add the JitPack repository to your build pom file:
 </repositories>
 ```
 
-##### Second step
-Add the dependency:
+Then, add the dependency
 
 ```xml
 <dependency>
     <groupId>com.github.helios-h2020</groupId>
     <artifactId>h.core-SocialEgoNetwork</artifactId>
-    <version>1.0.3</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
 ## API Usage
+
+### Creating or Loading the CEN for a Storage System
+To create or load the contextual ego network, this module utilizes an abstraction of the
+storage system's implementation through the abstract class `Storage`. If the aim is to
+store saved files of the CEN module in, we recommend instantiating a `LegacyStorage`,
+which is backwards compatible with versions of android through following code, through
+the `Storage.getInstance` method. This method takes two arguments: the file path at 
+which to instantiate the storage and the storage class to instantiate. It must be noted
+that the storage path may be completely cleared through some CEN operation and hence
+no other data should reside inside. Hence, it is preferable to obtain the
+app-specific Android storage path through `getFilesDir().getPath()`. 
+
+The code below demonstrates how a storage abstraction could be instantiated.
+
+
+```java
+import eu.h2020.helios_social.core.contextualegonetwork.Storage;
+import eu.h2020.helios_social.core.contextualegonetwork.storage.NativeStorage;
+
+String storagePath = getFilesDir().getPath(); // best practice for obtaining the android storage path
+Storage storage = Storage.getInstance(storagePath, LegacyStorage.class);
+```
+
+Given a file system storage abstraction, like the one above an instance of the 
+contextual ego network can be loaded or created if it doesn't already exist through 
+the method `ContextualEgoNetwor.getOrLoad`. The arguments to be passed to this method is
+the abstracted storage system instance, as well as the node data required to create the
+ego node if there is nothing to load - namely a String identifier of the ego node and a default
+object to attach on the ego node.
+
+The code below demonstrates how to create a `ContextualEgoNetwork` instance for an ego
+node with local (i.e. CEN-specific) identifier `ego_user_id`. We remind that the ego node
+corresponds to the user of the device. 
+
+```java
+ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad(storage, "ego_user_id", null);
+import eu.h2020.helios_social.core.contextualegonetwork.Storage;
+
+Storage storage = ...;
+ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad(storage, "ego_user_id", null);
+```
+
+
 Adding an interaction to the contextual ego network by loading the respective objects or creating them when they don't already exist:
+
 ```java
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
 import eu.h2020.helios_social.core.contextualegonetwork.Edge;
 
-ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad("ego_user_id", null);
+ContextualEgoNetwork cen = ...;
 Context context = cen.getOrCreateContext("context_name");
 Node alter1 = cen.getOrCreateNode("alter_id", null);
 Interaction interaction = context.getOrAddEdge(cen.getEgo(), alter).addDetectedInteraction("interaction_type");
@@ -78,16 +120,20 @@ cen.save(); //saves the contextual ego network
 ```
 
 Automating the saving process in a fault-tolerant manner:
+
 ```java
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener;
+import eu.h2020.helios_social.core.contextualegonetwork.Storage;
 
-ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad(getFilesDir().getPath(), "ego_user_id", null);
+Storage storage = ...
+ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad(storage, "ego_user_id", null);
 cen.addListener(new RecoveryListener()); //saves data in temporary log files that are resistant to device errors
 ```
 
 
 Storing node-related parameters in the library (same usage for storing in contexts and edges):
+
 ```java
 public class ModuleNodeParameters {
 	private Integer[] parameters;

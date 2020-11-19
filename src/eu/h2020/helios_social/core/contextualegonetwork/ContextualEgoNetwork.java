@@ -1,8 +1,6 @@
 package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
@@ -20,8 +18,8 @@ public class ContextualEgoNetwork {
     private ArrayList<Context> contexts;
     private ArrayList<Node> alters;
     private Context currentContext;
-    private String internalStoragePath;
-    
+    @Serializer.Serialization(enabled=false)
+    private Serializer serializer;
     @Serializer.Serialization(enabled=false)
     private ArrayList<ContextualEgoNetworkListener> listeners = new ArrayList<ContextualEgoNetworkListener>();
     
@@ -30,15 +28,15 @@ public class ContextualEgoNetwork {
      * @param internalStoragePath The path to the internal storage location (can be any path)
      * @param ego The ego Node
      */
-    protected ContextualEgoNetwork(String internalStoragePath, Node ego) {
-    	this.internalStoragePath = internalStoragePath;
+    protected ContextualEgoNetwork(Storage storage, Node ego) {
         if(ego == null) Utils.error(new NullPointerException());
         this.ego = ego;
         contexts = new ArrayList<Context>();
         alters = new ArrayList<Node>();
-        getSerializer().removePreviousSaved();
-        getSerializer().registerId(this, "CEN");
-        getSerializer().registerId(ego, ego.getId());
+        serializer = Serializer.getInstance(storage);
+        serializer.removePreviousSaved();
+        serializer.registerId(this, "CEN");
+        serializer.registerId(ego, ego.getId());
     }
     
     /**
@@ -66,24 +64,45 @@ public class ContextualEgoNetwork {
     public ArrayList<ContextualEgoNetworkListener> getListeners() {
     	return new ArrayList<ContextualEgoNetworkListener>(listeners);
     }
-    
+
     /**
-     * Instantiates a ContextualEgoNetwork at the given storage path  by creating a new ego node with the given data.
-     * Loads a previously saved one if such a node exists.
+     * Instantiates a ContextualEgoNetwork at the given storage path by creating a new ego node with the given data.
+     * Loads a previously saved one if such a node exists. Since method version 1.1.0 this method depends on the storage 
+     * management of {@link eu.h2020.helios_social.core.contextualegonetwork.storage.NativeStorage}.
      * @param internalStoragePath The path to the internal storage location (can be any path)
      * @param egoName The name of the ego network's ego.
      * @param egoData The data with which to create the network's node.
      * @return the created or loaded contextual ego network
+     * @deprecated Prefer {@link #createOrLoad(Storage, String, Object)}, which this method wraps.
+     * This method remains only to ensure compatibility with previous versions and may be removed in future versions.
      */
     public static ContextualEgoNetwork createOrLoad(String internalStoragePath, String egoName, Object egoData) {
-    	//TODO: ensure that multiple instances of the same CEN cannot be loaded at the same time
-    	if(!internalStoragePath.isEmpty() && !internalStoragePath.endsWith(File.separator))
-    		Utils.error("internalStoragePath should either be empty or end with a '"+File.separator+"' character");
-    	String path = internalStoragePath + egoName + File.separator; // cannot call getPath() at this point
+    	if(!internalStoragePath.isEmpty() && !internalStoragePath.endsWith(File.separator) && !internalStoragePath.endsWith("\\") && !internalStoragePath.endsWith("/"))
+				internalStoragePath += File.separator;
+    	String path = internalStoragePath + egoName + File.separator;
+    	Storage storage = Storage.getInstance(path, eu.h2020.helios_social.core.contextualegonetwork.storage.LegacyStorage.class);
+    	return createOrLoad(storage, egoName, egoData);
+    }
+    
+    /**
+     * Instantiates a ContextualEgoNetwork at the given storage path  by creating a new ego node with the given data.
+     * Loads a previously saved one if such a node exists.
+     * @param internalStoragePath The path to the internal storage location (s)
+     * @param egoName The name of the ego network's ego.
+     * @param egoData The data with which to create the network's node.
+     * @return the created or loaded contextual ego network
+     */
+    public static ContextualEgoNetwork createOrLoad(Storage storage, String egoName, Object egoData) {
+    	if(storage==null)
+    		Utils.error(new IllegalArgumentException("null storage"));
+    	if(egoName==null)
+    		Utils.error(new IllegalArgumentException("null ego name"));
+    	//TODO: potentially ensure that multiple instances of the same CEN cannot be loaded at the same time
     	ContextualEgoNetwork contextualEgoNetwork;
-    	Serializer serializer = Serializer.getSerializer(path);
-    	if(Files.exists(Paths.get(path + "CEN.json"))) {
+    	Serializer serializer = Serializer.getInstance(storage);
+    	if(storage.fileExists("CEN.json")) {
     		contextualEgoNetwork = new ContextualEgoNetwork();
+    		contextualEgoNetwork.serializer = serializer;
 	    	serializer.registerId(contextualEgoNetwork, "CEN");
 	    	serializer.reload(contextualEgoNetwork);
 	    	serializer.reload(contextualEgoNetwork.ego);
@@ -98,7 +117,7 @@ public class ContextualEgoNetwork {
     	}
     	else {
     		Node ego = new Node(null, egoName, egoData);
-    		contextualEgoNetwork = new ContextualEgoNetwork(internalStoragePath, ego);
+    		contextualEgoNetwork = new ContextualEgoNetwork(storage, ego);
     		ego.contextualEgoNetwork = contextualEgoNetwork;
     		contextualEgoNetwork.save();
     	}
@@ -128,20 +147,12 @@ public class ContextualEgoNetwork {
     }*/
     
     /**
-     * Retrieves the path folder in which the ego network is saved by its serializer.
-     * @return The path as a string.
-     */
-    public String getPath() {
-    	return internalStoragePath+ego.getId()+File.separator;
-    }
-    
-    /**
      * Retrieves the Serializer responsible for saving and loading the ego network and its entities.
      * @return The {@link Serializer} object used to save and load data in the
      * folder determined by {@link #getPath()}
      */
     public Serializer getSerializer() {
-    	return Serializer.getSerializer(getPath());
+    	return serializer;
     }
     
     /**
@@ -269,6 +280,16 @@ public class ContextualEgoNetwork {
     }
     
     /**
+     * Searches for a node with the given id and, if no such node is found, creates a new one.
+     * @param nodeId The node's id
+     * @return The found or created node.
+     * @see #getOrCreateNode(String, Object)
+     */
+    public Node getOrCreateNode(String nodeId) {
+    	return getOrCreateNode(nodeId, null);
+    }
+    
+    /**
      * Searches for a node with the given id and, if no such node is found, creates a new one using the given data.
      * @param nodeId The node's id
      * @param data The node's data (only used if a new node is created - can be null).
@@ -278,7 +299,7 @@ public class ContextualEgoNetwork {
     	if(nodeId==null) Utils.error(new NullPointerException());
     	if(nodeId.isEmpty()) Utils.error(new IllegalArgumentException());
     	Serializer serializer = getSerializer();
-    	Object object = serializer.getObject(nodeId);
+    	Object object = serializer.getObjectOrNull(nodeId);
     	Node node = object==null?null:(Node)object;
     	if(node==null) {
     		node = new Node(this, nodeId, data);
@@ -300,7 +321,7 @@ public class ContextualEgoNetwork {
      */
     public void removeNodeIfExists(String nodeId) {
     	Serializer serializer = getSerializer();
-    	Object object = serializer.getObject(nodeId);
+    	Object object = serializer.getObjectOrNull(nodeId);
     	Node node = object==null?null:(Node)object;
     	if(node!=null) {
 	    	for(Context context : contexts) {

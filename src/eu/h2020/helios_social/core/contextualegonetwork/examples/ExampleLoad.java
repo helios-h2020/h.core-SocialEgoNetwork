@@ -4,14 +4,16 @@ import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Edge;
 import eu.h2020.helios_social.core.contextualegonetwork.Interaction;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
+import eu.h2020.helios_social.core.contextualegonetwork.Storage;
 import eu.h2020.helios_social.core.contextualegonetwork.Utils;
+import eu.h2020.helios_social.core.contextualegonetwork.storage.NativeStorage;
 
 public class ExampleLoad {
 
 	public static void main(String[] args) {
 		Utils.development = false;//disable logging and make exceptions try to forcefully continue execution
 		
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", null);
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad(Storage.getInstance("CEN\\", NativeStorage.class), "user-00001", null);
 		
 		//assert that deserialization loads the ego correctly
 		System.out.println(egoNetwork.getEgo().getId());

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Node;
+import eu.h2020.helios_social.core.contextualegonetwork.Storage;
 import eu.h2020.helios_social.core.contextualegonetwork.Utils;
+import eu.h2020.helios_social.core.contextualegonetwork.storage.NativeStorage;
 public class ExampleSave {
 	public static class ExampleData {
 		public int testInt = 63;

@@ -94,7 +94,7 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	}
 	
 	public synchronized void init(ContextualEgoNetwork contextualEgoNetwork) {
-		String path = contextualEgoNetwork.getSerializer().getPath()+"recovery.log";
+		String path = contextualEgoNetwork.getSerializer().getStorage().getSerializedFilePath("recovery.log");
 		if(this.contextualEgoNetwork!=null && this.contextualEgoNetwork!=contextualEgoNetwork)
 			Utils.error("RecoveryListener can be assigned only to one ContextualEgoNetwork");
 		this.contextualEgoNetwork = contextualEgoNetwork;

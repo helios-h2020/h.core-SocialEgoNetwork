@@ -70,8 +70,8 @@ public abstract class CrossModuleComponent {
      * If modifications of created instances occur, these <i>don't</i> trigger any listener callbacks of the contextual ego network.
      * For example, this means that changes to the created instances are not saved by
      * {@link eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener}.
-     * @param ModuleObjectDataType The implicity understood type of the returned object (is resolved to the same as the type of the class)
-     * @param moduleClass A given class (e.g. that stores the node's data needed by a HELIOS module).
+     * @param ModuleObjectDataType The implicitly understood type of the returned object (is automatically resolved to the same as the type of the given class)
+     * @param moduleClass The given class (e.g. that stores the node's data needed by a HELIOS module).
      * @return An instance of the given class.
      */
     @SuppressWarnings("unchecked")

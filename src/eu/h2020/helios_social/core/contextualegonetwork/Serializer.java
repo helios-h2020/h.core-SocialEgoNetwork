@@ -1,10 +1,5 @@
 package eu.h2020.helios_social.core.contextualegonetwork;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.OutputStreamWriter;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,9 +8,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,7 +22,8 @@ import org.json.JSONObject;
 
 /**
  * This class supports dynamic object serialization, with the capability of reloading
- * only parts of objects and saving only particular objects.
+ * only parts of objects and saving only particular objects. It depends on {@link Storage}
+ * instances to abstract the file system.
  * <p>
  * To declare an object as dynamic so that it is referenced by others with its id after serialization
  * use the function {@link #registerId(Object)} to automatically create a UUId or a
@@ -53,9 +46,8 @@ public class Serializer {
 	private HashMap<Object, Boolean> enableSaving;
 	private HashMap<Object, String> objectIds;
 	private HashMap<String, Object> idObjects;
-	private String path;
-	private static HashMap<String, Serializer> serializers =
-			new HashMap<String, Serializer>();
+	private Storage storage;
+	private static HashMap<Storage, Serializer> serializers = new HashMap<Storage, Serializer>();
 
 	protected static List<Field> getAllFields(Class<?> type) {
 		List<Field> fields = new ArrayList<Field>();
@@ -74,33 +66,57 @@ public class Serializer {
 	}
 
 	/**
-	 * Obtains a serializer that stores objects at a specific path.
-	 * Serializers are 1-1 mapped to paths.
+	 * Obtains a serializer that stores objects using a specific {@link Storage}
+	 * object. Serializers are 1-1 mapped to storage objects.
 	 *
-	 * @param path The path in which to store objects
+	 * @param path The {@link Storage} object that manages file operations to store and load objects
 	 * @return The serializer's instance
 	 */
-	public synchronized static Serializer getSerializer(String path) {
-		Serializer serializer = serializers.get(path);
+	public synchronized static Serializer getInstance(Storage storage) {
+		Serializer serializer = serializers.get(storage);
 		if (serializer == null)
-			serializers.put(path, serializer = new Serializer(path));
+			serializers.put(storage, serializer = new Serializer(storage));
 		return serializer;
 	}
 
-	protected Serializer(String path) {
+	protected Serializer(Storage storage) {
 		enableSaving = new HashMap<Object, Boolean>();
 		objectIds = new HashMap<Object, String>();
 		idObjects = new HashMap<String, Object>();
-		this.path = path;
+		this.storage = storage;
 	}
 
 	/**
-	 * @return The path the serializer is stored in
+	 * @return The {@link Storage} instance used by the serializer
 	 */
-	public String getPath() {
-		return path;
+	public Storage getStorage() {
+		return storage;
+	}
+	
+
+
+	/**
+	 * Retrieves an object registed to the given unique identifier.
+	 * @param specificId The id to search for
+	 * @return The registered object, <code>null</code> if no such object registered.
+	 * @see #registerId(Object)
+	 * @see #registerId(Object, String)
+	 * @see #getRegisteredIdOrNull(Object)
+	 */
+	public synchronized Object getObjectOrNull(String specificId) {
+		if (specificId == null) Utils.error(new NullPointerException());
+		return idObjects.get(specificId);
 	}
 
+	/**
+	 * Retrieves the unique identifier of an object registered in the serializer.
+	 * This method throws an exception if no such object id is found.
+	 * @param object A queried object to retrieve its id
+	 * @see #registerId(Object)
+	 * @see #getObject(String)
+	 * @return A String identifier of the registered object
+	 * @throws RuntimeException if the object has not been registered
+	 */
 	public synchronized String getRegisteredId(Object object) {
 		if (object == null) Utils.error(new NullPointerException());
 		String id = objectIds.get(object);
@@ -109,7 +125,7 @@ public class Serializer {
 		return Utils.error(object.toString() + " has no id", null);
 	}
 
-	synchronized String registerId(Object object) {
+	public synchronized String registerId(Object object) {
 		if (object == null) Utils.error(new NullPointerException());
 		String id = objectIds.get(object);
 		if (id != null)
@@ -119,29 +135,30 @@ public class Serializer {
 			id = UUID.randomUUID().toString();
 		idObjects.put(id, object);
 		objectIds.put(object, id);
-		Utils.log("Registered for monitoring " + id + " " +
-				object.getClass().getName());
+		//Utils.log("Registered for monitoring " + id + " " +object.getClass().getName());
 		return id;
 	}
 
-	synchronized String registerId(Object object, String specificId) {
+	public synchronized String registerId(Object object, String specificId) {
 		if (object == null) Utils.error(new NullPointerException());
-		if (objectIds.get(object) != null &&
-				idObjects.get(specificId) != object)
-			Utils.error(
-					"Explicitly defined ID already in use by a differet object (" +
-							specificId + ")");
+		if (objectIds.get(object) != null && idObjects.get(specificId) != object)
+			Utils.error("Explicitly defined ID already in use by a differet object: " +specificId);
 		idObjects.put(specificId, object);
 		objectIds.put(object, specificId);
-		Utils.log("Registered for monitoring " + specificId + " " +
-				object.getClass().getName());
+		//Utils.log("Registered for monitoring " + specificId + " " +object.getClass().getName());
 		return specificId;
 	}
 	
+	/**
+	 * Removes the storage file associated with the given object.
+	 * This does not affect whether the object is managed by the serializer and may be saved
+	 * by future {@link #save(Object)} calls.
+	 * @param object The object to remove from storage.
+	 * @throws Exception on removal failure.
+	 */
 	public synchronized void removeFromStorage(Object object) {
 		try {
-			Path path = Paths.get(this.path + objectIds.get(object) + ".json");
-			Files.deleteIfExists(path);
+			storage.deleteFile(objectIds.get(object) + ".json");
 		} catch (Exception e) {
 			Utils.error("Failed to remove object: " + e.toString());
 		}
@@ -220,42 +237,33 @@ public class Serializer {
 			return parents.get(parents.size() - Integer.parseInt(
 					(String) ((JSONObject) jsonValue).get("@par")));
 		}
-		if (jsonValue instanceof JSONObject &&
-				((JSONObject) jsonValue).has("@class")) {
-			Class<?> valueType = Class.forName(
-					(String) ((JSONObject) jsonValue).get("@class"));
+		if (jsonValue instanceof JSONObject && ((JSONObject) jsonValue).has("@class")) {
+			Class<?> valueType = Class.forName((String) ((JSONObject) jsonValue).get("@class"));
 			Constructor<?> constructor = valueType.getDeclaredConstructor();
 			if (constructor == null)
-				throw new RuntimeException(
-						"Cannot deserialize class with no default constructor: " +
-								valueType.toString());
+				throw new RuntimeException("Cannot deserialize class with no default constructor: " + valueType.toString());
 			boolean prevConstructorAccessible = constructor.isAccessible();
 			constructor.setAccessible(true);
 			Object value = constructor.newInstance();
 			constructor.setAccessible(prevConstructorAccessible);
-			if (jsonValue instanceof JSONObject &&
-					((JSONObject) jsonValue).has("@id")) {
+			if (jsonValue instanceof JSONObject && ((JSONObject) jsonValue).has("@id")) {
 				if (!idObjects.containsKey(value)) {
-					registerId(value,
-							(String) ((JSONObject) jsonValue).get("@id"));
+					registerId(value, (String) ((JSONObject) jsonValue).get("@id"));
 					if (levelsOfLoadingDemand > 0)
 						reload(value, levelsOfLoadingDemand - 1);
 				}
 			} else {
-				//donnot add to parents here (this is done in the called function)
-				deserializeInstantiatedObject(jsonValue, value,
-						levelsOfLoadingDemand, parents);
+				//do not add to parents here (this is done in the called function)
+				deserializeInstantiatedObject(jsonValue, value, levelsOfLoadingDemand, parents);
 			}
 			return value;
 		}
 		if (!(defaultClass instanceof Class) &&//making true if defaultClass==null to handle immediate deserialization from hashmaps
 				(defaultClass==null || ((java.lang.reflect.ParameterizedType) defaultClass).getRawType() == HashMap.class)) {
 			HashMap<?, ?> map = defaultClass==null?new HashMap<String, Object>():
-					(HashMap<?, ?>) ((Class<?>) ((java.lang.reflect.ParameterizedType) defaultClass)
-							.getRawType()).newInstance();
+					(HashMap<?, ?>) ((Class<?>) ((java.lang.reflect.ParameterizedType) defaultClass).getRawType()).newInstance();
 			Class<?> defaultMapType =
-					(Class<?>) ((java.lang.reflect.ParameterizedType) defaultClass)
-							.getActualTypeArguments()[1];
+					(Class<?>) ((java.lang.reflect.ParameterizedType) defaultClass).getActualTypeArguments()[1];
 			parents.add(map);
 			Iterator<String> keys = ((JSONObject) jsonValue).keys();
 			while (keys.hasNext()) {
@@ -263,7 +271,8 @@ public class Serializer {
 				((HashMap<String, Object>) map).put(entry,
 						deserializeToNewObject(
 								((JSONObject) jsonValue).get(entry),
-								defaultMapType, levelsOfLoadingDemand,
+								defaultMapType,
+								levelsOfLoadingDemand,
 								parents));
 			}
 			parents.remove(map);
@@ -292,7 +301,8 @@ public class Serializer {
 					field.set(object,
 							deserializeToNewObject(classObject.get(fieldName),
 									field.getGenericType(),
-									levelsOfLoadingDemand, parents));
+									levelsOfLoadingDemand,
+									parents));
 				} catch (Exception e) {
 					e.printStackTrace();
 					Utils.error("Deserialization error for field " +
@@ -324,8 +334,7 @@ public class Serializer {
 					!(wouldHaveSuggestedClass.getTypeName().replace("int", "Integer").replace("java.lang.", "")
 					.equalsIgnoreCase(object.getClass().getTypeName().replace("java.lang.", "")))) {
 				JSONObject classObject = new JSONObject();
-				classObject.put("@class",
-						object.getClass().getTypeName().toString());
+				classObject.put("@class", object.getClass().getTypeName().toString());
 				classObject.put("@value", object.toString());
 				return classObject;
 			}
@@ -400,6 +409,12 @@ public class Serializer {
 			if (enableSaving.getOrDefault(object, true))
 				save(object);
 	}
+	
+
+	public synchronized boolean save(String objectName, Object object) {
+		registerId(object, objectName);
+		return save(object);
+	}
 
 	public synchronized boolean save(Object object) {
 		if (!enableSaving.getOrDefault(object, true))
@@ -408,27 +423,17 @@ public class Serializer {
 		try {
 			long tic = System.nanoTime();
 			registerId(object);
-			String path = this.path + objectIds.get(object) + ".json";
-			Path dirPath = Paths.get(path);
-			if (dirPath.getParent() != null)
-				Files.createDirectories(dirPath.getParent());
-			Files.deleteIfExists(dirPath);
-			Files.createFile(dirPath);
-			FileOutputStream outputStream = new FileOutputStream(path);
-			OutputStreamWriter outputStreamWriter =
-					new OutputStreamWriter(outputStream);
-			JSONObject jsonSerialized =
-					(JSONObject) serialize(object, null, false,
-							new HashSet<Object>(), new ArrayList<Object>());
-			outputStreamWriter.write(jsonSerialized.toString());
-			outputStreamWriter.close();
+			JSONObject jsonSerialized = (JSONObject) serialize(object, null, false, new HashSet<Object>(), new ArrayList<Object>());
+			storage.saveToFile(objectIds.get(object) + ".json", jsonSerialized.toString());
+			
 			Utils.log("Saved " + objectIds.get(object) + " " +
 					object.getClass().getName() + " (" +
 					(System.nanoTime() - tic) / 1000.0 / 1000.0 + " ms)");
 			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return Utils.error("Failed to save: " + e.toString(), false);
+		}
+		catch (Exception e) {
+			//e.printStackTrace();
+			return Utils.error(e, false);
 		}
 	}
 
@@ -456,35 +461,29 @@ public class Serializer {
 			return Utils.error(e, null);
 		}
 	}
+	
+
+	public synchronized boolean reload(String objectId, Object object) {
+		registerId(objectId);
+		return reload(object, 0);
+	}
 
 	public synchronized boolean reload(Object object) {
 		return reload(object, 0);
 	}
 
-	public synchronized boolean reload(Object object,
-			int levelsOfLoadingDemand) {//zero levels to NOT iteratively reload
+	public synchronized boolean reload(Object object, int levelsOfLoadingDemand) {//zero levels to NOT iteratively reload
 		try {
 			long tic = System.nanoTime();
-			BufferedReader br = new BufferedReader(
-					new FileReader(path + objectIds.get(object) + ".json"));
-			StringBuilder builder = new StringBuilder();
-			String line = br.readLine();
-			while (line != null) {
-				builder.append(line);
-				builder.append(System.lineSeparator());
-				line = br.readLine();
-			}
-			String read = builder.toString();
-			JSONObject jsonObject = new JSONObject(read);
-			deserializeInstantiatedObject(jsonObject, object,
-					levelsOfLoadingDemand, new ArrayList<Object>());
-			br.close();
-			Utils.log("Loaded " + objectIds.get(object) + " " +
-					object.getClass().getName() + " (" +
+			JSONObject jsonObject = new JSONObject(storage.loadFromFile(objectIds.get(object) + ".json"));
+			deserializeInstantiatedObject(jsonObject, object, levelsOfLoadingDemand, new ArrayList<Object>());
+			
+			Utils.log("Loaded " + objectIds.get(object) + " " +object.getClass().getName() + " (" +
 					(System.nanoTime() - tic) / 1000.0 / 1000.0 + " ms)");
 			return true;
 		} catch (Exception e) {
-			return Utils.error(e, false);
+			Utils.log(e);
+			return false;
 		}
 	}
 
@@ -519,16 +518,15 @@ public class Serializer {
 	}
 
 	/**
-	 * Empties the folder the serializer is initialized in from any previously saved data.
+	 * Empties the folder the serializer is initialized in from any previously saved data
+	 * using the method {@link Storage#deleteAll()} of the serializer's storage manager.
 	 */
 	public void removePreviousSaved() {
-		File path = new File(this.path);
-		if (path.exists())
-			for (File file : path.listFiles())
-				file.delete();
-	}
-
-	Object getObject(String specificId) {
-		return idObjects.get(specificId);
+		try {
+			storage.deleteAll();
+		}
+		catch (Exception e) {
+			Utils.error(e);
+		}
 	}
 }
