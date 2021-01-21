@@ -1,14 +1,7 @@
 package eu.h2020.helios_social.core.contextualegonetwork.examples;
 
-import eu.h2020.helios_social.core.contextualegonetwork.Context;
-import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
-import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetworkListener;
-import eu.h2020.helios_social.core.contextualegonetwork.Node;
 import eu.h2020.helios_social.core.contextualegonetwork.Serializer;
 import eu.h2020.helios_social.core.contextualegonetwork.Storage;
-import eu.h2020.helios_social.core.contextualegonetwork.listeners.CreationListener;
-import eu.h2020.helios_social.core.contextualegonetwork.listeners.LoggingListener;
-import eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener;
 import eu.h2020.helios_social.core.contextualegonetwork.storage.NativeStorage;
 
 public class ExampleProfile {

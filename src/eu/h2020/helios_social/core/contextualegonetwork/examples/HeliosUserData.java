@@ -3,7 +3,7 @@ package eu.h2020.helios_social.core.contextualegonetwork.examples;
 import java.util.HashMap;
 
 public class HeliosUserData {
-    private static final String TAG = "HeliosUserData";
+    public static final String TAG = "HeliosUserData";
     private static final HeliosUserData ourInstance = new HeliosUserData();
     private HashMap<String, String> config = new HashMap<String, String>();
 

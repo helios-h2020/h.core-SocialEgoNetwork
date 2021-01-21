@@ -1,10 +1,8 @@
 package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.stream.Stream;
-
-import eu.h2020.helios_social.core.contextualegonetwork.Edge;
-import eu.h2020.helios_social.core.contextualegonetwork.Node;
 
 /**
  * This class implements a context of the Contextual Ego Network. The context stores all the information related
@@ -28,7 +26,7 @@ public final class Context extends CrossModuleComponent
      * Graph nodes (i.e. alters) and edges
      */
     private ArrayList<Node> nodes;
-    private ArrayList<Edge> edges;
+    private HashMap<String, Edge> edges;
 
     /**
      * Constructor method.
@@ -43,7 +41,7 @@ public final class Context extends CrossModuleComponent
         if(data == null || data==null) Utils.error(new NullPointerException());
         this.data = data;
         nodes = new ArrayList<Node>();
-        edges = new ArrayList<Edge>();
+        edges = new HashMap<String, Edge>();
         nodes.add(contextualEgoNetwork.getEgo());
         contextualEgoNetwork.getSerializer().registerId(this);
     }
@@ -148,12 +146,12 @@ public final class Context extends CrossModuleComponent
     }
     
     /**
-     * Retrieves a shallow copy of the context's edge list.
+     * Retrieves a shallow immutable copy of the context's edge list.
      * @return An edge list.
      */
     public ArrayList<Edge> getEdges() {
     	assertLoaded();
-    	return new ArrayList<Edge>(edges);
+    	return new ArrayList<Edge>(edges.values());
     }
 
     /**
@@ -170,11 +168,10 @@ public final class Context extends CrossModuleComponent
         if(src == null || dst == null) return Utils.error(new NullPointerException(), null);
         if(src==dst) return Utils.error(new IllegalArgumentException("Src and dest cannot be the same node"), null);
         if(!nodes.contains(src) || !nodes.contains(dst)) return Utils.error(new IllegalArgumentException("Either source or destination nodes are not in context"), null);
-        for(Edge edge : edges)
-        	if(edge.getSrc()==src && edge.getDst()==dst)
-        		return Utils.error(new IllegalArgumentException("Edge already exists in context (maybe you meant to add a new interaction on that edge instead)"), edge);
+        if(getEdge(src, dst)!=null)
+        	return Utils.error(new IllegalArgumentException("Edge already exists in context (maybe you meant to add a new interaction on that edge instead)"), getEdge(src, dst));
         Edge edge = new Edge(getContextualEgoNetwork(), src, dst, this);
-        edges.add(edge);
+        edges.put(edge.getSrc().getId()+"@"+edge.getDst().getId(), edge);
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onCreateEdge(edge);
         return edge;
@@ -193,10 +190,7 @@ public final class Context extends CrossModuleComponent
     	assertLoaded();
         if(src == null || dst == null) return Utils.error(new NullPointerException(), null);
         if(src==dst) return Utils.error(new IllegalArgumentException("Src and dest cannot be the same node"), null);
-    	for(Edge edge : edges)
-        	if(edge.getSrc()==src && edge.getDst()==dst)
-        		return edge;
-    	return null;
+        return edges.get(src.getId()+"@"+dst.getId());
     }
     
     /**
@@ -232,7 +226,7 @@ public final class Context extends CrossModuleComponent
     		return null;
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onRemoveEdge(edge);
-    	edges.remove(edge);
+    	edges.remove(edge.getSrc().getId()+"@"+edge.getDst().getId());
     	return edge;
     }
 
@@ -296,8 +290,9 @@ public final class Context extends CrossModuleComponent
         	return;
         for(ContextualEgoNetworkListener listener : getContextualEgoNetwork().getListeners())
         	listener.onRemoveNode(this, node);
-        edges.removeIf(edge -> edge.getSrc()==node);
-        edges.removeIf(edge -> edge.getDst()==node);
+        for(Edge edge : getEdges())
+        	if(edge.getSrc()==node || edge.getDst()==node)
+        		edges.remove(edge.getSrc().getId()+"@"+edge.getDst().getId());
         nodes.remove(node);
     }
 
@@ -312,7 +307,7 @@ public final class Context extends CrossModuleComponent
     	assertLoaded();
         if(node == null) throw new NullPointerException();
         if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
-        return edges.stream().filter(edge -> edge.getDst()==node);
+        return getEdges().stream().filter(edge -> edge.getDst()==node);
     }
     
     /**
@@ -326,6 +321,6 @@ public final class Context extends CrossModuleComponent
     	assertLoaded();
         if(node == null) throw new NullPointerException();
         if(!nodes.contains(node)) Utils.error(new IllegalArgumentException());
-        return edges.stream().filter(edge -> edge.getSrc()==node);
+        return getEdges().stream().filter(edge -> edge.getSrc()==node);
     }
 }

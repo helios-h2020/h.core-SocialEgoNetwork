@@ -2,8 +2,6 @@ package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.util.ArrayList;
 
-import eu.h2020.helios_social.core.contextualegonetwork.Node;
-
 /**
  * This class implements an edge of the Social Graph. An edge, in a context, can link the ego of the Contextual Ego Network to one of the alters.
  * Each edge comprises multiple interactions.

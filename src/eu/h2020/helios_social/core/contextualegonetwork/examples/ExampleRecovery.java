@@ -20,8 +20,8 @@ public class ExampleRecovery {
 		Node user3 = egoNetwork.getOrCreateNode("user-00003", null);
 		Context context = egoNetwork.getOrCreateContext("Test Context");
 		context.getOrAddEdge(user1, user2);
-		context.getOrAddEdge(user1, user3);
-		context.getOrAddEdge(user2, user3).addDetectedInteraction("HANDSHAKE");
+		context.getOrAddEdge(user1, user3).addDetectedInteraction("HANDSHAKE");
+		context.getOrAddEdge(user2, user3).addDetectedInteraction("WAVE HELLO");
 		
 		return egoNetwork;
 	}
@@ -42,6 +42,5 @@ public class ExampleRecovery {
 
 		egoNetwork.addListener(new RecoveryListener());//this will also load unsaved log file
 		System.out.println(egoNetwork.getOrCreateContext("Test Context").getEdges().size());//RecoveryListener rediscovers unsaved data
-		
 	}
 }

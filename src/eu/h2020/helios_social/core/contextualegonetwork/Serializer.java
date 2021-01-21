@@ -57,9 +57,9 @@ public class Serializer {
 	}
 
 	/**
-	 * This function removes all serializers from memory. This effectively unloads every contextual ego network wiythout saving.
+	 * This function removes all serializers from memory. This effectively unloads every contextual ego network without saving.
 	 *
-	 * @deprecated Only use for testing.
+	 * <b>Only use for testing.</b>
 	 */
 	public synchronized static void clearSerializers() {
 		serializers.clear();
@@ -204,8 +204,9 @@ public class Serializer {
 		if (jsonValue instanceof JSONArray) {
 			if (defaultClass instanceof Class) {
 				JSONArray array = (JSONArray) jsonValue;
-				Class<?> componentType =
-						((Class<?>) defaultClass).getComponentType();
+				Class<?> componentType = ((Class<?>) defaultClass).getComponentType();
+				if(componentType==null)
+					componentType = String.class;
 				Object list = Array.newInstance(componentType, array.length());
 				parents.add(list);
 				for (int i = 0; i < array.length(); i++)

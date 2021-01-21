@@ -7,6 +7,7 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
 import eu.h2020.helios_social.core.contextualegonetwork.Storage;
 import eu.h2020.helios_social.core.contextualegonetwork.Utils;
 import eu.h2020.helios_social.core.contextualegonetwork.storage.NativeStorage;
+
 public class ExampleSave {
 	public static class ExampleData {
 		public int testInt = 63;
@@ -27,7 +28,10 @@ public class ExampleSave {
 		//Use this example to demonstrate a simple management use case.
 		Utils.development = false;
 		
-		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad("", "user-00001", new PersonData("RandomName1", "", "RandomSurname1", "1/1/00"));
+		ContextualEgoNetwork egoNetwork = ContextualEgoNetwork.createOrLoad(
+				Storage.getInstance("CEN\\", NativeStorage.class), 
+				"user-00001", 
+				new PersonData("RandomName1", "", "RandomSurname1", "1/1/00"));
 		
 		Node user1 = egoNetwork.getEgo();
 		user1.getOrCreateInstance(ExampleData.class);

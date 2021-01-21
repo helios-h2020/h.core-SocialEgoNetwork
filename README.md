@@ -4,8 +4,8 @@
 The Contextual Ego Network (CEN) Library is responsible for the management of information stored in the local devices. The library manages the following type of information:
 - The user's contexts.
 - Alters in each context.
-- The user's ego network and the interactions occuring in each context.
-- Data structures that other modules (e.g. the graph mining module of D4.3 and the social media mining module of D4.8)
+- The user's ego network and the interactions occurring in each context.
+- Data structures that other modules (e.g. the graph mining module of D4.3 and the social media mining module of D4.8) need to attach to the CEN
 
 This information supports dynamic loading and unloading from memory while preserving pointers to data objects. Serialization is handled automatically. *All serialized classes require a (protected) default constructor.*
 
@@ -65,15 +65,17 @@ Then, add the dependency
 ### Creating or Loading the CEN for a Storage System
 To create or load the contextual ego network, this module utilizes an abstraction of the
 storage system's implementation through the abstract class `Storage`. If the aim is to
-store saved files of the CEN module in, we recommend instantiating a `LegacyStorage`,
-which is backwards compatible with versions of android through following code, through
-the `Storage.getInstance` method. This method takes two arguments: the file path at 
-which to instantiate the storage and the storage class to instantiate. It must be noted
+store saved files of the CEN module in Android, we recommend instantiating a `LegacyStorage`,
+which is backwards compatible with earlier versions.
+
+Storage instantiation is done through the `Storage.getInstance` method.
+This takes two arguments: the file path at  which to instantiate the storage
+and the storage class to instantiate. It must be noted
 that the storage path may be completely cleared through some CEN operation and hence
-no other data should reside inside. Hence, it is preferable to obtain the
+no other data should reside inside. Hence, it is preferable to obtain an
 app-specific Android storage path through `getFilesDir().getPath()`. 
 
-The code below demonstrates how a storage abstraction could be instantiated.
+The code below demonstrates how a storage can be created.
 
 
 ```java
@@ -84,9 +86,9 @@ String storagePath = getFilesDir().getPath(); // best practice for obtaining the
 Storage storage = Storage.getInstance(storagePath, LegacyStorage.class);
 ```
 
-Given a file system storage abstraction, like the one above an instance of the 
+Given a file system storage abstraction, like the one above, an instance of the 
 contextual ego network can be loaded or created if it doesn't already exist through 
-the method `ContextualEgoNetwor.getOrLoad`. The arguments to be passed to this method is
+the method `ContextualEgoNetwor.getOrLoad`. The arguments to be passed to this method are
 the abstracted storage system instance, as well as the node data required to create the
 ego node if there is nothing to load - namely a String identifier of the ego node and a default
 object to attach on the ego node.
@@ -96,7 +98,6 @@ node with local (i.e. CEN-specific) identifier `ego_user_id`. We remind that the
 corresponds to the user of the device. 
 
 ```java
-ContextualEgoNetwork cen = ContextualEgoNetwork.createOrLoad(storage, "ego_user_id", null);
 import eu.h2020.helios_social.core.contextualegonetwork.Storage;
 
 Storage storage = ...;
@@ -148,7 +149,7 @@ Node node = ...;
 ModuleNodeParameters nodeParameters = node.getOrCreateInstance(ModuleNodeParameters.class); //calls the default constructor
 ```
 
-For more usage examples refer to the ExampleSave.java and ExampleLoad.java files of the eu.h2020.helios_social.core.contextualegonetwork package.
+For more usage examples refer to the ExampleSave.java and ExampleLoad.java files of the `eu.h2020.helios_social.core.contextualegonetwork.examples` package.
 
 ## Project Structure
 This project contains the following components:
