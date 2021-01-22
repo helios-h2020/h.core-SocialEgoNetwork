@@ -246,7 +246,7 @@ public final class Context extends CrossModuleComponent
     }
 
     /**
-     * Adds a node to the context if it’s not already part of it. Does nothing if the node already exists in the context.
+     * Adds a node to the context if it's not already part of it. Does nothing if the node already exists in the context.
      * Node can be created through the {@link ContextualEgoNetwork#getOrCreateNode} function.
      * @param node The node to be added
      * @throws NullPointerException if newNode is null
