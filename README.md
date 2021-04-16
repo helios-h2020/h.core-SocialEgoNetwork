@@ -34,7 +34,7 @@ Add the dependency:
 
 ```
 dependencies {
-        implementation 'com.github.helios-h2020:h.core-SocialEgoNetwork:1.0.3'
+        implementation 'com.github.helios-h2020:h.core-SocialEgoNetwork:1.0.20'
 }
 ```
 
@@ -56,7 +56,7 @@ Then, add the dependency
 <dependency>
     <groupId>com.github.helios-h2020</groupId>
     <artifactId>h.core-SocialEgoNetwork</artifactId>
-    <version>1.1.0</version>
+    <version>1.0.20</version>
 </dependency>
 ```
 

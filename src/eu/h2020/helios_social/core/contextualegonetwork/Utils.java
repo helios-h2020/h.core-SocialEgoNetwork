@@ -3,7 +3,9 @@ package eu.h2020.helios_social.core.contextualegonetwork;
 import java.util.logging.Logger;
 
 /**
- * This class implements static error parsing and logging methods, with the ability to suppress errors that can be silently handled during deployment.
+ * This class implements static error parsing and logging methods, with the ability to suppress errors 
+ * that can be silently handled during deployment. This means that logical errors are not necessarily
+ * caught as exceptions and are instead logged as warnings.
  * 
  * @author Emmanouil Krasanakis (maniospas@iti.gr)
  * @author Barbara Guidi (guidi@di.unipi.it)
@@ -11,7 +13,7 @@ import java.util.logging.Logger;
  */
 public class Utils {
 	public static boolean development = false;
-	private static Logger logger = Logger.getGlobal();
+	private static Logger logger = Logger.getLogger("CEN");
 	
 	/**
 	 * If development is enabled, throws the given Throwable, otherwise logs its message.
