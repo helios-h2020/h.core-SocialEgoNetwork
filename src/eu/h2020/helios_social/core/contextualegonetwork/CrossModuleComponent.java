@@ -1,6 +1,8 @@
 package eu.h2020.helios_social.core.contextualegonetwork;
 
 import java.util.HashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * This is a base class used by HELIOS components, such as {@link Node} and {@link Edge} that
@@ -110,6 +112,37 @@ public abstract class CrossModuleComponent {
     	}
     	return (ModuleObjectDataType) found;
     }
+    
+    
+    /**
+     * A variation of {@link #getOrCreateInstance(String, Class)} that takes a supplier returning objects of the inferred class instead
+     * of automatically determining the constructor. Similarly to the original functionality, if the object is already there it. The
+     * supplier pattern is used to avoid passing instantiated objects that are never stored.
+     * 
+     * <br> Make sure that the supplier returns a <b>different</b> instance each time.
+     * 
+     * @param <ModuleObjectDataType> The implicitly understood type of the returned object (is automatically resolved to the same as the type of the given class)
+     * @param moduleName A custom name to reference the class instance by future calls of this method.
+     * @param moduleClassSupplier The method returning the instance.
+     * @return An instance of the given class.
+     */
+    @SuppressWarnings("unchecked")
+	public <ModuleObjectDataType> ModuleObjectDataType getOrCreateInstance(String moduleName, Supplier<ModuleObjectDataType> moduleClassSupplier) {
+    	if(moduleData==null)
+    		moduleData = new HashMap<String, Object>();
+    	Object found = moduleData.get(moduleName);
+    	if(found==null) {
+    		try {
+    			found = moduleClassSupplier.get();
+    			moduleData.put(moduleName, found);
+    		}
+    		catch(Exception e) {
+    			Utils.error("Failed to get supplier instance for "+moduleName);
+    		}
+    	}
+    	return (ModuleObjectDataType) found;
+    }
+    
     
     /*
     public Object getModuleData() {

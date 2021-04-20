@@ -92,11 +92,10 @@ public class Serializer {
 	public Storage getStorage() {
 		return storage;
 	}
-	
 
 
 	/**
-	 * Retrieves an object registed to the given unique identifier.
+	 * Retrieves an object registered to the given unique identifier.
 	 * @param specificId The id to search for
 	 * @return The registered object, <code>null</code> if no such object registered.
 	 * @see #registerId(Object)
@@ -112,10 +111,10 @@ public class Serializer {
 	 * Retrieves the unique identifier of an object registered in the serializer.
 	 * This method throws an exception if no such object id is found.
 	 * @param object A queried object to retrieve its id
-	 * @see #registerId(Object)
-	 * @see #getObject(String)
 	 * @return A String identifier of the registered object
 	 * @throws RuntimeException if the object has not been registered
+	 * @see #registerId(Object)
+	 * @see #getObject(String)
 	 */
 	public synchronized String getRegisteredId(Object object) {
 		if (object == null) Utils.error(new NullPointerException());
@@ -124,7 +123,14 @@ public class Serializer {
 			return id;
 		return Utils.error(object.toString() + " has no id", null);
 	}
-
+	
+	/**
+	 * Registers an automatically generated unique id (UUID) to the given object. If the object
+	 * already has an id, the previously generated id is returned.
+	 * @param object The given object.
+	 * @return The generated or existing id.
+	 * @see #registerId(Object, String)
+	 */
 	public synchronized String registerId(Object object) {
 		if (object == null) Utils.error(new NullPointerException());
 		String id = objectIds.get(object);
@@ -138,7 +144,15 @@ public class Serializer {
 		//Utils.log("Registered for monitoring " + id + " " +object.getClass().getName());
 		return id;
 	}
-
+	
+	/**
+	 * Registers a manually generated id to the given object.
+	 * Use {@link #getObjectOrNull(String)}!=null to check whether an id is available.
+	 * @param object The given object
+	 * @param specificId
+	 * @throws Exception If the id is already in use.
+	 * @see #registerId(Object)
+	 */
 	public synchronized String registerId(Object object, String specificId) {
 		if (object == null) Utils.error(new NullPointerException());
 		if (objectIds.get(object) != null && idObjects.get(specificId) != object)
@@ -354,18 +368,15 @@ public class Serializer {
 			JSONArray list = new JSONArray();
 			parents.add(object);
 			for (int i = 0; i < Array.getLength(object); i++)
-				list.put(serialize(Array.get(object, i),
-						object.getClass().getComponentType(), true,
-						objectsWithKnownClasses, parents));
+				list.put(serialize(Array.get(object, i), object.getClass().getComponentType(), true, objectsWithKnownClasses, parents));
 			parents.remove(object);
 			return list;
-		} else if (object instanceof Map) {
+		}
+		else if (object instanceof Map) {
 			parents.add(object);
 			JSONObject map = new JSONObject();
 			for (String key : ((Map<String, ?>) object).keySet())
-				map.put(key.toString(),
-						serialize(((Map<String, ?>) object).get(key), null,
-								true, objectsWithKnownClasses, parents));
+				map.put(key.toString(), serialize(((Map<String, ?>) object).get(key), null, true, objectsWithKnownClasses, parents));
 			parents.remove(object);
 			return map;
 		}
@@ -375,19 +386,17 @@ public class Serializer {
 		if (id != null) {
 			classObject.put("@id", id);
 			if (!objectsWithKnownClasses.contains(id)) {
-				classObject.put("@class",
-						object.getClass().getTypeName().toString());
+				classObject.put("@class", object.getClass().getTypeName().toString());
 				objectsWithKnownClasses.add(id);
 			}
 		}
 		if (id == null && parents.contains(object)) {
-			classObject.put("@par",
-					"" + (parents.size() - parents.indexOf(object)));
-		} else if (id == null || !convertToIdIfPossible) {
+			classObject.put("@par", "" + (parents.size() - parents.indexOf(object)));
+		}
+		else if (id == null || !convertToIdIfPossible) {
 			parents.add(object);
 			if (id == null && !objectsWithKnownClasses.contains(object))
-				classObject.put("@class",
-						object.getClass().getTypeName().toString());
+				classObject.put("@class", object.getClass().getTypeName().toString());
 			for (Field field : getAllFields(object.getClass())) {
 				Serialization serializeable =
 						field.getAnnotation(Serialization.class);
@@ -419,8 +428,7 @@ public class Serializer {
 
 	public synchronized boolean save(Object object) {
 		if (!enableSaving.getOrDefault(object, true))
-			return Utils.error("Not allowed to save: " + objectIds.get(object) +
-					" " + object.getClass().getName(), false);
+			return Utils.error("Not allowed to save: " + objectIds.get(object) +" " + object.getClass().getName(), false);
 		try {
 			long tic = System.nanoTime();
 			registerId(object);

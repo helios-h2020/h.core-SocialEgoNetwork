@@ -24,6 +24,12 @@ public class ExampleSave {
 		}
 	}
 	
+	public static ExampleData generateData() {
+		ExampleData data = new ExampleData();
+		data.init();
+		return data;
+	}
+	
 	public static void main(String[] args) {
 		//Use this example to demonstrate a simple management use case.
 		Utils.development = false;
@@ -41,6 +47,8 @@ public class ExampleSave {
 		Node user3 = egoNetwork.getOrCreateNode("user-00003", new PersonData("RandomName3", "", "RandomSurname3", "3/3/00"));
 		//all object data are recursively serialized, so pass an id if you don't want to serialize them
 		Node user4 = egoNetwork.getOrCreateNode("user-00004", "RandomName4 (just a string)");
+		
+		user1.getOrCreateInstance("custom data", ExampleSave::generateData).testInt = 1024;
 		
 		
 		//example context management

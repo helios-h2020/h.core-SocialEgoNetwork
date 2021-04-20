@@ -1,4 +1,6 @@
 package eu.h2020.helios_social.core.contextualegonetwork.examples;
+import java.util.Arrays;
+
 import eu.h2020.helios_social.core.contextualegonetwork.Context;
 import eu.h2020.helios_social.core.contextualegonetwork.ContextualEgoNetwork;
 import eu.h2020.helios_social.core.contextualegonetwork.Edge;
@@ -29,8 +31,9 @@ public class ExampleLoad {
 		//System.out.println(((DefaultContextData)egoNetwork.getContexts().get(0).getData()).getName());
 		//assert that deserialization works for arrays (it would throw a nullptr exception if it didn't work)
 		//System.out.println(egoNetwork.getContexts().get(1).getTimeCounter()[6][23]);
-		//assert that crated class instances work correctly
+		//assert that created class instances work correctly
 		System.out.println(egoNetwork.getEgo().getOrCreateInstance(ExampleSave.class).toString());
+		System.out.println(egoNetwork.getEgo().getOrCreateInstance("custom data", ExampleSave::generateData).testInt);
 		
 		//print the edges of all contexts
 		for(Context context : egoNetwork.getContexts()) {
