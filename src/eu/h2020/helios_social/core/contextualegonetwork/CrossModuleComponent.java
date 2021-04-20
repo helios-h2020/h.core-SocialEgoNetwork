@@ -57,29 +57,42 @@ public abstract class CrossModuleComponent {
     }
     
     /**
-     * Retrieves an instance of the given class that is stored in the component. If no such instance exists,
-     * a new one is created first using either a constructor with this object as an argument or 
-     * a default constructor (i.e. a constructor with no argument).
-     * Both classes to be created and constructors need be of public visibility. The default constructor assumes lower priority.<br>
-     * <b>Refrain</b> from directly referencing other {@link CrossModuleComponent} objects (the one creating the instance is fine),
-     * as these can be removed from the network and keeping references to them can induce unexpected behavior.
-     * <br>
-     * Created instances are saved and loaded alongside nodes if these are part of a contextual ego network structure.
-     * (Note, if they reference objects that aren't registered in the {@link Serializer}, these are loaded as separate instances.)
-     * <br>
-     * If modifications of created instances occur, these <i>don't</i> trigger any listener callbacks of the contextual ego network.
-     * For example, this means that changes to the created instances are not saved by
-     * {@link eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener}.
-     * @param ModuleObjectDataType The implicitly understood type of the returned object (is automatically resolved to the same as the type of the given class)
+     * A wrapper for {@link #getOrCreateInstance(String, Class)} that automatically infers the module name as the given class's name.
+     * @param <ModuleObjectDataType> The implicitly understood type of the returned object (is automatically resolved to the same as the type of the given class)
      * @param moduleClass The given class (e.g. that stores the node's data needed by a HELIOS module).
      * @return An instance of the given class.
      */
-    @SuppressWarnings("unchecked")
 	public <ModuleObjectDataType> ModuleObjectDataType getOrCreateInstance(Class<ModuleObjectDataType> moduleClass) {
+    	String dataTypeName = moduleClass.getCanonicalName();
+    	return getOrCreateInstance(dataTypeName, moduleClass);
+    }
+    /**
+     * Retrieves an instance of the given class that is stored in the component. If no such instance exists,
+     * a new one is created first using either a constructor with this object as an argument or 
+     * a default constructor (i.e. a constructor with no argument).
+     * Both classes to be created and constructors need be of public visibility. The default constructor assumes lower priority.
+     * <h2>Remarks</h2>
+     * - Refrain from directly referencing other {@link CrossModuleComponent} objects (the one creating the instance is fine),
+     * as these could be removed from the contextual ego network and keeping references to them can induce unexpected behavior.
+     * <br>
+     * - Created instances are saved and loaded alongside nodes if these are part of a contextual ego network structure.
+     * Notably, if more than one created instances -for example of the same class with different module names- 
+     * comprise references to the same object but the latter not registered in the {@link Serializer}, 
+     * two separate instances of that object would be created upon loading the contextual ego network.
+     * <br>
+     * - If modifications of created instances occur, these <i>do not</i> trigger any listener callbacks of the contextual ego network.
+     * For example, this means that changes to the created instances are not saved by
+     * {@link eu.h2020.helios_social.core.contextualegonetwork.listeners.RecoveryListener}.
+     * @param <ModuleObjectDataType> The implicitly understood type of the returned object (is automatically resolved to the same as the type of the given class)
+     * @param moduleName A custom name to reference the class instance by future calls of this method.
+     * @param moduleClass The given class (e.g. that stores the node's data needed by a HELIOS module).
+     * @return An instance of the given class unique to the given module name.
+     */
+    @SuppressWarnings("unchecked")
+	public <ModuleObjectDataType> ModuleObjectDataType getOrCreateInstance(String moduleName, Class<ModuleObjectDataType> moduleClass) {
     	if(moduleData==null)
     		moduleData = new HashMap<String, Object>();
-    	String dataTypeName = moduleClass.getCanonicalName();
-    	Object found = moduleData.get(dataTypeName);
+    	Object found = moduleData.get(moduleName);
     	if(found==null) {
     		try {
     			try {
@@ -89,10 +102,10 @@ public abstract class CrossModuleComponent {
     			catch(NoSuchMethodException e) {
     				found = moduleClass.getConstructor().newInstance();
     			}
-    			moduleData.put(dataTypeName, found);
+    			moduleData.put(moduleName, found);
     		}
     		catch(Exception e) {
-    			Utils.error("Failed to initialize default or (CrossModuleComponent) instance of "+dataTypeName);
+    			Utils.error("Failed to initialize default or (CrossModuleComponent) instance for module "+moduleName);
     		}
     	}
     	return (ModuleObjectDataType) found;
