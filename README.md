@@ -62,6 +62,8 @@ Then, add the dependency
 
 ## API Usage
 
+The main concepts of this API are also presented in the HELIOS platform's [tutorial page](https://helios-social.com/helios-for-devs/tutorials/) (look for "Core Component - Social Ego Network Manager")
+
 ### Creating or Loading the CEN for a Storage System
 To create or load the contextual ego network, this module utilizes an abstraction of the
 storage system's implementation through the abstract class `Storage`. If the aim is to

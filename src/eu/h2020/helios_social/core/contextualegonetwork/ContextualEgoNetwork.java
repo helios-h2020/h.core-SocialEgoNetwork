@@ -223,7 +223,11 @@ public class ContextualEgoNetwork {
     /**
      * Removes a given context from the ContextualEgoNetwork's contexts. Note that removing 
 	 * a context does <i>not</i> remove any nodes from the network, even if those are not currently
-	 * referenced by other contexts (because future contexts may use those nodes).
+	 * referenced by other contexts (because future contexts may use those nodes). However,
+	 * it <i>removes the context's saved file from storage</i>. If the removed context is current context,
+	 * the latter is also set to null. To avoid catastrophic missing references due to neglected saving, the network is 
+     * <b>forcefully saved</b> after removing the node by calling its {@link #save()} method.
+     * 
      * @param context The context to remove.
      */
     public void removeContext(Context context) {
@@ -231,13 +235,17 @@ public class ContextualEgoNetwork {
     	if(!contexts.contains(context)) Utils.error("Context not found");
 		for(ContextualEgoNetworkListener listener : listeners)
 			listener.onRemoveContext(context);
+		if(context==currentContext) 
+			currentContext = null;
     	contexts.remove(context);
     	context.removeFromStorage();
+    	serializer.unregister(context);
+    	save();
     }
     
     /**
      * Method to grant safe access to all contexts of the contextual ego network.
-     * @return An ArrayList of contexts
+     * @return An ArrayList of contexts.
      */
     public ArrayList<Context> getContexts(){
     	return new ArrayList<Context>(contexts);
@@ -249,6 +257,7 @@ public class ContextualEgoNetwork {
      */
     public void setCurrent(Context context) {
         if(context==null) Utils.error(new NullPointerException());
+        if(!contexts.contains(context)) {Utils.error("Context does not reside in the ego network (has been probably removed)"); return;}
     	this.currentContext = context;
     }
     

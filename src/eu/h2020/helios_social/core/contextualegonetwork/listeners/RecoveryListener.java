@@ -57,7 +57,7 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	    	ArrayList<String> activeLines = new ArrayList<String>();
 	    	Context context = contextualEgoNetwork.getContextBySerializationId(contextId);
 	    	for(String line : contextLines.get(contextId)) {
-	    		if(line.startsWith("context.save"))
+	    		if(line.startsWith("context.save") || line.startsWith("context.removeContext"))
 	    			activeLines = new ArrayList<String>();
 	    		activeLines.add(line);
 	    	}
@@ -134,6 +134,9 @@ public final class RecoveryListener implements ContextualEgoNetworkListener {
 	}
 	public void onAddNode(Context context, Node node) {
 		write("context.addNode"+SEPARATOR+context.getSerializationId()+SEPARATOR+node.getId());
+	}
+	public void onRemoveContext(Context context) {
+		write("context.removeContext"+SEPARATOR+context.getSerializationId());
 	}
 	public void onRemoveNode(Context context, Node node) {
 		write("context.removeNode"+SEPARATOR+context.getSerializationId()+SEPARATOR+node.getId());
