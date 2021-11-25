@@ -13,7 +13,7 @@ This information supports dynamic loading and unloading from memory while preser
 [![](https://jitpack.io/v/helios-h2020/h.core-SocialEgoNetwork.svg)](https://jitpack.io/#helios-h2020/h.core-SocialEgoNetwork)
 
 ### Jar File Installation
-This library can be downloaded as a [jar file](https://github.com/helios-h2020/h.core-SocialEgoNetwork/blob/master/jar/h.core-SocialEgoNetwork%201.0.3.jar), which can be added to a
+This library can be downloaded as a [jar file](https://github.com/helios-h2020/h.core-SocialEgoNetwork/blob/master/jar/h.core-SocialEgoNetwork%201.1.1.jar), which can be added to a
 Java project's dependencies.
 
 ### Gradle Installation
@@ -34,7 +34,7 @@ Add the dependency:
 
 ```
 dependencies {
-        implementation 'com.github.helios-h2020:h.core-SocialEgoNetwork:1.0.20'
+        implementation 'com.github.helios-h2020:h.core-SocialEgoNetwork:1.1.1'
 }
 ```
 
@@ -56,7 +56,7 @@ Then, add the dependency
 <dependency>
     <groupId>com.github.helios-h2020</groupId>
     <artifactId>h.core-SocialEgoNetwork</artifactId>
-    <version>1.0.20</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 

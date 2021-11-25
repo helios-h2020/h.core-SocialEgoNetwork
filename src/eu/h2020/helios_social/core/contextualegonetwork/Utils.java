@@ -10,6 +10,8 @@ import java.util.logging.Logger;
  * @author Emmanouil Krasanakis (maniospas@iti.gr)
  * @author Barbara Guidi (guidi@di.unipi.it)
  * @author Andrea Michienzi (andrea.michienzi@di.unipi.it)
+ * @author Laura Ricci (laura.ricci@unipi.it)
+ * @author Fabrizio Baiardi (f.baiardi@unipi.it)
  */
 public class Utils {
 	public static boolean development = false;

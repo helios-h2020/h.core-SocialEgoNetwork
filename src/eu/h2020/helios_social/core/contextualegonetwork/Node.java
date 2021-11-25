@@ -8,6 +8,8 @@ import eu.h2020.helios_social.core.contextualegonetwork.Node;
  * @author Emmanouil Krasanakis (maniospas@iti.gr)
  * @author Barbara Guidi (guidi@di.unipi.it)
  * @author Andrea Michienzi (andrea.michienzi@di.unipi.it)
+ * @author Laura Ricci (laura.ricci@unipi.it)
+ * @author Fabrizio Baiardi (f.baiardi@unipi.it)
  */
 public final class Node extends CrossModuleComponent {
     /**
